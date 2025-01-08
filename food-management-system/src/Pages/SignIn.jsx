@@ -31,8 +31,8 @@ const SignIn = () => {
 
     return (
         <Grid container sx={{ height: "100vh" }}>
-            <Grid size={{ xs: 6, md: 6 }} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-                <Box sx={{ width: { xs: '80%', lg: '60%' } }}>
+            <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+                <Box sx={{ width: { xs: '90%',  sm: '70%', md: '80%', lg: '60%' } }}>
                     <Typography sx={{ fontWeight: 500, fontSize: 32, mb: 6, mt: -4, }}>
                         Welcome Back !!
                     </Typography>
@@ -136,7 +136,7 @@ const SignIn = () => {
                     </Box>
                 </Box>
             </Grid>
-            <Grid size={{ xs: 6, md: 6 }} sx={{
+            <Grid size={{ xs: 0, md: 6 }} sx={{
                 backgroundImage: `url(${SignInImage})`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
