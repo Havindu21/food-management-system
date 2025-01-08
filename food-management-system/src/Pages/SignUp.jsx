@@ -8,6 +8,7 @@ const SignUp = () => {
         <div>
             sign up
             <Button
+            variant='contained'
                 onClick={() => navigate("/sign-in")}
             >
                 sign in
