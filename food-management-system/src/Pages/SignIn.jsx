@@ -33,7 +33,7 @@ const SignIn = () => {
         <Grid container sx={{ height: "100vh" }}>
             <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
                 <Box sx={{ width: { xs: '90%',  sm: '70%', md: '80%', lg: '60%' } }}>
-                    <Typography sx={{ fontWeight: 500, fontSize: 32, mb: 6, mt: -4, }}>
+                    <Typography sx={{ fontWeight: 500, fontSize: 32, mb: 6 }}>
                         Welcome Back !!
                     </Typography>
                     <Box>
