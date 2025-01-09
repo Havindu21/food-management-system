@@ -23,7 +23,9 @@ const router = createBrowserRouter([
             },
         ]
     },
-]);
+],{
+     basename: "/food-management-system"
+});
 
 function App() {
     return <RouterProvider router={router}/>;
