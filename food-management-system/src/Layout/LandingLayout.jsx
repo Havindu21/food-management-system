@@ -8,8 +8,47 @@ const LandingLayout = () => {
     return (
         <>
             <Navbar />
-            <Box sx={{ height: 76 }} /> {/*navbar height*/}
+            {/* <Box sx={{ height: 76 }} /> navbar height */}
             <Outlet />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
+            <Footer />
             <Footer />
         </>
     )

@@ -13,6 +13,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Logo from '../assets/logo.jpeg'
 
 const pages = ['Home', 'Insights', 'Projects', 'Donate Now'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -42,9 +43,12 @@ const Navbar = () => {
 
     return (
         <AppBar position="fixed" sx={{
-            bgcolor: '#FFFFFF',
+            bgcolor: 'transparent',
+            // bgcolor: '#FFFFFF',
             height: 76, px: 5,
             boxShadow: 'none',
+            background: `linear-gradient(to bottom, rgba(0, 0, 0, 4) 0%, rgba(0, 0, 0, 3) 50%, rgba(0, 0, 0, 1) 100%)`, // Ensures smooth fade to zero at bottom
+            maskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 3) 20%, rgba(0, 0, 0, 0.7) 60%, rgba(0, 0, 0, 0.1) 100%)",
         }}>
             <Container maxWidth="xl">
                 <Toolbar disableGutters sx={{
@@ -52,29 +56,15 @@ const Navbar = () => {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                 }} >
-                    <Box sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                    }}>
-                        <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1, color: 'black' }} />
-                        <Typography
-                            variant="h6"
-                            noWrap
-                            component="a"
-                            href="#app-bar-with-responsive-menu"
-                            sx={{
-                                mr: 2,
-                                display: { xs: 'none', md: 'flex' },
-                                fontFamily: 'monospace',
-                                fontWeight: 700,
-                                letterSpacing: '.3rem',
-                                color: 'black',
-                                textDecoration: 'none',
-                            }}
-                        >
-                            LOGO
-                        </Typography>
-                    </Box>
+                    <Box
+                        component={'img'}
+                        src={Logo}
+                        alt='logo'
+                        sx={{
+                            width: 100,
+                            objectFit: 'cover',
+                        }}
+                    />
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                         <IconButton
                             size="large"
@@ -133,16 +123,19 @@ const Navbar = () => {
                         gap: 4,
                         pl: 40,
                     }}>
-                        {pages.map((page) => (
+                        {pages.map((page, index) => (
                             <Button
-                                key={page}
+                                key={index}
                                 onClick={handleCloseNavMenu}
                                 sx={{
-                                    my: 2, color: '#059669', display: 'block',
+                                    my: 2,
+                                    color: index === 0 ? '#059669' : '#FFFFFF',
+                                    // color: '#059669',
+                                    display: 'block',
                                     fontSize: 16,
-                                    fontWeight: 500,
+                                    fontWeight: index === 0 ? 600 : 500,
                                     ":hover": {
-                                        bgcolor: '#FFFFFF',
+                                        // bgcolor: '#FFFFFF',
                                         // transform: 'scale(1.02)',
                                         fontWeight: 600,
                                     }
@@ -161,8 +154,8 @@ const Navbar = () => {
                             onClick={() => navigate('/sign-in')}
                             sx={{
                                 my: 2,
-                                color: '#059669',
-                                //  color: '#000000',
+                                // color: '#059669',
+                                color: '#FFFFFF',
                                 display: 'block',
                                 // bgcolor: '#059669',
                                 borderRadius: '30px',
@@ -197,17 +190,19 @@ const Navbar = () => {
                     </Box>
                     <Box sx={{ flexGrow: 0, display: isLogged ? 'flex' : 'none' }}>
                         <IconButton onClick={handleOpenUserMenu} sx={{
-                            p: 0, bgcolor: '#059669',
+                            p: 0, bgcolor: '#FFFFFF',
                             width: 45,
                             height: 45,
                             ":hover": {
                                 transform: 'scale(1.02)',
-                                bgcolor: '#059669',
+                                bgcolor: '#FFFFFF',
+                                // bgcolor: '#059669',
                             }
                         }}>
                             <Typography sx={{
                                 fontSize: 18,
                                 fontWeight: 600,
+                                color: '#059669'
                             }}>
                                 HS
                             </Typography>

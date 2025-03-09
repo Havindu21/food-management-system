@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 import React from 'react'
-import Wallpaper from '../../assets/Home/wallpaper.jpg';
+import Wallpaper from '../../assets/Home/wallpaper.jpeg';
 
 const Home = () => {
     return (
@@ -10,9 +10,9 @@ const Home = () => {
             alt='Wallpaper'
             sx={{
                 width: '100%',
-                height: '95vh',
+                // height: '95vh',
                 // objectFit: 'cover',
-                filter: 'brightness(0.5)' 
+                filter: 'brightness(0.7)' 
             }}
         />
     )
