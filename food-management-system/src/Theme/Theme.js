@@ -1,7 +1,10 @@
 import { createTheme } from '@mui/material/styles';
+import '@fontsource-variable/mona-sans';
+import '@fontsource/roboto';
 
 export const theme = createTheme({
   typography: {
-    fontFamily: 'Poppins, sans-serif',
+    // fontFamily: "'Mona Sans Variable', 'Poppins', sans-serif",
+    fontFamily: "'Roboto', 'Mona Sans Variable', 'Poppins', sans-serif",
   },
 });

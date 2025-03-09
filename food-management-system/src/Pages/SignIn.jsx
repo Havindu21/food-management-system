@@ -32,7 +32,7 @@ const SignIn = () => {
     return (
         <Grid container sx={{ height: "100vh" }}>
             <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-                <Box sx={{ width: { xs: '90%',  sm: '70%', md: '80%', lg: '60%' } }}>
+                <Box sx={{ width: { xs: '90%', sm: '70%', md: '80%', lg: '60%' } }}>
                     <Typography sx={{ fontWeight: 500, fontSize: 32, mb: 6 }}>
                         Welcome Back !!
                     </Typography>
@@ -74,7 +74,7 @@ const SignIn = () => {
                     <Button
                         fullWidth
                         variant="contained"
-                        onClick={() => navigate('/sign-up')}
+                        onClick={() => navigate('/home', { state: { isLogged: true } })}
                         sx={{ mt: 5, height: 35, backgroundColor: '#F3CC2F', color: '#000000', fontWeight: 500, fontSize: 14, }}
                     >
                         Sign In

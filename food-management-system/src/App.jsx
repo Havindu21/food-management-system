@@ -1,34 +1,58 @@
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import SignIn from "./Pages/SignIn";
 import SignUp from "./Pages/SignUp";
 import LoginLayout from "./Layout/LoginLayout";
+import LandingLayout from "./Layout/LandingLayout";
+import Home from "./Pages/Home/Home";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <LoginLayout/>,
+        element: <LandingLayout />,
         children: [
             {
                 path: "/",
-                element: <SignIn/>,
+                element: <Home />,
             },
             {
-                path: "/sign-in",
-                element: <SignIn/>,
+                path: "/home",
+                element: <Home />,
             },
             {
-                path: "/sign-up",
-                element: <SignUp/>,
+                path: "/insights",
+                element: <Home />,
+            },
+            {
+                path: "/projects",
+                element: <Home />,
+            },
+            {
+                path: "/donate-now",
+                element: <Home />,
             },
         ]
     },
-],{
-     basename: "/food-management-system"
+    {
+        path: "/",
+        element: <LoginLayout />,
+        children: [
+            {
+                path: "/sign-in",
+                element: <SignIn />,
+            },
+            {
+                path: "/sign-up",
+                element: <SignUp />,
+            },
+        ]
+    },
+], {
+    basename: "/food-management-system"
 });
 
 function App() {
-    return <RouterProvider router={router}/>;
+    return <RouterProvider router={router} />;
 }
 
 export default App
