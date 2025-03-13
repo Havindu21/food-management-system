@@ -44,8 +44,8 @@ const Navbar = () => {
     return (
         <AppBar position="fixed" sx={{
             bgcolor: 'transparent',
-            // bgcolor: '#FFFFFF',
-            height: 76, px: 5,
+            height: 76,
+            px: {xs:1,sm:2,md:3,lg:5},
             boxShadow: 'none',
             background: `linear-gradient(to bottom, rgba(0, 0, 0, 4) 0%, rgba(0, 0, 0, 3) 50%, rgba(0, 0, 0, 1) 100%)`, // Ensures smooth fade to zero at bottom
             maskImage: "linear-gradient(to bottom, rgba(0, 0, 0, 3) 20%, rgba(0, 0, 0, 0.7) 60%, rgba(0, 0, 0, 0.1) 100%)",
@@ -73,6 +73,7 @@ const Navbar = () => {
                             aria-haspopup="true"
                             onClick={handleOpenNavMenu}
                             color="inherit"
+                            sx={{ ml: 'auto' }}
                         >
                             <MenuIcon />
                         </IconButton>
@@ -99,29 +100,9 @@ const Navbar = () => {
                             ))}
                         </Menu>
                     </Box>
-                    <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-                    <Typography
-                        variant="h5"
-                        noWrap
-                        component="a"
-                        href="#app-bar-with-responsive-menu"
-                        sx={{
-                            mr: 2,
-                            display: { xs: 'flex', md: 'none' },
-                            flexGrow: 1,
-                            fontFamily: 'monospace',
-                            fontWeight: 700,
-                            letterSpacing: '.3rem',
-                            // color: '#FFFFFF',
-                            textDecoration: 'none',
-                        }}
-                    >
-                        LOGO
-                    </Typography>
                     <Box sx={{
                         display: { xs: 'none', md: 'flex' },
                         gap: 4,
-                        pl: 40,
                     }}>
                         {pages.map((page, index) => (
                             <Button
