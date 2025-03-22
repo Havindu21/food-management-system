@@ -8,3 +8,5 @@ export const theme = createTheme({
     fontFamily: "'Roboto', 'Mona Sans Variable', 'Poppins', sans-serif",
   },
 });
+
+export const globalPx = { px: { xs: 3, sm: 5, md: 7, lg: 8 } };
