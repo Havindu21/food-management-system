@@ -5,7 +5,6 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -190,7 +189,8 @@ const Navbar = () => {
                 </Box>
                 <Box sx={{ flexGrow: 0, display: isLogged ? 'flex' : 'none' }}>
                     <IconButton onClick={handleOpenUserMenu} sx={{
-                        p: 0, bgcolor: '#FFFFFF',
+                        p: 0,
+                        bgcolor: isScrolled ? '#059669' : '#FFFFFF',
                         width: 45,
                         height: 45,
                         ":hover": {
@@ -201,7 +201,7 @@ const Navbar = () => {
                         <Typography sx={{
                             fontSize: 18,
                             fontWeight: 600,
-                            color: '#059669'
+                            color: isScrolled ? '#FFFFFF' : '#059669'
                         }}>
                             HS
                         </Typography>
@@ -241,7 +241,7 @@ const Navbar = () => {
                     </Menu>
                 </Box>
             </Toolbar>
-        </AppBar>
+        </AppBar >
     );
 }
 export default Navbar;

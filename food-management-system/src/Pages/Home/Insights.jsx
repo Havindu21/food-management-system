@@ -9,16 +9,15 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import HandshakeIcon from '@mui/icons-material/Handshake';
-import InsightTile from './InsightTile'; // Import the new component
+import InsightTile from './InsightTile'; 
 
 const Insights = () => {
     return (
         <Box sx={{
             ...globalPx,
             ...globalMt,
-            mb: 5,
         }}>
-            <Grid2 container spacing={2}>
+            <Grid2 container spacing={{ xs: 2, md: 6 }}>
                 {insights.map((tile, index) => (
                     <Grid2 key={index} item size={{ xs: 6, sm: 4, md: 3 }} container justifyContent={'center'}>
                         <InsightTile

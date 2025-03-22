@@ -11,4 +11,4 @@ export const theme = createTheme({
 
 export const globalPx = { px: { xs: 3, sm: 5, md: 7, lg: 8 } };
 
-export const globalMt = { mt: { xs: 1, sm: 2, md: 3, lg: 4 } }
+export const globalMt = { mt: { xs: 4, sm: 5, md: 6, lg: 7 } }

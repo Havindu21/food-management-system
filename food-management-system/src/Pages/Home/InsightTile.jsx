@@ -34,7 +34,7 @@ const InsightTile = ({ title, image: Icon, count, unit }) => {
                 <Icon fontSize='large' sx={{ color: '#059669' }} />
                 <Typography sx={{
                     fontWeight: { xs: 500, md: 700, },
-                    fontSize: 26,
+                    fontSize: { xs: 22, sm: 26, },
                     letterSpacing: { xs: 1, sm: 1.2, },
                 }}>
                     {inView ? (
