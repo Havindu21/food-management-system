@@ -54,7 +54,7 @@ const Projects = () => {
             </Typography>
             <Slider {...settings}>
                 {projectData.map((project, index) => (
-                    <Box key={index} sx={{ px: 1 }}>
+                    <Box key={index} sx={{ px: 1, pb: 1 }}>
                         <Card sx={{ maxWidth: 345, mx: 2 }}>
                             <CardHeader
                                 avatar={

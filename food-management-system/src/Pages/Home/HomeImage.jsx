@@ -32,7 +32,7 @@ const HomeImage = () => {
                 alt="Wallpaper"
                 sx={{
                     width: "100%",
-                    height: { xs: '70vh', md: "100vh" },
+                    height: { xs: '50vh', sm: '70vh', md: "100vh" },
                     objectFit: "cover",
                     filter: "brightness(0.5)",
                 }}
@@ -61,7 +61,7 @@ const HomeImage = () => {
                     wordWrap: "break-word",
                     overflowWrap: "break-word",
                     whiteSpace: "normal",
-                    mt: { xs: 0, md: 15, },
+                    mt: 15,
                 }}>
                     {text.split("").map((char, i) => (
                         <motion.span
