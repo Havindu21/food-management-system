@@ -25,7 +25,7 @@ const Navbar = () => {
     const theme = useTheme();
     const isXs = useMediaQuery(theme.breakpoints.only('xs'))
 
-
+    const [currentPage, setCurrentPage] = useState('Home');
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [anchorElUser, setAnchorElUser] = useState(null);
     const [profileMenuItems, setProfileMenuItems] = useState([]);
@@ -42,6 +42,7 @@ const Navbar = () => {
     const handleCloseMenu = (page) => {
         setAnchorElNav(null);
         setAnchorElUser(null);
+        setCurrentPage(page);
 
         if (page === "Insights") {
             document.querySelector("#insights-section")?.scrollIntoView({ behavior: "smooth" });
@@ -120,8 +121,9 @@ const Navbar = () => {
                         sx={{ display: { xs: 'block', md: 'none' } }}
                     >
                         {menuItems.map((page) => (
-                            <MenuItem key={page} onClick={()=>handleCloseMenu(page)} sx={{
-                                color: '#000000',
+                            <MenuItem key={page} onClick={() => handleCloseMenu(page)} sx={{
+                                color: currentPage === page ? '#FFFFFF' : '#000000',
+                                bgcolor: currentPage === page ? '#059669' : '#FFFFFF',
                                 width: { xs: 120, sm: 150, },
                                 ":hover": {
                                     bgcolor: '#059669',
@@ -143,10 +145,10 @@ const Navbar = () => {
                             onClick={() => handleCloseMenu(page)}
                             sx={{
                                 my: 2,
-                                color: index === 0 ? '#059669' : isScrolled ? '#000000' : '#FFFFFF',
+                                color: currentPage === page ? '#059669' : isScrolled ? '#000000' : '#FFFFFF',
                                 display: 'block',
                                 fontSize: 16,
-                                fontWeight: index === 0 ? 600 : 500,
+                                fontWeight: currentPage === page ? 600 : 500,
                                 ":hover": {
                                     transform: 'scale(1.02)',
                                 }
@@ -232,7 +234,8 @@ const Navbar = () => {
                     >
                         {profileMenuItems.map((setting) => (
                             <MenuItem key={setting} sx={{
-                                color: '#000000',
+                                color: currentPage === setting ? '#FFFFFF' : '#000000',
+                                bgcolor: currentPage === setting ? '#059669' : '#FFFFFF',
                                 width: { xs: 120, sm: 150, },
                                 ":hover": {
                                     bgcolor: '#059669',
