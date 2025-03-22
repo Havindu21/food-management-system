@@ -32,7 +32,7 @@ const HomeImage = () => {
                 alt="Wallpaper"
                 sx={{
                     width: "100%",
-                    height: { xs: '70vh', md: "93vh" },
+                    height: { xs: '70vh', md: "100vh" },
                     objectFit: "cover",
                     filter: "brightness(0.5)",
                 }}

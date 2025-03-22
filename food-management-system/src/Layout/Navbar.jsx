@@ -31,6 +31,7 @@ const Navbar = () => {
     const [anchorElUser, setAnchorElUser] = useState(null);
     const [profileMenuItems, setProfileMenuItems] = useState([]);
     const [menuItems, setMenuItems] = useState([]);
+    const [isScrolled, setIsScrolled] = useState(false);
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -52,9 +53,19 @@ const Navbar = () => {
         setMenuItems(isXs ? [...pages, ...settings] : pages)
     }, [isXs]);
 
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 20);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     return (
         <AppBar position="fixed" sx={{
-            bgcolor: '#FFFFFF',
+            bgcolor: isScrolled ? '#FFFFFF' : 'transparent',
+            transition: 'background-color 0.3s ease-in-out',
             ...globalPx,
             boxShadow: 'none',
         }}>
@@ -80,10 +91,12 @@ const Navbar = () => {
                         aria-controls="menu-appbar"
                         aria-haspopup="true"
                         onClick={handleOpenNavMenu}
-                        color="inherit"
+                        color='#000000'
                         sx={{ ml: 'auto' }}
                     >
-                        <MenuIcon />
+                        <MenuIcon sx={{
+                            color: isScrolled ? '#000000' : '#FFFFFF',
+                        }} />
                     </IconButton>
                     <Menu
                         id="menu-appbar"
@@ -125,7 +138,7 @@ const Navbar = () => {
                             onClick={handleCloseNavMenu}
                             sx={{
                                 my: 2,
-                                color: index === 0 ? '#059669' : '#000000',
+                                color: index === 0 ? '#059669' : isScrolled ? '#000000' : '#FFFFFF',
                                 display: 'block',
                                 fontSize: 16,
                                 fontWeight: index === 0 ? 600 : 500,
@@ -146,7 +159,7 @@ const Navbar = () => {
                         onClick={() => navigate('/sign-in')}
                         sx={{
                             my: 2,
-                            color: '#000000',
+                            color: isScrolled ? '#000000' : '#FFFFFF',
                             display: 'block',
                             borderRadius: '30px',
                             px: 2,
