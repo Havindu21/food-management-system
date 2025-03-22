@@ -1,4 +1,4 @@
-import { Box, Grid2 } from '@mui/material';
+import { Box, Grid2, Typography } from '@mui/material';
 import React from 'react';
 import { globalMt, globalPx } from '../../Theme/Theme';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
@@ -9,7 +9,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import HandshakeIcon from '@mui/icons-material/Handshake';
-import InsightTile from './InsightTile'; 
+import InsightTile from './InsightTile';
 
 const Insights = () => {
     return (
@@ -17,6 +17,14 @@ const Insights = () => {
             ...globalPx,
             ...globalMt,
         }}>
+            <Typography sx={{
+                textAlign: { xs: 'left', sm: 'center' },
+                fontSize: { xs: 20, sm: 20, md: 26 },
+                fontWeight: 600,
+                mb: 3,
+            }}>
+                Insights
+            </Typography>
             <Grid2 container spacing={{ xs: 2, md: 6 }}>
                 {insights.map((tile, index) => (
                     <Grid2 key={index} item size={{ xs: 6, sm: 4, md: 3 }} container justifyContent={'center'}>

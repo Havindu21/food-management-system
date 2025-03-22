@@ -48,14 +48,14 @@ const Projects = () => {
                 textAlign: { xs: 'left', sm: 'center' },
                 fontSize: { xs: 20, sm: 20, md: 26 },
                 fontWeight: 600,
-                mb: 2,
+                mb: 3,
             }}>
                 Projects
             </Typography>
             <Slider {...settings}>
                 {projectData.map((project, index) => (
                     <Box key={index} sx={{ px: 1 }}>
-                        <Card sx={{ maxWidth: 345, m: 2 }}>
+                        <Card sx={{ maxWidth: 345, mx: 2 }}>
                             <CardHeader
                                 avatar={
                                     <Avatar sx={{ bgcolor: '#059669' }} aria-label="recipe">

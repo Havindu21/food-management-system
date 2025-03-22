@@ -39,13 +39,19 @@ const Navbar = () => {
         setAnchorElUser(event.currentTarget);
     };
 
-    const handleCloseNavMenu = () => {
+    const handleCloseMenu = (page) => {
         setAnchorElNav(null);
+        setAnchorElUser(null);
+
+        if (page === "Insights") {
+            document.querySelector("#insights-section")?.scrollIntoView({ behavior: "smooth" });
+        } else if (page === "Projects") {
+            document.querySelector("#projects-section")?.scrollIntoView({ behavior: "smooth" });
+        } else if (page === "Home") {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
     };
 
-    const handleCloseUserMenu = () => {
-        setAnchorElUser(null);
-    };
 
     useEffect(() => {
         setProfileMenuItems(isXs ? [...pages, ...settings] : settings)
@@ -110,11 +116,11 @@ const Navbar = () => {
                             horizontal: 'left',
                         }}
                         open={Boolean(anchorElNav)}
-                        onClose={handleCloseNavMenu}
+                        onClose={handleCloseMenu}
                         sx={{ display: { xs: 'block', md: 'none' } }}
                     >
                         {menuItems.map((page) => (
-                            <MenuItem key={page} onClick={handleCloseNavMenu} sx={{
+                            <MenuItem key={page} onClick={()=>handleCloseMenu(page)} sx={{
                                 color: '#000000',
                                 width: { xs: 120, sm: 150, },
                                 ":hover": {
@@ -134,7 +140,7 @@ const Navbar = () => {
                     {pages.map((page, index) => (
                         <Button
                             key={index}
-                            onClick={handleCloseNavMenu}
+                            onClick={() => handleCloseMenu(page)}
                             sx={{
                                 my: 2,
                                 color: index === 0 ? '#059669' : isScrolled ? '#000000' : '#FFFFFF',
@@ -222,7 +228,7 @@ const Navbar = () => {
                             horizontal: 'right',
                         }}
                         open={Boolean(anchorElUser)}
-                        onClose={handleCloseUserMenu}
+                        onClose={handleCloseMenu}
                     >
                         {profileMenuItems.map((setting) => (
                             <MenuItem key={setting} sx={{
@@ -233,7 +239,7 @@ const Navbar = () => {
                                     color: '#FFFFFF',
                                 }
                             }}
-                                onClick={() => (setting === 'Logout' ? navigate('sign-in') : handleCloseUserMenu)}
+                                onClick={() => (setting === 'Logout' ? navigate('sign-in') : handleCloseMenu(setting))}
                             >
                                 <Typography sx={{ textAlign: 'center', fontSize: { xs: 14, sm: 16 } }}>{setting}</Typography>
                             </MenuItem>
