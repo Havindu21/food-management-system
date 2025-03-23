@@ -32,13 +32,21 @@ const Dashboard = () => {
                 ))}
             </Grid2>
             <Box sx={{ mt: 4, pb: { xs: 4, md: 0 } }}>
-                <BasicTable />
+            <BasicTable headers={tableHeaders} data={tableData} />
             </Box>
         </Box>
     )
 }
 
 export default Dashboard
+
+const tableHeaders = ["Date", "Items", "Quantity", "Status"];
+const tableData = [
+    { Date: "2025-03-15", Items: "Laptop", Quantity: 3, Status: "Completed" },
+    { Date: "2025-03-18", Items: "Mouse", Quantity: 5, Status: "Completed" },
+    { Date: "2025-03-19", Items: "Keyboard", Quantity: 2, Status: "Completed" },
+    { Date: "2025-03-20", Items: "Monitor", Quantity: 1, Status: "Completed" },
+];
 
 const tiles = [
     {
