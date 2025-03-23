@@ -29,8 +29,7 @@ const BasicTable = ({ headers, data }) => {
                                     {header === "Status" ? (
                                         <Typography
                                             sx={{
-                                                bgcolor: '#059669',
-                                                color: '#C2FFC7',
+                                                ...statusStyles[row[header]],
                                                 borderRadius: { xs: 3, md: 6 },
                                                 fontSize: 14,
                                                 py: { xs: 0, md: 0.2 },
@@ -56,3 +55,12 @@ const BasicTable = ({ headers, data }) => {
 };
 
 export default BasicTable;
+
+const statusStyles = {
+    'Completed': { bgcolor: '#059669', color: '#C2FFC7' },
+    'Pending': { bgcolor: '#F6E05E', color: '#92400E' },
+    'Confirmed': { bgcolor: '#F59E0B', color: '#443627' },
+    'In Transit': { bgcolor: '#0EA5E9', color: '#211C84' },
+    'Cancelled': { bgcolor: '#F87171', color: '#A31D1D' },
+    'Expired': { bgcolor: '#B17F59', color: '#E3D2C3' },
+};
