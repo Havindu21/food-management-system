@@ -1,9 +1,10 @@
-import { Box, Typography, TextField, Grid2, Autocomplete, createFilterOptions } from '@mui/material';
+import { Box, Typography, TextField, Grid2, Autocomplete, createFilterOptions, Button } from '@mui/material';
 import React from 'react';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import BasicTable from '../../Components/BasicTable';
 
 const filter = createFilterOptions();
 
@@ -148,12 +149,54 @@ const Donations = () => {
                         </Grid2>
                     ))}
                 </Grid2>
+                <Button sx={{
+                    width: { xs: '100%', md: 150, },
+                    bgcolor: '#059669',
+                    py:1,
+                    mt:2,
+                }}>
+                    <Typography sx={{
+                        fontSize: { xs: 14, md: 16 },
+                        fontWeight: 500,
+                        color: '#FFFFFF',
+                    }}>
+                        Submit
+                    </Typography>
+                </Button>
             </Box>
-        </Box>
+            <Box sx={{
+                px: { xs: 2, md: 3 },
+                py: { xs: 2, md: 3 },
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                bgcolor: '#FFFFFF',
+                mt: 4,
+                borderRadius: 2,
+            }}>
+                <Typography sx={{
+                    fontSize: { xs: 16, md: 18 },
+                    fontWeight: 600,
+                }}>
+                    Pending Donations
+                </Typography>
+                <Box sx={{ pb: { xs: 4, md: 0 } }}>
+                    <BasicTable headers={tableHeaders} data={tableData} />
+                </Box>
+            </Box>
+        </Box >
     );
 };
 
 export default Donations;
+
+const tableHeaders = ["Date", "Items", "Quantity"];
+const tableData = [
+    { Date: "2025-03-15", Items: "Laptop", Quantity: 3 },
+    { Date: "2025-03-18", Items: "Mouse", Quantity: 5 },
+    { Date: "2025-03-19", Items: "Keyboard", Quantity: 2 },
+    { Date: "2025-03-20", Items: "Monitor", Quantity: 1 },
+];
 
 const fields = [
     { title: 'Food Category' },

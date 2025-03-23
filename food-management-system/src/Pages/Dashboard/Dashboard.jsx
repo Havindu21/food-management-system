@@ -32,7 +32,7 @@ const Dashboard = () => {
                 ))}
             </Grid2>
             <Box sx={{ mt: 4, pb: { xs: 4, md: 0 } }}>
-            <BasicTable headers={tableHeaders} data={tableData} />
+                <BasicTable headers={tableHeaders} data={tableData} />
             </Box>
         </Box>
     )
