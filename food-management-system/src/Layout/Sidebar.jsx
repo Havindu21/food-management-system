@@ -20,6 +20,7 @@ import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import SignalWifiStatusbarConnectedNoInternet4Icon from '@mui/icons-material/SignalWifiStatusbarConnectedNoInternet4';
 import HistoryIcon from '@mui/icons-material/History';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { useState } from 'react';
 
 const drawerWidth = 240;
 
@@ -54,7 +55,8 @@ const tabs = [
 export default function Sidebar() {
     const theme = useTheme();
     const isMd = useMediaQuery(theme.breakpoints.down('md'));
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const [currentTab, setCurrentTab] = useState('Dashboard');
     const navigate = useNavigate();
 
     const handleDrawerOpen = () => {
@@ -111,11 +113,18 @@ export default function Sidebar() {
                         {tabs.map((tab, index) => (
                             <ListItem key={index} disablePadding sx={{ display: 'block' }}>
                                 <ListItemButton
-                                    onClick={() => navigate(tab?.path)}
+                                    onClick={() => {
+                                        navigate(tab?.path);
+                                        setCurrentTab(tab.label);
+                                    }}
                                     sx={[
                                         {
                                             minHeight: 48,
                                             px: 2.5,
+                                            bgcolor: currentTab === tab.label ? '#059669' : '#FFFFFF',
+                                            ":hover": {
+                                                bgcolor: currentTab === tab.label ? '#059669' : '#FFFFFF',
+                                            }
                                         },
                                         open
                                             ? {
@@ -129,6 +138,7 @@ export default function Sidebar() {
                                     <ListItemIcon
                                         sx={[
                                             {
+                                                color: currentTab === tab.label ? '#FFFFFF' : '',
                                                 minWidth: 0,
                                                 justifyContent: 'center',
                                             },
@@ -146,6 +156,7 @@ export default function Sidebar() {
                                     <ListItemText
                                         primary={tab?.label}
                                         sx={[
+                                            { color: currentTab === tab.label ? '#FFFFFF' : '', },
                                             open
                                                 ? {
                                                     opacity: 1,
@@ -160,77 +171,85 @@ export default function Sidebar() {
                         ))}
                     </List>
                 </Drawer>
-            )}
+            )
+            }
             {/* Temporary Drawer for xs screens */}
-            {isMd && (
-                <MuiDrawer
-                    variant="temporary"
-                    open={open}
-                    onClose={handleDrawerClose}
-                    ModalProps={{
-                        keepMounted: true, // Better open performance on mobile
-                    }}
-                    sx={{
-                        '& .MuiDrawer-paper': {
-                            width: drawerWidth,
-                            marginTop: '64px', // Adjust based on your Navbar height
-                            height: `calc(100vh - 64px)`, // Ensure it doesn't extend beyond the screen
-                        },
-                    }}
-                >
-                    <List>
-                        <ListItem disablePadding sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-                            <ListItemButton
-                                onClick={handleDrawerClose}
-                                sx={{
-                                    display: 'flex',
-                                    justifyContent: 'flex-start',
-                                    alignItems: 'center',
-                                    px: 2.5,
-                                }}
-                            >
-                                <ListItemIcon
-                                    sx={{
-                                        minWidth: 0,
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}
-                                >
-                                    {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                                </ListItemIcon>
-                            </ListItemButton>
-                        </ListItem>
-                        <Divider />
-                        {tabs.map((tab, index) => (
-                            <ListItem key={index} disablePadding sx={{ display: 'block' }}>
+            {
+                isMd && (
+                    <MuiDrawer
+                        variant="temporary"
+                        open={open}
+                        onClose={handleDrawerClose}
+                        ModalProps={{
+                            keepMounted: true, // Better open performance on mobile
+                        }}
+                        sx={{
+                            '& .MuiDrawer-paper': {
+                                width: drawerWidth,
+                                marginTop: '64px', // Adjust based on your Navbar height
+                                height: `calc(100vh - 64px)`, // Ensure it doesn't extend beyond the screen
+                            },
+                        }}
+                    >
+                        <List>
+                            <ListItem disablePadding sx={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
                                 <ListItemButton
-                                    onClick={() => {
-                                        handleDrawerClose();
-                                        navigate(tab?.path);
-                                    }}
+                                    onClick={handleDrawerClose}
                                     sx={{
-                                        minHeight: 48,
-                                        px: 2.5,
+                                        display: 'flex',
                                         justifyContent: 'flex-start',
+                                        alignItems: 'center',
+                                        px: 2.5,
                                     }}
                                 >
                                     <ListItemIcon
                                         sx={{
                                             minWidth: 0,
+                                            display: 'flex',
                                             justifyContent: 'center',
-                                            mr: 3,
+                                            alignItems: 'center',
                                         }}
                                     >
-                                        {tab?.icon}
+                                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
                                     </ListItemIcon>
-                                    <ListItemText primary={tab?.label} />
                                 </ListItemButton>
                             </ListItem>
-                        ))}
-                    </List>
-                </MuiDrawer>
-            )}
+                            <Divider />
+                            {tabs.map((tab, index) => (
+                                <ListItem key={index} disablePadding sx={{ display: 'block', }}>
+                                    <ListItemButton
+                                        onClick={() => {
+                                            handleDrawerClose();
+                                            navigate(tab?.path);
+                                            setCurrentTab(tab.label);
+                                        }}
+                                        sx={{
+                                            minHeight: 48,
+                                            px: 2.5,
+                                            justifyContent: 'flex-start',
+                                            bgcolor: currentTab === tab.label ? '#059669' : '#FFFFFF',
+                                        }}
+                                    >
+                                        <ListItemIcon
+                                            sx={{
+                                                minWidth: 0,
+                                                justifyContent: 'center',
+                                                mr: 3,
+                                                color: currentTab === tab.label ? '#FFFFFF' : '',
+                                            }}
+                                        >
+                                            {tab?.icon}
+                                        </ListItemIcon>
+                                        <ListItemText primary={tab?.label} sx={{
+                                            color: currentTab === tab.label ? '#FFFFFF' : '',
+                                        }} />
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
+                        </List>
+                    </MuiDrawer>
+                )
+            }
             {/* Main Content */}
             <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: '#FAFAFA', width: '100%', minHeight: `calc(100vh - 64px)`, }}>
                 {isMd && (
@@ -246,7 +265,7 @@ export default function Sidebar() {
                 )}
                 <Outlet />
             </Box>
-        </Box>
+        </Box >
     );
 }
 
