@@ -16,9 +16,9 @@ import { useEffect } from 'react';
 import { globalPx } from '../Theme/Theme';
 
 const pages = ['Home', 'Insights', 'Projects', 'Donate Now'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const settings = ['Profile', 'Logout'];
 
-const Navbar = () => {
+const Navbar = ({ callingFrom }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const isLogged = location?.state?.isLogged || false;
@@ -50,6 +50,10 @@ const Navbar = () => {
             document.querySelector("#projects-section")?.scrollIntoView({ behavior: "smooth" });
         } else if (page === "Home") {
             window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (page === "Profile") {
+            navigate('/profile/dashboard');
+        } else if (page === "Logout") {
+            navigate("/sign-in")
         }
     };
 
@@ -70,7 +74,7 @@ const Navbar = () => {
 
     return (
         <AppBar position="fixed" sx={{
-            bgcolor: isScrolled ? '#FFFFFF' : 'transparent',
+            bgcolor: callingFrom==='PROFILE' ? '#059669' : isScrolled ? '#FFFFFF' : 'transparent',
             transition: 'background-color 0.3s ease-in-out',
             ...globalPx,
             boxShadow: 'none',
@@ -90,7 +94,7 @@ const Navbar = () => {
                         objectFit: 'cover',
                     }}
                 />
-                <Box sx={{ flexGrow: 1, display: { xs: isLogged ? 'none' : 'flex', md: 'none' } }}>
+                <Box sx={{ flexGrow: 1, display: { xs: callingFrom === 'PROFILE' ? 'none' : isLogged ? 'none' : 'flex', md: 'none' } }}>
                     <IconButton
                         size="large"
                         aria-label="account of current user"
@@ -146,7 +150,7 @@ const Navbar = () => {
                             sx={{
                                 my: 2,
                                 color: currentPage === page ? '#059669' : isScrolled ? '#000000' : '#FFFFFF',
-                                display: 'block',
+                                display: callingFrom === 'PROFILE' ? 'none' : 'block',
                                 fontSize: 16,
                                 fontWeight: currentPage === page ? 600 : 500,
                                 ":hover": {
@@ -159,7 +163,7 @@ const Navbar = () => {
                     ))}
                 </Box>
                 <Box sx={{
-                    display: { xs: 'none', md: isLogged ? 'none' : 'flex' },
+                    display: { xs: 'none', md: callingFrom === 'PROFILE' ? 'none' : isLogged ? 'none' : 'flex' },
                     gap: 2,
                 }}>
                     <Button
@@ -195,21 +199,21 @@ const Navbar = () => {
                         Sign Up
                     </Button>
                 </Box>
-                <Box sx={{ flexGrow: 0, display: isLogged ? 'flex' : 'none' }}>
+                <Box sx={{ flexGrow: 0, display: callingFrom === 'PROFILE' ? 'flex' : isLogged ? 'flex' : 'none' }}>
                     <IconButton onClick={handleOpenUserMenu} sx={{
                         p: 0,
-                        bgcolor: isScrolled ? '#059669' : '#FFFFFF',
+                        bgcolor: callingFrom === 'PROFILE' ? '#FFFFFF' : isScrolled ? '#059669' : '#FFFFFF',
                         width: 45,
                         height: 45,
                         ":hover": {
                             transform: 'scale(1.02)',
-                            bgcolor: '#FFFFFF',
+                            bgcolor:  callingFrom === 'PROFILE' ? '#FFFFFF' :isScrolled ? '#059669' : '#FFFFFF',
                         }
                     }}>
                         <Typography sx={{
                             fontSize: 18,
                             fontWeight: 600,
-                            color: isScrolled ? '#FFFFFF' : '#059669'
+                            color:  callingFrom === 'PROFILE' ? '#059669' :isScrolled ? '#FFFFFF' : '#059669',
                         }}>
                             HS
                         </Typography>
@@ -242,7 +246,7 @@ const Navbar = () => {
                                     color: '#FFFFFF',
                                 }
                             }}
-                                onClick={() => (setting === 'Logout' ? navigate('sign-in') : handleCloseMenu(setting))}
+                                onClick={() => handleCloseMenu(setting)}
                             >
                                 <Typography sx={{ textAlign: 'center', fontSize: { xs: 14, sm: 16 } }}>{setting}</Typography>
                             </MenuItem>

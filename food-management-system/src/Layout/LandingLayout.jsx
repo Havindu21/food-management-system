@@ -8,7 +8,6 @@ const LandingLayout = () => {
     return (
         <>
             <Navbar />
-            {/* <Box sx={{ height: 64 }} /> */}
             <Outlet />
             <Footer />
         </>

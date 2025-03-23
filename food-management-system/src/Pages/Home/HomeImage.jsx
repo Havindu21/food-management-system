@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 import React from "react";
 import { motion } from "framer-motion";
-import Wallpaper from "../../assets/Home/wallpaper.jpeg";
+import Wallpaper from "../../assets/Home/wallpaper.jpg";
 import { useLocation } from "react-router-dom";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { globalPx } from "../../Theme/Theme";
