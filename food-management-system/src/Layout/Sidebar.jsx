@@ -53,7 +53,7 @@ const tabs = [
 
 export default function Sidebar() {
     const theme = useTheme();
-    const isXs = useMediaQuery(theme.breakpoints.down('sm')); // Check for xs breakpoint
+    const isMd = useMediaQuery(theme.breakpoints.down('md'));
     const [open, setOpen] = React.useState(false);
     const navigate = useNavigate();
 
@@ -66,10 +66,10 @@ export default function Sidebar() {
     };
 
     return (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', width: '100%' }}>
             <CssBaseline />
             {/* Drawer for larger screens (permanent) */}
-            {!isXs && (
+            {!isMd && (
                 <Drawer
                     variant="permanent"
                     open={open}
@@ -162,7 +162,7 @@ export default function Sidebar() {
                 </Drawer>
             )}
             {/* Temporary Drawer for xs screens */}
-            {isXs && (
+            {isMd && (
                 <MuiDrawer
                     variant="temporary"
                     open={open}
@@ -232,8 +232,8 @@ export default function Sidebar() {
                 </MuiDrawer>
             )}
             {/* Main Content */}
-            <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-                {isXs && (
+            <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: '#FAFAFA', width: '100%', height: `calc(100vh - 64px)`, }}>
+                {isMd && (
                     <IconButton
                         color="inherit"
                         aria-label="open drawer"

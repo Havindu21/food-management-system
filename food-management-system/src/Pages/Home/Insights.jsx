@@ -9,7 +9,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import HandshakeIcon from '@mui/icons-material/Handshake';
-import InsightTile from './InsightTile';
+import InsightTile from '../../Components/InsightTile';
 
 const Insights = () => {
     return (
