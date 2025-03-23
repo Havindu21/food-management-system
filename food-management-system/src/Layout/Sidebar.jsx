@@ -232,7 +232,7 @@ export default function Sidebar() {
                 </MuiDrawer>
             )}
             {/* Main Content */}
-            <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: '#FAFAFA', width: '100%', height: `calc(100vh - 64px)`, }}>
+            <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: '#FAFAFA', width: '100%', minHeight: `calc(100vh - 64px)`, }}>
                 {isMd && (
                     <IconButton
                         color="inherit"
