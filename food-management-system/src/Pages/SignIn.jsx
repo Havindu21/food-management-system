@@ -9,10 +9,10 @@ import AppleIcon from '../assets/apple-icon.png';
 
 const FormField = styled(TextField)(({ theme }) => ({
     '& .MuiInputBase-input': {
-        fontSize: 13,
+        fontSize: 15,
     },
     '& .MuiOutlinedInput-root': {
-        height: 32,
+        height: 42,
         borderRadius: '5px',
         '&:hover .MuiOutlinedInput-notchedOutline': {
             borderColor: '#B0B0B0', // Border color on hover
@@ -32,16 +32,26 @@ const SignIn = () => {
     return (
         <Grid container sx={{ height: "100vh" }}>
             <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-                <Box sx={{ width: { xs: '90%', sm: '70%', md: '80%', lg: '60%' } }}>
-                    <Typography sx={{ fontWeight: 500, fontSize: 32, mb: 6 }}>
-                        Welcome Back !!
+                <Box sx={{
+                    width: { xs: '90%', sm: '70%', md: '80%', lg: '60%' },
+                    boxShadow: 3, // You can adjust the shadow intensity (1-24 in MUI)
+                    borderRadius: 2, // Adjust for rounded corners
+                    bgcolor: '#FFFFFF', // Background color for better visibility
+                    p: 3 // Padding for spacing
+                }}>
+
+                    <Typography sx={{ fontWeight: 600, fontSize: { xs: 26, md: 36 }, textAlign: 'center' }}>
+                        Log In
+                    </Typography>
+                    <Typography sx={{ fontSize: 18, mt: 1, mb: 6, textAlign: 'center', color: '#686D76', letterSpacing: 1.1, }}>
+                        Access your food redistribution account
                     </Typography>
                     <Box>
                         <Typography sx={{ fontWeight: 500, fontSize: 14, mb: 0.5 }}>
                             Email address
                         </Typography>
                         <FormField
-                            size='small'
+                            // size='small'
                             fullWidth
                             placeholder="Enter your email"
                             type="email"
@@ -53,87 +63,64 @@ const SignIn = () => {
                             Password
                         </Typography>
                         <FormField
-                            size='small'
+                            // size='small'
                             fullWidth
-                            placeholder="Name"
+                            placeholder="Enter your password"
                             type="password"
                             variant="outlined"
                         />
                     </Box>
-                    <FormControlLabel
-                        control={<Checkbox size="small" />}
-                        label="Remember Password"
-                        slotProps={{
-                            typography: {
-                                fontWeight: 500,
-                                fontSize: 14,
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        mt: 2,
+                    }}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    sx={{
+                                        color: '#059669',
+                                        '&.Mui-checked': { color: '#059669' },
+                                        '& .MuiTypography-root': { // Targets the label text
+                                            fontWeight: 500,
+                                            fontSize: 14,
+                                        }
+                                    }}
+                                />
                             }
-                        }}
-                        sx={{ mt: 2 }}
-                    />
+                            label="Remember Me"
+                        />
+                        <Typography sx={{ fontWeight: 500, fontSize: 16, color: '#059669', cursor: 'pointer' }}>
+                            Forgot Password ?
+                        </Typography>
+                    </Box>
                     <Button
                         fullWidth
                         variant="contained"
                         onClick={() => navigate('/home', { state: { isLogged: true } })}
-                        sx={{ mt: 5, height: 35, backgroundColor: '#F3CC2F', color: '#000000', fontWeight: 500, fontSize: 14, }}
+                        sx={{ mt: 5, height: { xs: 35, md: 45 }, backgroundColor: '#059669', borderRadius: 1, }}
                     >
-                        Sign In
+                        <Typography sx={{ color: '#FFFFFF', fontWeight: 600, fontSize: { xs: 16, md: 20 }, textTransform: 'none' }}>
+                            Log In
+                        </Typography>
                     </Button>
-                    <Divider sx={{ mt: 5, mb: 3 }}>or</Divider>
-                    <Box sx={{
-                        display: 'flex',
-                        gap: 3,
-                        maxHeight: 30,
+                    <Typography sx={{
+                        color: '#686D76',
+                        fontSize: { xs: 16, md: 18, },
+                        mt: 4,
+                        textAlign: 'center',
                     }}>
-                        <Button
-                            size="small"
-                            fullWidth
-                            variant="outlined"
-                            sx={{
-                                borderColor: '#D9D9D9',
-                                color: '#000000',
-                                fontWeight: 500,
-                                fontSize: 12,
-                                textTransform: 'none',
-                                gap: 1,
-                            }}
+                        Don't have an account? {' '}
+                        <Box component={'span'} sx={{
+                            color: '#059669',
+                            cursor: 'pointer',
+                        }}
+                            onClick={() => navigate('/join-us')}
                         >
-                            <Box
-                                component="img"
-                                src={GoogleIcon}
-                                alt="Google logo"
-                                sx={{
-                                    width: 18,
-                                    height: 18,
-                                }}
-                            />
-                            Sign in with Google
-                        </Button>
-                        <Button
-                            size="small"
-                            fullWidth
-                            variant="outlined"
-                            sx={{
-                                borderColor: '#D9D9D9',
-                                color: '#000000',
-                                fontWeight: 500,
-                                fontSize: 12,
-                                textTransform: 'none',
-                                gap: 1,
-                            }}
-                        >
-                            <Box
-                                component="img"
-                                src={AppleIcon}
-                                alt="Google logo"
-                                sx={{
-                                    width: 18,
-                                    height: 18,
-                                }}
-                            />
-                            Sign in with Apple
-                        </Button>
-                    </Box>
+                            Register here
+                        </Box>
+                    </Typography>
                 </Box>
             </Grid>
             <Grid size={{ xs: 0, md: 6 }} sx={{
@@ -141,10 +128,9 @@ const SignIn = () => {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 height: '100%',
-            }}>
-
-            </Grid>
-        </Grid >
+            }}
+            />
+        </Grid>
     );
 };
 
