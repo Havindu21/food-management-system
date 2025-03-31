@@ -10,6 +10,12 @@ const JoinUs = () => {
     const [selectedOption, setSelectedOption] = useState('');
     const navigate = useNavigate();
 
+    const handleContinue = () => {
+        if (selectedOption === 'individual') navigate('/register/individual');
+        if (selectedOption === 'business') navigate('/register/business');
+        if (selectedOption === 'recepient') navigate('/register/recepient');
+    }
+
     return (
         <Box sx={{
             bgcolor: { md: '#FFFFFF', sm: '#EEEEEE', xs: '#FFFFFF' },
@@ -81,7 +87,7 @@ const JoinUs = () => {
                         />
                     ))}
                 </Box>
-                <Button sx={{
+                <Button onClick={handleContinue} sx={{
                     bgcolor: '#059669',
                     mt: 6,
                     width: 170,
