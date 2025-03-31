@@ -11,6 +11,7 @@ import Donations from "./Pages/Donations/Donations";
 import DonationStatus from "./Pages/DonationStatus/DonationStatus";
 import DonationHistory from "./Pages/DonationHistory/DonationHistory";
 import MyProfile from "./Pages/MyProfile/MyProfile";
+import JoinUs from "./Pages/JoinUs/JoinUs";
 
 const router = createBrowserRouter([
     {
@@ -48,8 +49,8 @@ const router = createBrowserRouter([
                 element: <SignIn />,
             },
             {
-                path: "/sign-up",
-                element: <SignUp />,
+                path: "/join-us",
+                element: <JoinUs />,
             },
         ]
     },

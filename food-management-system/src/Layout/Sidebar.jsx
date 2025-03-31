@@ -54,8 +54,8 @@ const tabs = [
 
 export default function Sidebar() {
     const theme = useTheme();
-    const isMd = useMediaQuery(theme.breakpoints.down('md'));
-    const [open, setOpen] = useState(false);
+    const isMdOrBelow = useMediaQuery(theme.breakpoints.down('md'));
+    const [open, setOpen] = useState(isMdOrBelow ? false : true);
     const [currentTab, setCurrentTab] = useState('Dashboard');
     const navigate = useNavigate();
 
@@ -71,7 +71,7 @@ export default function Sidebar() {
         <Box sx={{ display: 'flex', width: '100%' }}>
             <CssBaseline />
             {/* Drawer for larger screens (permanent) */}
-            {!isMd && (
+            {!isMdOrBelow && (
                 <Drawer
                     variant="permanent"
                     open={open}
@@ -175,7 +175,7 @@ export default function Sidebar() {
             }
             {/* Temporary Drawer for xs screens */}
             {
-                isMd && (
+                isMdOrBelow && (
                     <MuiDrawer
                         variant="temporary"
                         open={open}
@@ -252,7 +252,7 @@ export default function Sidebar() {
             }
             {/* Main Content */}
             <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: '#FAFAFA', width: '100%', minHeight: `calc(100vh - 64px)`, }}>
-                {isMd && (
+                {isMdOrBelow && (
                     <IconButton
                         color="inherit"
                         aria-label="open drawer"

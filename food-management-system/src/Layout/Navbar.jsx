@@ -53,7 +53,7 @@ const Navbar = ({ callingFrom }) => {
         } else if (page === "Profile") {
             navigate('/profile/dashboard');
         } else if (page === "Logout") {
-            navigate("/sign-in")
+            navigate("/join-us")
         }
     };
 
@@ -74,7 +74,7 @@ const Navbar = ({ callingFrom }) => {
 
     return (
         <AppBar position="fixed" sx={{
-            bgcolor: callingFrom==='PROFILE' ? '#059669' : isScrolled ? '#FFFFFF' : 'transparent',
+            bgcolor: callingFrom === 'PROFILE' ? '#059669' : isScrolled ? '#FFFFFF' : 'transparent',
             transition: 'background-color 0.3s ease-in-out',
             ...globalPx,
             boxShadow: 'none',
@@ -184,6 +184,7 @@ const Navbar = ({ callingFrom }) => {
                         Login
                     </Button>
                     <Button
+                        onClick={() => navigate('join-us')}
                         sx={{
                             my: 2, color: '#FFFFFF', display: 'block',
                             bgcolor: '#059669',
@@ -196,7 +197,7 @@ const Navbar = ({ callingFrom }) => {
                             }
                         }}
                     >
-                        Sign Up
+                        Join Us
                     </Button>
                 </Box>
                 <Box sx={{ flexGrow: 0, display: callingFrom === 'PROFILE' ? 'flex' : isLogged ? 'flex' : 'none' }}>
@@ -207,13 +208,13 @@ const Navbar = ({ callingFrom }) => {
                         height: 45,
                         ":hover": {
                             transform: 'scale(1.02)',
-                            bgcolor:  callingFrom === 'PROFILE' ? '#FFFFFF' :isScrolled ? '#059669' : '#FFFFFF',
+                            bgcolor: callingFrom === 'PROFILE' ? '#FFFFFF' : isScrolled ? '#059669' : '#FFFFFF',
                         }
                     }}>
                         <Typography sx={{
                             fontSize: 18,
                             fontWeight: 600,
-                            color:  callingFrom === 'PROFILE' ? '#059669' :isScrolled ? '#FFFFFF' : '#059669',
+                            color: callingFrom === 'PROFILE' ? '#059669' : isScrolled ? '#FFFFFF' : '#059669',
                         }}>
                             HS
                         </Typography>
