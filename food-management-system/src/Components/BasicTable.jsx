@@ -41,6 +41,36 @@ const BasicTable = ({ headers, data }) => {
                                         >
                                             {row[header]}
                                         </Typography>
+                                    ) : header === "Expiry Date" ? (
+                                        <Typography
+                                            sx={{
+                                                ...expiryDateStyles[expiryDateStyles[row[header]] ? row[header] : 'Default'],
+                                                borderRadius: { xs: 3, md: 6 },
+                                                fontSize: 14,
+                                                fontWeight: 500,
+                                                py: { xs: 0, md: 0.2 },
+                                                px: 0,
+                                                width: 100,
+                                                display: 'inline-block',
+                                                textAlign: 'center',
+                                            }}
+                                        >
+                                            {row[header]}
+                                        </Typography>
+                                    ) : header === "Action" ? (
+                                        <Typography
+                                            sx={{
+                                                ...actionStyles[row[header]],
+                                                borderRadius:1,
+                                                p:1,
+                                                fontSize: 14,
+                                                fontWeight: 500,
+                                                display: 'inline-block',
+                                                textAlign: 'center',
+                                            }}
+                                        >
+                                            {row[header]}
+                                        </Typography>
                                     ) : (
                                         row[header]
                                     )}
@@ -62,5 +92,14 @@ const statusStyles = {
     'Confirmed': { bgcolor: '#F59E0B', color: '#443627' },
     'In Transit': { bgcolor: '#0EA5E9', color: '#211C84' },
     'Cancelled': { bgcolor: '#F87171', color: '#A31D1D' },
+    'Expired': { bgcolor: '#B17F59', color: '#E3D2C3' },
+};
+const actionStyles = {
+    'Request Pickup': { color: '#059669', bgcolor: '#C2FFC7' },
+};
+const expiryDateStyles = {
+    'Default': { bgcolor: '#059669', color: '#C2FFC7' },
+    'Today': { bgcolor: '#F59E0B', color: '#443627' },
+    'Tomorrow': { bgcolor: '#F87171', color: '#A31D1D' },
     'Expired': { bgcolor: '#B17F59', color: '#E3D2C3' },
 };

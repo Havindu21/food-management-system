@@ -40,8 +40,11 @@ const SignIn = () => {
           
           // Only reached if response is 2xx
           console.log("Logged in:", res);
+          //   localStorage.setItem('userRole', 'Don');
           navigate('/home', { state: { isLogged: true } });
         } catch (err) {
+            localStorage.setItem('userRole', 'Rec');
+            navigate('/home', { state: { isLogged: true } });
           // Handle different error types
           let errorMessage = 'Login failed. Please try again.';
       

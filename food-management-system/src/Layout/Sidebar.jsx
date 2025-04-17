@@ -20,37 +20,12 @@ import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import SignalWifiStatusbarConnectedNoInternet4Icon from '@mui/icons-material/SignalWifiStatusbarConnectedNoInternet4';
 import HistoryIcon from '@mui/icons-material/History';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useState } from 'react';
 
 const drawerWidth = 240;
-
-const tabs = [
-    {
-        label: 'Dashboard',
-        icon: <DashboardIcon />,
-        path: 'dashboard',
-    },
-    {
-        label: 'Donations',
-        icon: <VolunteerActivismIcon />,
-        path: 'donations',
-    },
-    {
-        label: 'Donations Status',
-        icon: <SignalWifiStatusbarConnectedNoInternet4Icon />,
-        path: 'donation-status',
-    },
-    {
-        label: 'Donation History',
-        icon: <HistoryIcon />,
-        path: 'donation-history',
-    },
-    {
-        label: 'My Profile',
-        icon: <AccountCircleIcon />,
-        path: 'my-profile',
-    },
-]
 
 export default function Sidebar() {
     const theme = useTheme();
@@ -58,6 +33,7 @@ export default function Sidebar() {
     const [open, setOpen] = useState(isMdOrBelow ? false : true);
     const [currentTab, setCurrentTab] = useState('Dashboard');
     const navigate = useNavigate();
+    const userRole = localStorage.getItem('userRole');
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -66,6 +42,66 @@ export default function Sidebar() {
     const handleDrawerClose = () => {
         setOpen(false);
     };
+
+
+    const tabs = userRole === 'Don' ? [
+        {
+            label: 'Dashboard',
+            icon: <DashboardIcon />,
+            path: 'dashboard',
+        },
+        {
+            label: 'Donations',
+            icon: <VolunteerActivismIcon />,
+            path: 'donations',
+        },
+        {
+            label: 'Donations Status',
+            icon: <SignalWifiStatusbarConnectedNoInternet4Icon />,
+            path: 'donation-status',
+        },
+        {
+            label: 'Donation History',
+            icon: <HistoryIcon />,
+            path: 'donation-history',
+        },
+        {
+            label: 'My Profile',
+            icon: <AccountCircleIcon />,
+            path: 'my-profile',
+        }
+    ] : userRole === 'Rec' ? [
+        {
+            label: 'Dashboard',
+            icon: <DashboardIcon />,
+            path: 'dashboard',
+        },
+        {
+            label: 'Available Donations',
+            icon: <FastfoodIcon />,
+            path: 'available-donations',
+        },
+        {
+            label: 'Request Donations',
+            icon: <VolunteerActivismIcon />,
+            path: 'request-donations',
+        },
+        {
+            label: 'Active Pickups',
+            icon: <LocalShippingIcon />,
+            path: 'active-pickups',
+        },
+        {
+            label: 'Pickup History',
+            icon: <HistoryIcon />,
+            path: 'pickup-history',
+        },
+        {
+            label: 'Settings',
+            icon: <SettingsIcon />,
+            path: 'recepient-settings',
+        },
+    ] : [];
 
     return (
         <Box sx={{ display: 'flex', width: '100%' }}>
