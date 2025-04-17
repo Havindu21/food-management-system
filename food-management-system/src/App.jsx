@@ -15,6 +15,11 @@ import IndividualRegistration from "./Pages/JoinUs/IndividualRegistration";
 import BusinessRegistration from "./Pages/JoinUs/BusinessRegistration";
 import RecepientRegistration from "./Pages/JoinUs/RecepientRegistration";
 import RegistrationLayout from "./Layout/RegistrationLayout";
+import AvailableDonations from "./Pages/AvailableDonations/AvailableDonations";
+import RequestDonations from "./Pages/RequestDonations/RequestDonations";
+import ActivePickups from "./Pages/ActivePickups/ActivePickups";
+import PickupHistory from "./Pages/PickupHIstory/PickupHistory";
+import RecepientSettings from "./Pages/RecepientSettings/RecepientSettings";
 
 const router = createBrowserRouter([
     {
@@ -38,7 +43,7 @@ const router = createBrowserRouter([
                 path: "register",
                 element: <RegistrationLayout />,
                 children: [
-                    { path: "individual", element: <IndividualRegistration /> }, 
+                    { path: "individual", element: <IndividualRegistration /> },
                     { path: "business", element: <BusinessRegistration /> },
                     { path: "recepient", element: <RecepientRegistration /> },
                 ],
@@ -54,6 +59,11 @@ const router = createBrowserRouter([
             { path: "donation-status", element: <DonationStatus /> },
             { path: "donation-history", element: <DonationHistory /> },
             { path: "my-profile", element: <MyProfile /> },
+            { path: "available-donations", element: <AvailableDonations /> },
+            { path: "request-donations", element: <RequestDonations /> },
+            { path: "active-pickups", element: <ActivePickups /> },
+            { path: "pickup-history", element: <PickupHistory /> },
+            { path: "recepient-settings", element: <RecepientSettings /> },
         ],
     },
 ], {
