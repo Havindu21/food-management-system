@@ -20,7 +20,8 @@ const DonationCard = ({ data }) => {
                 py: { xs: 1, md: 2 },
                 bgcolor: '#FFFFFF',
                 borderRadius:2,
-                border: '1px solid #EEEEEE'
+                border: '1px solid #EEEEEE',
+                height: {xs:310,md: 320},
             }}
         >
             <Box
@@ -109,7 +110,7 @@ const DonationCard = ({ data }) => {
             </Box>
             <Button sx={{
                 bgcolor: data.status === 'Request Pickup' ? '#059669' : '#F59E0B',
-                mt:1,
+                mt:'auto',
             }}>
                 <Typography sx={{
                     color: data.status === 'Request Pickup' ? '#C2FFC7' : '#443627',

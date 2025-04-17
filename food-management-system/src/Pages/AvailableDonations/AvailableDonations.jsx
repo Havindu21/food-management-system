@@ -58,7 +58,7 @@ const AvailableDonations = () => {
             </Box>
             <Grid2 container spacing={4} mt={4}>
                 {donationsCards.map((card, index) => (
-                    <Grid2 item key={index} size={{ xs: 12, sm: 6, md: 4 }}>
+                    <Grid2 item key={index} size={{ xs: 12, sm: 6, lg: 4 }}>
                         <DonationCard data={card} />
                     </Grid2>
                 ))}
