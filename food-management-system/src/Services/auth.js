@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5001/api/auth/';
+const API_URL = 'http://localhost:3000/api/auth/';
 
 // Register a new user
 const registerUser = async (userData) => {
