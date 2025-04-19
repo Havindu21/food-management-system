@@ -287,7 +287,7 @@ export default function Sidebar() {
                 )
             }
             {/* Main Content */}
-            <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: '#FAFAFA', width: '100%', minHeight: `calc(100vh - 64px)`, }}>
+            <Box component="main" sx={{ flexGrow: 1, p: {xs:2,md:3}, bgcolor: '#FAFAFA', width: '100%', minHeight: `calc(100vh - 64px)`, }}>
                 {isMdOrBelow && (
                     <IconButton
                         color="inherit"
