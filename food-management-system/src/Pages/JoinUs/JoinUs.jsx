@@ -19,7 +19,7 @@ const JoinUs = () => {
     return (
         <Box sx={{
             bgcolor: { md: '#FFFFFF', sm: '#EEEEEE', xs: '#FFFFFF' },
-            px: { xs: 0, sm: 4, md: 10, },
+            px: { xs: 0, sm: 4,lg: 10, },
             py: { xs: 2, md: 4 },
         }}>
             <Box sx={{
@@ -28,7 +28,7 @@ const JoinUs = () => {
                 flexDirection: 'column',
                 alignItems: 'center',
                 py: { xs: 3, md: 6, },
-                px: { xs: 2, sm: 4, md: 5, },
+                px: { xs: 2, sm: 4, md: 0, lg:5 },
                 bgcolor: '#FFFFFF',
                 borderRadius: 1,
             }}>
@@ -77,8 +77,8 @@ const JoinUs = () => {
                             option={card.key}
                             icon={<card.icon
                                 sx={{
-                                    width: { xs: 55, md: 80, },
-                                    height: { xs: 55, md: 80 },
+                                    width: { xs: 55, md: 70, },
+                                    height: { xs: 55, md: 70 },
                                     color: '#059669',
                                 }}
                             />}

@@ -42,12 +42,12 @@ const IndividualRegistration = () => {
     return (
         <Box sx={{
             bgcolor: '#EEEEEE',
-            px: { xs: 0, sm: 4, md: 10 },
+            px: { xs: 0, sm: 4, lg: 10 },
             py: { xs: 2, md: 4 },
         }}>
             <Box sx={{
                 minHeight: '95vh',
-                px: { xs: 3, md: 5 },
+                px: { xs: 3, lg: 5 },
                 py: { xs: 2, md: 3 },
                 display: 'flex',
                 flexDirection: 'column',

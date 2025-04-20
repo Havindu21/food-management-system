@@ -25,11 +25,11 @@ const BasicCard = ({ option, icon, title, description, setSelectedOption, select
                 alignItems: 'center',
                 height: '100%',
                 gap: { xs: 1, sm: 2, md: 4, lg: 4 },
-                px: { xs: 2, md: 5, },
+                px: { xs: 2, md: 1, lg: 5 },
             }}>
                 {icon}
                 <Typography sx={{
-                    fontSize: { xs: 18, md: 30 },
+                    fontSize: { xs: 18,md:26 ,lg: 30 },
                     textAlign: 'center',
                 }}>
                     {title}
