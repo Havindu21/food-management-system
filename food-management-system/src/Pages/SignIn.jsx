@@ -43,8 +43,8 @@ const SignIn = () => {
           //   localStorage.setItem('userRole', 'Don');
           navigate('/home', { state: { isLogged: true } });
         } catch (err) {
-            localStorage.setItem('userRole', 'Rec');
-            navigate('/home', { state: { isLogged: true } });
+            // localStorage.setItem('userRole', 'Rec');
+            // navigate('/home', { state: { isLogged: true } });
           // Handle different error types
           let errorMessage = 'Login failed. Please try again.';
       
