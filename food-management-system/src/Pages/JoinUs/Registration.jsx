@@ -168,7 +168,8 @@ const Registration = ({ userType }) => {
 
                 <Typography sx={{ color: '#686D76', fontSize: { xs: 16, md: 20 }, mt: 4, textAlign: 'center' }}>
                     Already have an account?{' '}
-                    <Box component={'span'} sx={{ color: '#059669', cursor: 'pointer' }} onClick={() => navigate('/sign-in')}>
+                    <Box component={'span'} sx={{ color: '#059669', cursor: 'pointer' }} onClick={() => navigate('/home')}>
+                    {/* <Box component={'span'} sx={{ color: '#059669', cursor: 'pointer' }} onClick={() => navigate('/sign-in')}> */}
                         Log in here
                     </Box>
                 </Typography>

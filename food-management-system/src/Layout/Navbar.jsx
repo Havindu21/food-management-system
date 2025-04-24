@@ -8,7 +8,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Logo from '../assets/logo.jpeg'
+import Logo from '../assets/logo-remove-bg.png'
 import { useTheme } from '@emotion/react';
 import { useMediaQuery } from '@mui/material';
 import { useState } from 'react';
@@ -74,7 +74,7 @@ const Navbar = ({ callingFrom }) => {
 
     return (
         <AppBar position="fixed" sx={{
-            bgcolor: callingFrom === 'PROFILE' ? '#059669' : isScrolled ? '#FFFFFF' : 'transparent',
+            bgcolor: callingFrom === 'PROFILE' ? 'transparent' : isScrolled ? '#FFFFFF' : 'transparent',
             transition: 'background-color 0.3s ease-in-out',
             ...globalPx,
             boxShadow: 'none',
@@ -90,7 +90,7 @@ const Navbar = ({ callingFrom }) => {
                     src={Logo}
                     alt='logo'
                     sx={{
-                        width: 100,
+                        width: 150,
                         objectFit: 'cover',
                     }}
                 />
@@ -203,18 +203,18 @@ const Navbar = ({ callingFrom }) => {
                 <Box sx={{ flexGrow: 0, display: callingFrom === 'PROFILE' ? 'flex' : isLogged ? 'flex' : 'none' }}>
                     <IconButton onClick={handleOpenUserMenu} sx={{
                         p: 0,
-                        bgcolor: callingFrom === 'PROFILE' ? '#FFFFFF' : isScrolled ? '#059669' : '#FFFFFF',
+                        bgcolor: callingFrom === 'PROFILE' ? '#059669' : isScrolled ? '#059669' : '#FFFFFF',
                         width: 45,
                         height: 45,
                         ":hover": {
                             transform: 'scale(1.02)',
-                            bgcolor: callingFrom === 'PROFILE' ? '#FFFFFF' : isScrolled ? '#059669' : '#FFFFFF',
+                            bgcolor: callingFrom === 'PROFILE' ? '#059669' : isScrolled ? '#059669' : '#FFFFFF',
                         }
                     }}>
                         <Typography sx={{
                             fontSize: 18,
                             fontWeight: 600,
-                            color: callingFrom === 'PROFILE' ? '#059669' : isScrolled ? '#FFFFFF' : '#059669',
+                            color: callingFrom === 'PROFILE' ? '#FFFFFF' : isScrolled ? '#FFFFFF' : '#059669',
                         }}>
                             HS
                         </Typography>

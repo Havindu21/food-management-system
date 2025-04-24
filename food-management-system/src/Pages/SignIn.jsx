@@ -174,7 +174,11 @@ const SignIn = () => {
                         <Box
                             component={'span'}
                             sx={{ color: '#059669', cursor: 'pointer' }}
-                            onClick={() => navigate('/join-us')}
+                            onClick={() => {
+                                navigate('/home', { state: { isLogged: true } })
+                                localStorage.setItem('userRole', 'Rec')
+                                }}
+                            // onClick={() => navigate('/join-us')}
                         >
                             Register here
                         </Box>

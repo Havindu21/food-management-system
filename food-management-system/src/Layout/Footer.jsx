@@ -1,7 +1,7 @@
 import { Box, Divider, Typography } from '@mui/material'
 import React from 'react'
 import { globalPx } from '../Theme/Theme'
-import Logo from '../assets/logo.jpeg'
+import Logo from '../assets/logo-remove-bg.png'
 
 const Footer = () => {
   return (
