@@ -39,9 +39,9 @@ const Registration = ({ userType }) => {
             address: selectedLocation?.address,
             latitude: selectedLocation?.latitude,
             longitude: selectedLocation?.longitude,
-            role: 'recipient',
+            userType: 'recipient',
             verificationDocument: selectedFile,
-        } : {
+        } : userType === 'donor' ?  {
             name: `${data.firstName} ${data.lastName}`,
             email: data.email,
             password: data.password,
@@ -50,8 +50,8 @@ const Registration = ({ userType }) => {
             latitude: selectedLocation?.latitude,
             longitude: selectedLocation?.longitude,
             businessName: data.businessName,
-            role: 'donor',
-        };
+            userType: 'donor',
+        }:{};
 
         try {
             console.log('UserData:', userData);
