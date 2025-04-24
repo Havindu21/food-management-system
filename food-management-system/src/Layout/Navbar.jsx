@@ -54,6 +54,8 @@ const Navbar = ({ callingFrom }) => {
             navigate('/profile/dashboard');
         } else if (page === "Logout") {
             navigate("/join-us")
+        }else if(page==="Donate Now"){
+            navigate('/profile/donations', { state: { initialTab: 'Donations' } });
         }
     };
 

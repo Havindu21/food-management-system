@@ -14,7 +14,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import SignalWifiStatusbarConnectedNoInternet4Icon from '@mui/icons-material/SignalWifiStatusbarConnectedNoInternet4';
@@ -31,7 +31,9 @@ export default function Sidebar() {
     const theme = useTheme();
     const isMdOrBelow = useMediaQuery(theme.breakpoints.down('md'));
     const [open, setOpen] = useState(isMdOrBelow ? false : true);
-    const [currentTab, setCurrentTab] = useState('Dashboard');
+    const location = useLocation();
+    const initialTab = location.state?.initialTab || 'Dashboard';
+    const [currentTab, setCurrentTab] = useState(initialTab);
     const navigate = useNavigate();
     const userRole = localStorage.getItem('userRole');
 
@@ -287,7 +289,7 @@ export default function Sidebar() {
                 )
             }
             {/* Main Content */}
-            <Box component="main" sx={{ flexGrow: 1, p: {xs:2,md:3}, bgcolor: '#FAFAFA', width: '100%', minHeight: `calc(100vh - 64px)`, }}>
+            <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 3 }, bgcolor: '#FAFAFA', width: '100%', minHeight: `calc(100vh - 64px)`, }}>
                 {isMdOrBelow && (
                     <IconButton
                         color="inherit"

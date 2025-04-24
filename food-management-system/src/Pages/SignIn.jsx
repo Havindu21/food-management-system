@@ -176,7 +176,7 @@ const SignIn = () => {
                             sx={{ color: '#059669', cursor: 'pointer' }}
                             onClick={() => {
                                 navigate('/home', { state: { isLogged: true } })
-                                localStorage.setItem('userRole', 'Rec')
+                                localStorage.setItem('userRole', 'Don')
                                 }}
                             // onClick={() => navigate('/join-us')}
                         >
