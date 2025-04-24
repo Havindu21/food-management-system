@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../../Services/auth';
 
-const IndividualRegistration = () => {
+const DonorRegistration = () => {
     const navigate = useNavigate();
     const {
         register,
@@ -208,4 +208,4 @@ const IndividualRegistration = () => {
     );
 };
 
-export default IndividualRegistration;
+export default DonorRegistration;

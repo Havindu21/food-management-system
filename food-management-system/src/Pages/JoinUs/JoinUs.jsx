@@ -40,7 +40,7 @@ const JoinUs = () => {
     }, []);
 
     const handleContinue = () => {
-        if (selectedOption === 'donor') navigate('/register/contributor');
+        if (selectedOption === 'donor') navigate('/register/donor');
         if (selectedOption === 'recepient') navigate('/register/recipient');
     };
 
