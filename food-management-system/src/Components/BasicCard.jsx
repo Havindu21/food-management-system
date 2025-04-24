@@ -7,7 +7,7 @@ const BasicCard = ({ option, icon, title, description, setSelectedOption, select
         <Card sx={{
             width: '100%',
             borderRadius: 3,
-            height: { xs: 180, sm: 250, md: 450 },
+            height: { xs: 180, sm: 250, md: 380,lg: 450 },
             border: selectedOption === option ? '2px solid #059669' : '1px solid #EEEEEE',
             bgcolor: selectedOption === option ? '#F8FFFA' : 'rgba(255, 255, 255, 0.7)',
             cursor: 'pointer',
