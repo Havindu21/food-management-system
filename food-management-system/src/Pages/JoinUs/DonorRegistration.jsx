@@ -4,6 +4,9 @@ import PasswordField from '../../Components/PasswordField';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { registerUser } from '../../Services/auth';
+import 'leaflet/dist/leaflet.css'
+import { useState } from 'react';
+import MapSelector from '../../Components/MapSelector';
 
 const DonorRegistration = () => {
     const navigate = useNavigate();
@@ -13,6 +16,8 @@ const DonorRegistration = () => {
         watch,
         formState: { errors },
     } = useForm();
+    const [selectedLocation, setSelectedLocation] = useState(null);
+
 
     // Watch new password field to validate confirm password
     const newPassword = watch('password');
@@ -24,11 +29,15 @@ const DonorRegistration = () => {
             email: data.email,
             password: data.password,
             phone: data.phone,
-            address: data.address,
+            address: selectedLocation?.address,
+            latitude: selectedLocation?.latitude,
+            longitude: selectedLocation?.longitude,
             role: 'recipient',
-        };
+          };
+        
 
         try {
+            console.log('UserDate:', userData);
             const response = await registerUser(userData);
             console.log('Registration Success:', response);
             alert('Registration Successful');
@@ -60,7 +69,7 @@ const DonorRegistration = () => {
                     textAlign: 'center',
                     fontWeight: 600,
                 }}>
-                    Register as Individual
+                    Register as Donor
                 </Typography>
                 <Typography sx={{
                     fontSize: { xs: 14, md: 18 },
@@ -148,15 +157,18 @@ const DonorRegistration = () => {
                         {errors.phone && <Typography color="error">{errors.phone.message}</Typography>}
                     </Box>
 
-                    {/* Address */}
+                    {/* Location Selector */}
                     <Box sx={{ width: '100%', mt: 2 }}>
-                        <Typography sx={{ fontSize: { xs: 14, md: 18 } }}>Address</Typography>
-                        <CustomTextfield
-                            placeholder="Enter your full address"
-                            {...register('address', { required: 'Address is required' })}
-                            sx={{ width: '100%', mt: 1 }}
-                        />
-                        {errors.address && <Typography color="error">{errors.address.message}</Typography>}
+                        <Typography sx={{ fontSize: { xs: 14, md: 18 } }}>Select Your Location</Typography>
+                        <MapSelector value={selectedLocation} onChange={setSelectedLocation} />
+                        {/* {selectedLocation?.address && (
+                            <Typography sx={{ mt: 2 }}>
+                                <strong>Selected Address:</strong> {selectedLocation?.address}
+                            </Typography>
+                        )} */}
+                        {/* {!selectedLocation?.address && (
+                            <Typography color="error">Please click on the map to select your location</Typography>
+                        )} */}
                     </Box>
 
                     {/* Terms and Conditions */}
