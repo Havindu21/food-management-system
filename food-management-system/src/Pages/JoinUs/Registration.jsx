@@ -55,9 +55,9 @@ const Registration = ({ userType }) => {
 
         try {
             console.log('UserData:', userData);
-            // const response = await registerUser(userData);
-            // alert('Registration Successful');
-            // navigate('/home');
+            const response = await registerUser(userData);
+            alert('Registration Successful');
+            navigate('/home');
         } catch (error) {
             console.error('Registration Error:', error.response?.data || error.message);
             alert('Registration Failed');
