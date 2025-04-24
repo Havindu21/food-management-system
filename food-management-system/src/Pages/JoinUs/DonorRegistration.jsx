@@ -121,6 +121,17 @@ const DonorRegistration = () => {
                         {errors.email && <Typography color="error">{errors.email.message}</Typography>}
                     </Box>
 
+                    {/* Business */}
+                    <Box sx={{ width: '100%', mt: 2 }}>
+                        <Typography sx={{ fontSize: { xs: 14, md: 18 } }}>Business Name (optional)</Typography>
+                        <CustomTextfield
+                            placeholder="Enter your email address"
+                            {...register('email', { required: 'Email is required' })}
+                            sx={{ width: '100%', mt: 1 }}
+                        />
+                        {errors.email && <Typography color="error">{errors.email.message}</Typography>}
+                    </Box>
+
                     {/* Password */}
                     <Box sx={{ width: '100%', mt: 2 }}>
                         <Typography sx={{ fontSize: { xs: 14, md: 18 } }}>New Password</Typography>
