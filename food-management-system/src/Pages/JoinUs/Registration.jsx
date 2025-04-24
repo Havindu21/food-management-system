@@ -8,7 +8,7 @@ import 'leaflet/dist/leaflet.css'
 import { useState } from 'react';
 import MapSelector from '../../Components/MapSelector';
 
-const DonorRegistration = () => {
+const Registration = ({userType}) => {
     const navigate = useNavigate();
     const {
         register,
@@ -17,7 +17,16 @@ const DonorRegistration = () => {
         formState: { errors },
     } = useForm();
     const [selectedLocation, setSelectedLocation] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
 
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        if (file && file.size <= 5 * 1024 * 1024) { // 5MB limit
+            setSelectedFile(file);
+        } else {
+            alert('File size exceeds 5MB or invalid format.');
+        }
+    };
 
     // Watch new password field to validate confirm password
     const newPassword = watch('password');
@@ -69,7 +78,7 @@ const DonorRegistration = () => {
                     textAlign: 'center',
                     fontWeight: 600,
                 }}>
-                    Register as Donor
+                    Register as {userType.charAt(0).toUpperCase() + userType.slice(1)}
                 </Typography>
                 <Typography sx={{
                     fontSize: { xs: 14, md: 18 },
@@ -81,7 +90,7 @@ const DonorRegistration = () => {
 
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Box sx={{
-                        display: 'flex',
+                        display: userType==='recipient' ?  'none' : 'flex',
                         justifyContent: 'space-between',
                         mt: 4,
                         gap: 4,
@@ -110,6 +119,17 @@ const DonorRegistration = () => {
                         </Box>
                     </Box>
 
+                    {/* Recipient name */}
+                    <Box sx={{ width: '100%', mt: 2, display: userType==='donor' ? 'none' : 'block' }}>
+                        <Typography sx={{ fontSize: { xs: 14, md: 18 } }}>Recipient Name</Typography>
+                        <CustomTextfield
+                            placeholder="Enter your organization name"
+                            {...register('email', { required: 'Email is required' })}
+                            sx={{ width: '100%', mt: 1 }}
+                        />
+                        {errors.email && <Typography color="error">{errors.email.message}</Typography>}
+                    </Box>
+
                     {/* Email */}
                     <Box sx={{ width: '100%', mt: 2 }}>
                         <Typography sx={{ fontSize: { xs: 14, md: 18 } }}>Email Address</Typography>
@@ -122,14 +142,14 @@ const DonorRegistration = () => {
                     </Box>
 
                     {/* Business */}
-                    <Box sx={{ width: '100%', mt: 2 }}>
+                    <Box sx={{ width: '100%', mt: 2, display: userType==='recipient' ? 'none' : 'block' }}>
                         <Typography sx={{ fontSize: { xs: 14, md: 18 } }}>Business Name (optional)</Typography>
                         <CustomTextfield
-                            placeholder="Enter your email address"
-                            {...register('email', { required: 'Email is required' })}
+                            placeholder="Enter your business name"
+                            {...register('businessName')}
                             sx={{ width: '100%', mt: 1 }}
                         />
-                        {errors.email && <Typography color="error">{errors.email.message}</Typography>}
+                        {errors.businessName && <Typography color="error">{errors.businessName.message}</Typography>}
                     </Box>
 
                     {/* Password */}
@@ -182,6 +202,38 @@ const DonorRegistration = () => {
                         )} */}
                     </Box>
 
+                    {/* Verification Document */}
+                    <Box sx={{ flexDirection: 'column', mt: 3, display: userType==='donor' ? 'none' : 'flex' }}>
+                    <Typography sx={{ fontSize: { xs: 14, md: 18 }}}>
+                        Verification Document
+                    </Typography>
+                    <Box sx={{
+                        border: '2px dashed #B0BEC5',
+                        borderRadius: 2,
+                        textAlign: 'center',
+                        padding: 3,
+                        mt: 1,
+                        bgcolor: '#F5F5F5',
+                        cursor: 'pointer',
+                    }}>
+                        <input
+                            type="file"
+                            accept=".pdf,.jpg,.png"
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                            id="file-upload"
+                        />
+                        <label htmlFor="file-upload">
+                            <Typography sx={{ color: '#059669', fontSize: { xs: 14, md: 16 }, cursor: 'pointer' }}>
+                                {selectedFile ? selectedFile.name : "Upload a file or drag and drop"}
+                            </Typography>
+                            <Typography sx={{ fontSize: { xs: 12, md: 14 }, color: '#686D76' }}>
+                                Accepted formats: PDF, JPG, PNG (Max size: 5MB)
+                            </Typography>
+                        </label>
+                    </Box>
+                </Box>
+
                     {/* Terms and Conditions */}
                     <Box sx={{ display: 'flex', alignItems: 'center', mt: 3 }}>
                         <FormControlLabel
@@ -231,4 +283,4 @@ const DonorRegistration = () => {
     );
 };
 
-export default DonorRegistration;
+export default Registration;

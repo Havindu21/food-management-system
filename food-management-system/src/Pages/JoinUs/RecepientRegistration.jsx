@@ -39,14 +39,14 @@ const RecepientRegistration = () => {
                     textAlign: 'center',
                     fontWeight: 600,
                 }}>
-                    Register as Recepient Organization
+                    Register as Recepient
                 </Typography>
                 <Typography sx={{
                     fontSize: { xs: 14, md: 18 },
                     textAlign: 'center',
                     color: '#686D76',
                 }}>
-                    For charities food banks, and other recepient organizations
+                    For charities, food banks, and other recepient organizations
                 </Typography>
                 <Box sx={{
                     display: 'flex',

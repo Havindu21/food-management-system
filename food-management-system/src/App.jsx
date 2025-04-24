@@ -11,14 +11,13 @@ import DonationStatus from "./Pages/DonationStatus/DonationStatus";
 import DonationHistory from "./Pages/DonationHistory/DonationHistory";
 import MyProfile from "./Pages/MyProfile/MyProfile";
 import JoinUs from "./Pages/JoinUs/JoinUs";
-import RecepientRegistration from "./Pages/JoinUs/RecepientRegistration";
 import RegistrationLayout from "./Layout/RegistrationLayout";
 import AvailableDonations from "./Pages/AvailableDonations/AvailableDonations";
 import RequestDonations from "./Pages/RequestDonations/RequestDonations";
 import ActivePickups from "./Pages/ActivePickups/ActivePickups";
 import PickupHistory from "./Pages/PickupHIstory/PickupHistory";
 import RecepientSettings from "./Pages/RecepientSettings/RecepientSettings";
-import DonorRegistration from "./Pages/JoinUs/DonorRegistration";
+import Registration from "./Pages/JoinUs/Registration";
 
 const router = createBrowserRouter([
     {
@@ -42,8 +41,8 @@ const router = createBrowserRouter([
                 path: "register",
                 element: <RegistrationLayout />,
                 children: [
-                    { path: "donor", element: <DonorRegistration /> },
-                    { path: "recipient", element: <RecepientRegistration /> },
+                    { path: "donor", element: <Registration userType='donor' /> },
+                    { path: "recipient", element: <Registration userType='recipient' /> },
                 ],
             },
         ],
