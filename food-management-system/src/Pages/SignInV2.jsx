@@ -55,7 +55,7 @@ const Login = ({ key }) => {
                         }}
                     >
                         <Typography sx={{
-                            fontSize: { xs: 26, sm: 32, md: 50 },
+                            fontSize: { xs: 26, sm: 32, md: 45 },
                         }}>WELCOME BACK TO</Typography>
                         <Box display={"flex"} justifyContent={"center"}>
                             <Box
@@ -67,7 +67,7 @@ const Login = ({ key }) => {
                                         xs: 145,
                                         sm: 165,
                                         md: 185,
-                                        lg: 220,
+                                        lg: 200,
                                     },
                                 }}
                             />
