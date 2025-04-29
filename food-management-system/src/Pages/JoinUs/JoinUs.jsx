@@ -6,9 +6,9 @@ import FoodBankOutlinedIcon from '@mui/icons-material/FoodBankOutlined';
 import { useNavigate } from 'react-router-dom';
 
 // Import images
-import img1 from '../../assets/JoinUs/img1.jpg';
-import img2 from '../../assets/JoinUs/img2.jpg';
-import img3 from '../../assets/JoinUs/img3.jpg';
+// import img1 from '../../assets/JoinUs/img1.jpg';
+// import img2 from '../../assets/JoinUs/img2.jpg';
+// import img3 from '../../assets/JoinUs/img3.jpg';
 
 const registerCards = [
     {
@@ -25,7 +25,8 @@ const registerCards = [
     },
 ];
 
-const backgroundImages = [img1, img2, img3];
+const backgroundImages = [];
+// const backgroundImages = [img1, img2, img3];
 
 const JoinUs = () => {
     const [selectedOption, setSelectedOption] = useState('');

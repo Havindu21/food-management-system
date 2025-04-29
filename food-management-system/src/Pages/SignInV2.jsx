@@ -1,0 +1,186 @@
+import React, { useEffect, useState } from "react";
+import {
+    Box,
+    Button,
+    Checkbox,
+    Grid2,
+    IconButton,
+    InputAdornment,
+    Typography,
+} from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserData, setUserType } from "../reducers/userSlice";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useForm } from "react-hook-form";
+import Logo from "../assets/logo-remove-bg.png";
+import CustomTextField from "../Components/GreenTextField";
+
+const Login = ({ key }) => {
+    const dateNow = key;
+    const loginTimestamp = new Date().getTime();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const [showPassword, setShowPassword] = React.useState(false);
+    const handleClickShowPassword = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
+
+    const handleLogin = () => {
+        // Login logic here
+    };
+
+
+    return (
+        <Box sx={{mb:{xs: 5, md: 0}}}>
+        <form onSubmit={handleSubmit(handleLogin)}>
+            <Grid2 container spacing={2}>
+                <Grid2
+                    item
+                    size={{ xs: 12 }}
+                    textAlign={"center"}
+                    sx={{
+                        mt: {
+                            xs: 2,
+                            md: 3,
+                            lg:0,
+                        },
+                    }}
+                >
+                    <Typography variant="h3">WELCOME BACK TO</Typography>
+                    <Box display={"flex"} justifyContent={"center"}>
+                        <Box
+                            component="img"
+                            alt="Image"
+                            src={Logo}
+                            sx={{
+                                maxWidth: {
+                                    xs: 115,
+                                    sm: 145,
+                                    lg: 190,
+                                },
+                            }}
+                        />
+                    </Box>
+                </Grid2>
+                <Grid2
+                    item
+                    size={{ xs: 12 }}
+                    sx={{
+                        mt: { xs: 0, lg: 2 },
+                    }}
+                >
+                    <Typography variant="h6">Email</Typography>
+                    <CustomTextField
+                        fullWidth
+                        error={!!errors.email}
+                        {...register("email", { required: "Email is required." })}
+                    />
+                    <Typography minHeight={21} color="red">
+                        {errors.email?.message}
+                    </Typography>
+                </Grid2>
+                <Grid2
+                    item
+                    size={{ xs: 12 }}
+                    sx={{
+                        mt: { xs: -2, md: 0 },
+                    }}
+                >
+                    <Typography variant="h6">Password</Typography>
+                    <CustomTextField
+                        fullWidth
+                        type={showPassword ? "text" : "password"}
+                        error={!!errors.password}
+                        {...register("password", { required: "Password is required." })}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={handleClickShowPassword}
+                                        edge="end"
+                                        sx={{
+                                            mr: 1,
+                                        }}
+                                    >
+                                        {showPassword ? <Visibility /> : <VisibilityOff />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <Typography minHeight={21} color="red">
+                        {errors.password?.message}
+                    </Typography>
+                </Grid2>
+                <Grid2
+                    item
+                    size={{ xs: 12 }}
+                    display="flex"
+                    justifyContent="center"
+                    sx={{
+                        mt: { xs: 0, md: 2 },
+                    }}
+                >
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        sx={{
+                            width: 228, height: 50,
+                            bgcolor: '#059669',
+                        }}
+                    >
+                        <Typography fontSize={20} fontWeight={700}>
+                            Log In
+                        </Typography>
+                    </Button>
+                </Grid2>
+                <Grid2
+                    item
+                    size={12}
+                    sx={{
+                        mt: { xs: 0, md: 2 },
+                    }}
+                    display="flex"
+                    justifyContent="center"
+                >
+                    <Typography
+                        sx={{
+                            fontWeight: 600,
+                            fontSize: { xs: 12, sm: 14 },
+                            color: "#808080",
+                        }}
+                    >
+                        Don’t have an account?
+                    </Typography>
+                    <Typography
+                        sx={{
+                            fontWeight: 600,
+                            fontSize: { xs: 12, sm: 14 },
+                            color: "#059669",
+                            display: "inline",
+                            ml: 1,
+                        }}
+                    >
+                        <Link
+                            style={{ textDecoration: "none", color: "inherit" }}
+                            to="/signup"
+                        >
+                            Sign Up
+                        </Link>
+                    </Typography>
+                </Grid2>
+            </Grid2>
+        </form>
+        </Box>
+    );
+};
+
+export default Login;
