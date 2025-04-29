@@ -59,8 +59,8 @@ const LoginLayout = () => {
                     <Box
                         sx={{
                             position: "relative",
-                            width: { xs: 250, sm: 320, md: 380, lg: 550 },
-                            height: { xs: 250, sm: 320, md: 380, lg: 550 },
+                            width: { xs: 250, sm: 320, md: 450, lg: 550 },
+                            height: { xs: 250, sm: 320, md: 450, lg: 550 },
                             display: "grid",
                             gridTemplateColumns: "1fr 1fr",
                             gridTemplateRows: "1fr 1fr",
