@@ -36,14 +36,17 @@ const router = createBrowserRouter([
         element: <LoginLayout />,
         children: [
             { path: "sign-in", element: <SignInV2 /> },
-            {
-                path: "register",
-                element: <RegistrationLayout />,
-                children: [
-                    { path: "donor", element: <Registration userType='donor' /> },
-                    { path: "recipient", element: <Registration userType='recipient' /> },
-                ],
-            },
+
+            { path: "register/donor", element: <Registration userType='donor' /> },
+            { path: "register/recipient", element: <Registration userType='recipient' /> },
+            // {
+            //     path: "register",
+            //     element: <RegistrationLayout />,
+            //     children: [
+            //         { path: "donor", element: <Registration userType='donor' /> },
+            //         { path: "recipient", element: <Registration userType='recipient' /> },
+            //     ],
+            // },
         ],
     },
     {

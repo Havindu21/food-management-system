@@ -1,6 +1,7 @@
 import { Box, Grid, useMediaQuery, useTheme } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import LoginImage3 from "../assets/JoinUs/img5.png";
+import LoginImage2 from "../assets/JoinUs/img2.png";
 import { useEffect, useState } from "react";
 
 const LoginLayout = () => {
