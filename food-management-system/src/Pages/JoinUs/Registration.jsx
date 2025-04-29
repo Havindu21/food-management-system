@@ -420,7 +420,7 @@ const Registration = ({ userType }) => {
                             ml: 1,
                             cursor: 'pointer'
                         }}
-                        onClick={() => navigate('/home')} // or '/sign-in'
+                        onClick={() => navigate('/sign-in')} 
                     >
                         Log in here
                     </Typography>
