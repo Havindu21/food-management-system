@@ -26,9 +26,10 @@ const Projects = () => {
     // Custom intersection observer to trigger animations
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
-            // Update isVisible based on whether the section is in view
-            // This will now toggle the state when entering or leaving the viewport
-            setIsVisible(entries[0].isIntersecting);
+            if (entries[0].isIntersecting) {
+                setIsVisible(true);
+                observer.disconnect();
+            }
         }, { threshold: 0.1 });
 
         const section = document.getElementById('projects-section');
@@ -142,11 +143,11 @@ const Projects = () => {
                     bottom: '-10px',
                     padding: '10px',
                     '& .slick-dots li button:before': {
-                        color: '#059669',
-                        opacity: 0.25,
+                        color: 'white',
+                        opacity: 0.5,
                     },
                     '& .slick-dots li.slick-active button:before': {
-                        color: '#059669',
+                        color: 'white',
                         opacity: 1,
                     },
                 }}
@@ -204,7 +205,7 @@ const Projects = () => {
             id="projects-section"
             sx={{
                 py: 6,
-                bgcolor: '#f9fafb',
+                background: 'linear-gradient(135deg, #057857 0%, #059669 100%)',
                 position: 'relative',
                 overflow: 'hidden',
                 // Define keyframes for fade-in animation
@@ -220,7 +221,45 @@ const Projects = () => {
                 },
             }}
         >
-            <Container maxWidth="lg">
+            {/* Background decorative elements */}
+            <Box
+                sx={{
+                    position: 'absolute',
+                    width: 300,
+                    height: 300,
+                    borderRadius: '60%',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    top: -100,
+                    left: -100,
+                    zIndex: 0,
+                }}
+            />
+            <Box
+                sx={{
+                    position: 'absolute',
+                    width: 200,
+                    height: 200,
+                    borderRadius: '60%',
+                    background: 'rgba(255, 255, 255, 0.07)',
+                    top: -80,
+                    left: -80,
+                    zIndex: 0,
+                }}
+            />
+            <Box
+                sx={{
+                    position: 'absolute',
+                    width: 100,
+                    height: 100,
+                    borderRadius: '60%',
+                    background: 'rgba(255, 255, 255, 0.07)',
+                    top: -60,
+                    left: -60,
+                    zIndex: 0,
+                }}
+            />
+            
+            <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
                 <Box 
                     sx={{
                         display: 'flex',
@@ -239,7 +278,7 @@ const Projects = () => {
                             sx={{
                                 fontSize: { xs: 24, sm: 28, md: 32 },
                                 fontWeight: 700,
-                                color: '#111827',
+                                color: 'white',
                                 position: 'relative',
                                 display: 'inline-block',
                                 mb: 2,
@@ -250,7 +289,7 @@ const Projects = () => {
                                     left: 0,
                                     width: 60,
                                     height: 3,
-                                    backgroundColor: '#059669',
+                                    backgroundColor: 'white',
                                     borderRadius: 1,
                                 }
                             }}
@@ -260,13 +299,35 @@ const Projects = () => {
                         <Typography
                             sx={{
                                 fontSize: { xs: 16, md: 18 },
-                                color: '#4B5563',
+                                color: 'rgba(255, 255, 255, 0.9)',
                                 maxWidth: 600,
                             }}
                         >
                             Explore how we're making a difference in communities across Sri Lanka
                         </Typography>
                     </Box>
+                    
+                    {!isMobile && (
+                        <Button
+                            variant="outlined"
+                            endIcon={<ArrowForwardIcon />}
+                            sx={{
+                                borderColor: 'white',
+                                color: 'white',
+                                borderRadius: 2,
+                                px: 3,
+                                py: 1,
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                '&:hover': {
+                                    borderColor: 'white',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                }
+                            }}
+                        >
+                            View All Projects
+                        </Button>
+                    )}
                 </Box>
 
                 <Box 
@@ -288,12 +349,12 @@ const Projects = () => {
                                     sx={{ 
                                         borderRadius: 3,
                                         overflow: 'hidden',
-                                        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                                        boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
                                         transition: 'all 0.3s ease',
                                         height: '100%',
                                         '&:hover': {
                                             transform: 'translateY(-6px)',
-                                            boxShadow: '0 12px 24px rgba(0,0,0,0.12)',
+                                            boxShadow: '0 16px 40px rgba(0,0,0,0.2)',
                                         }
                                     }}
                                 >
@@ -310,10 +371,10 @@ const Projects = () => {
                                                 position: 'absolute',
                                                 top: 16,
                                                 right: 16,
-                                                bgcolor: 'rgba(5, 150, 105, 0.9)',
+                                                bgcolor: '#059669',
                                                 color: 'white',
                                                 fontWeight: 600,
-                                                backdropFilter: 'blur(4px)',
+                                                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                                             }}
                                         />
                                     </Box>
@@ -370,6 +431,30 @@ const Projects = () => {
                         ))}
                     </Slider>
                 </Box>
+                
+                {isMobile && (
+                    <Box sx={{ mt: 4, textAlign: 'center' }}>
+                        <Button
+                            variant="outlined"
+                            endIcon={<ArrowForwardIcon />}
+                            sx={{
+                                borderColor: 'white',
+                                color: 'white',
+                                borderRadius: 2,
+                                px: 3,
+                                py: 1,
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                '&:hover': {
+                                    borderColor: 'white',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                }
+                            }}
+                        >
+                            View All Projects
+                        </Button>
+                    </Box>
+                )}
             </Container>
         </Box>
     );
