@@ -4,7 +4,7 @@ import { styled } from "@mui/system";
 
 const GreenTextField = styled(TextField)(({ theme, error }) => ({
   "& .MuiInputBase-root": {
-    color: "#EEEEEE", // Text color
+    // color: "#EEEEEE", // Text color
     backgroundColor: "#C8E6C9", // Background color
     padding: 0, // Padding
     borderRadius: 6, // Border radius
