@@ -22,6 +22,7 @@
     "@mui/material": "^6.4.8",
     "@mui/x-date-pickers": "^7.28.2",
     "@reduxjs/toolkit": "^2.7.0",
+    "aos": "^2.3.4",
     "axios": "^1.8.4",
     "dayjs": "^1.11.13",
     "framer-motion": "^12.5.0",
