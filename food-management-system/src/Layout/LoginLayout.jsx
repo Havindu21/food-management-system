@@ -11,7 +11,9 @@ const LoginLayout = () => {
         <Box
             sx={{
                 width: "100%",
-                height:{xs: '60vh',md:"100vh"},
+                height:{xs: '40vh',sm:'60vh',md:"100vh"},
+                pt: {xs:5,md:0},
+                pb: {xs:3,md:0},
             }}
         >
             <Grid2 container >
@@ -31,7 +33,7 @@ const LoginLayout = () => {
                                     display="flex"
                                     justifyContent="center"
                                     alignItems="center"
-                                    height={{xs: '60vh',md:"100vh"}}
+                                    height={{xs: '',md:"100vh"}}
                                     sx={{
                                         transform: {xs:'unset',lg:"scale(1.5)"},
                                     }}
