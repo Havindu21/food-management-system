@@ -36,7 +36,6 @@ const router = createBrowserRouter([
         element: <LoginLayout />,
         children: [
             { path: "sign-in", element: <SignInV2 /> },
-            { path: "join-us", element: <JoinUs /> },
             {
                 path: "register",
                 element: <RegistrationLayout />,
@@ -46,6 +45,10 @@ const router = createBrowserRouter([
                 ],
             },
         ],
+    },
+    {
+        path: "/join-us",
+        element: <JoinUs />,
     },
     {
         path: "/profile",

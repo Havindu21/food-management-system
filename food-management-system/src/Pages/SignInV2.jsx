@@ -174,7 +174,7 @@ const Login = ({ key }) => {
                         >
                             <Link
                                 style={{ textDecoration: "none", color: "inherit" }}
-                                to="/signup"
+                                to="/join-us"
                             >
                                 Sign Up
                             </Link>
