@@ -133,7 +133,8 @@ const Login = ({ key }) => {
                         }}
                     >
                         <Button
-                            type="submit"
+                            // type="submit"
+                            onClick={()=>navigate("/home")}
                             variant="contained"
                             sx={{
                                 width: 228, height: 50,
