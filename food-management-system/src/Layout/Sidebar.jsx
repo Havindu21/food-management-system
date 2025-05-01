@@ -23,6 +23,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SettingsIcon from '@mui/icons-material/Settings';
+import RequestPageIcon from '@mui/icons-material/RequestPage';
 import { useState } from 'react';
 
 const drawerWidth = 240;
@@ -35,7 +36,7 @@ export default function Sidebar() {
     const initialTab = location.state?.initialTab || 'Dashboard';
     const [currentTab, setCurrentTab] = useState(initialTab);
     const navigate = useNavigate();
-    const userRole = localStorage.getItem('userRole') || 'Rec'; // Default to 'Don' if not set
+    const userRole = localStorage.getItem('userRole') || 'Don'; // Default to 'Don' if not set
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -53,9 +54,14 @@ export default function Sidebar() {
             path: 'dashboard',
         },
         {
-            label: 'Donations',
+            label: 'Donate Food',
             icon: <VolunteerActivismIcon />,
-            path: 'donations',
+            path: 'donate-food',
+        },
+        {
+            label: 'Food Requests',
+            icon: <RequestPageIcon />,
+            path: 'food-requests',
         },
         {
             label: 'Donations Status',

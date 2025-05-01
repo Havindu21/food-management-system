@@ -6,7 +6,6 @@ import LandingLayout from "./Layout/LandingLayout";
 import Home from "./Pages/Home/Home";
 import ProfileLayout from "./Layout/ProfileLayout";
 import Dashboard from "./Pages/Dashboard/Dashboard";
-import Donations from "./Pages/Donations/Donations";
 import DonationStatus from "./Pages/DonationStatus/DonationStatus";
 import DonationHistory from "./Pages/DonationHistory/DonationHistory";
 import MyProfile from "./Pages/MyProfile/MyProfile";
@@ -18,6 +17,8 @@ import ActivePickups from "./Pages/ActivePickups/ActivePickups";
 import PickupHistory from "./Pages/PickupHIstory/PickupHistory";
 import RecepientSettings from "./Pages/RecepientSettings/RecepientSettings";
 import Registration from "./Pages/JoinUs/Registration";
+import DonateFood from "./Pages/Donations/DonateFood";
+import FoodRequests from "./Pages/FoodRequests/FoodRequests";
 
 const router = createBrowserRouter([
     {
@@ -58,7 +59,8 @@ const router = createBrowserRouter([
         element: <ProfileLayout />,
         children: [
             { path: "dashboard", element: <Dashboard /> },
-            { path: "donations", element: <Donations /> },
+            { path: "donate-food", element: <DonateFood /> },
+            { path: "food-requests", element: <FoodRequests /> },
             { path: "donation-status", element: <DonationStatus /> },
             { path: "donation-history", element: <DonationHistory /> },
             { path: "my-profile", element: <MyProfile /> },

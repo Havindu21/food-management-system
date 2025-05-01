@@ -13,7 +13,7 @@ import FoodBankIcon from '@mui/icons-material/FoodBank';
 import MapSelector from '../../Components/MapSelector';
 import dayjs from 'dayjs';
 
-const Donations = () => {
+const DonateFood = () => {
     const [foodItems, setFoodItems] = useState([
         { mealName: '', quantity: '', expiryDate: null, expiryTime: null }
     ]);
@@ -351,4 +351,4 @@ const Donations = () => {
     );
 };
 
-export default Donations;
+export default DonateFood;
