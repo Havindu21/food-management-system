@@ -19,6 +19,7 @@ import RecepientSettings from "./Pages/RecepientSettings/RecepientSettings";
 import Registration from "./Pages/JoinUs/Registration";
 import DonateFood from "./Pages/Donations/DonateFood";
 import FoodRequests from "./Pages/FoodRequests/FoodRequests";
+import ActiveDonations from "./Pages/ActiveDonations/ActiveDonations";
 
 const router = createBrowserRouter([
     {
@@ -61,6 +62,7 @@ const router = createBrowserRouter([
             { path: "dashboard", element: <Dashboard /> },
             { path: "donate-food", element: <DonateFood /> },
             { path: "food-requests", element: <FoodRequests /> },
+            { path: "active-donations", element: <ActiveDonations /> },
             { path: "donation-status", element: <DonationStatus /> },
             { path: "donation-history", element: <DonationHistory /> },
             { path: "my-profile", element: <MyProfile /> },

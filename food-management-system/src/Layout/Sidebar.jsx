@@ -24,6 +24,7 @@ import FastfoodIcon from '@mui/icons-material/Fastfood';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SettingsIcon from '@mui/icons-material/Settings';
 import RequestPageIcon from '@mui/icons-material/RequestPage';
+import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
 import { useState } from 'react';
 
 const drawerWidth = 240;
@@ -64,10 +65,15 @@ export default function Sidebar() {
             path: 'food-requests',
         },
         {
-            label: 'Donations Status',
-            icon: <SignalWifiStatusbarConnectedNoInternet4Icon />,
-            path: 'donation-status',
+            label: 'Active Donations',
+            icon: <ShoppingBasketIcon />,
+            path: 'active-donations',
         },
+        // {
+        //     label: 'Donations Status',
+        //     icon: <SignalWifiStatusbarConnectedNoInternet4Icon />,
+        //     path: 'donation-status',
+        // },
         {
             label: 'Donation History',
             icon: <HistoryIcon />,
@@ -93,6 +99,11 @@ export default function Sidebar() {
             label: 'Request Donations',
             icon: <VolunteerActivismIcon />,
             path: 'request-donations',
+        },
+        {
+            label: 'Active Donations',
+            icon: <ShoppingBasketIcon />,
+            path: 'active-donations',
         },
         {
             label: 'Active Pickups',
