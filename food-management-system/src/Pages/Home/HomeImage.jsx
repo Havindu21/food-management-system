@@ -147,9 +147,10 @@ const HomeImage = () => {
                     sx={{ 
                         minHeight: "100vh",
                         alignItems: "center",
+                        flexDirection: { xs: "column-reverse", md: "row" } // Reverse order for small screens
                     }}
                 >
-                    {/* Text content - Left side */}
+                    {/* Text content - Left side on md+ screens, bottom on xs/sm screens */}
                     <Grid 
                         item 
                         xs={12} 
@@ -159,12 +160,12 @@ const HomeImage = () => {
                         initial="hidden"
                         animate={isVisible ? "visible" : "hidden"}
                     >
-                        <Box sx={{ maxWidth: {xs:600,md:800}, mb: { xs: 6, md: 0 } }}>
+                        <Box sx={{ maxWidth: {xs:600,md:950}, mb: { xs: 6, md: 0 },minWidth: { xs: 300,md:720, lg: 900 } }}>
                             {/* Animated title */}
                             <Typography 
                                 component="h1"
                                 sx={{
-                                    fontSize: { xs: 42, sm: 52, md: 58, lg: 64 },
+                                    fontSize: { xs: 27, sm: 52, md: 58, lg: 64 },
                                     fontWeight: 800,
                                     color: "white",
                                     mb: 3,
@@ -247,7 +248,7 @@ const HomeImage = () => {
                                 sx={{ 
                                     mt: 8,
                                     display: { xs: "none", md: "flex" },
-                                    gap: 3
+                                    gap: 3,
                                 }}
                             >
                                 {features.map((feature, index) => (
@@ -261,8 +262,8 @@ const HomeImage = () => {
                                                 display: "flex",
                                                 flexDirection: "column",
                                                 alignItems: "center",
-                                                width: 160,
-                                                height: 160,
+                                                width: {xs:100,md: 170,},
+                                                height: 180,
                                                 p: 2,
                                                 backgroundColor: "rgba(255, 255, 255, 0.05)",
                                                 backdropFilter: "blur(10px)",
@@ -316,16 +317,19 @@ const HomeImage = () => {
                         </Box>
                     </Grid>
 
-                    {/* Image - Right side */}
+                    {/* Image - Right side on md+ screens, top on xs/sm screens */}
                     <Grid item xs={12} md={6}>
                         <Box
                             sx={{
                                 position: "relative",
                                 width: "100%",
-                                height: { xs: 350, md: 550 },
+                                height: { xs: 300, sm: 350, md: 550 }, // Slightly reduced height for xs
                                 display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center"
+                                justifyContent: { xs: "center", md: "flex-end" },
+                                alignItems: { xs: "center", md: "flex-end" },
+                                mb: { xs: 3, md: -2 }, // Added margin bottom for xs/sm
+                                mt: { xs: 2, md: 0 }, // Added margin top for xs/sm
+                                pr: { xs: 0, md: 2 }
                             }}
                         >
                             {/* Decorative circle behind image */}
@@ -336,11 +340,13 @@ const HomeImage = () => {
                                 transition={{ duration: 0.8, delay: 0.4 }}
                                 sx={{
                                     position: "absolute",
-                                    width: { xs: 280, md: 400 },
-                                    height: { xs: 280, md: 400 },
+                                    width: { xs: 250, md: 400 },
+                                    height: { xs: 250, md: 400 },
                                     borderRadius: "50%",
                                     background: "radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%)",
                                     filter: "blur(20px)",
+                                    bottom: { xs: 'auto', md: '5%' },
+                                    right: { xs: 'auto', md: '5%' }
                                 }}
                             />
                             
@@ -353,11 +359,14 @@ const HomeImage = () => {
                                 animate={{ y: isVisible ? 0 : 30, opacity: isVisible ? 1 : 0 }}
                                 transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                                 sx={{
-                                    width: { xs: "90%", sm: "80%", md: "85%" },
+                                    width: { xs: "80%", sm: "100%", md: "85%" },
                                     maxHeight: { xs: "90%", md: "90%" },
                                     objectFit: "contain",
                                     zIndex: 1,
-                                    filter: "drop-shadow(0 20px 30px rgba(0, 0, 0, 0.25))"
+                                    filter: "drop-shadow(0 20px 30px rgba(0, 0, 0, 0.25))",
+                                    position: { md: "absolute" },
+                                    bottom: { md: '0' },
+                                    right: { md: '0' },
                                 }}
                             />
                         </Box>
@@ -372,12 +381,83 @@ const HomeImage = () => {
                     display: { xs: "block", md: "none" },
                     pb: 8,
                     zIndex: 1,
-                    position: "relative"
+                    position: "relative",
+                    px: { xs: 2, sm: 10,md:0 },
                 }}
             >
-                <Grid container spacing={2}>
+                {/* XS screens - Horizontal layout */}
+                <Box sx={{ 
+                    display: { xs: "flex", sm: "none" }, 
+                    flexDirection: "column", 
+                    gap: 2 
+                }}>
                     {features.map((feature, index) => (
-                        <Grid item xs={4} key={index}>
+                        <Box
+                            key={`xs-${index}`}
+                            component={motion.div}
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: isVisible ? 0 : 20, opacity: isVisible ? 1 : 0 }}
+                            transition={{ duration: 0.5, delay: 0.6 + (index * 0.1) }}
+                            sx={{
+                                display: "flex",
+                                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                                backdropFilter: "blur(10px)",
+                                borderRadius: 2,
+                                border: "1px solid rgba(255, 255, 255, 0.1)",
+                                py: 2,
+                                px: {xs:1,sm:2,},
+                                alignItems: "center"
+                            }}
+                        >
+                            <Box sx={{ 
+                                display: "flex", 
+                                alignItems: "center", 
+                                minWidth: 130 
+                            }}>
+                                <Box 
+                                    sx={{ 
+                                        bgcolor: "rgba(5, 150, 105, 0.2)",
+                                        width: 36,
+                                        height: 36,
+                                        borderRadius: "50%",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        mr: 1.5
+                                    }}
+                                >
+                                    <feature.icon sx={{ color: "#10b981", fontSize: 18 }} />
+                                </Box>
+                                <Typography 
+                                    sx={{ 
+                                        color: "white", 
+                                        fontWeight: 600,
+                                        fontSize: 13,
+                                    }}
+                                >
+                                    {feature.title}
+                                </Typography>
+                            </Box>
+                            
+                            <Typography 
+                                sx={{ 
+                                    color: "rgba(255, 255, 255, 0.7)", 
+                                    fontSize: 11,
+                                    ml: {xs:'auto',sm: 1,},
+                                    flex: 1,
+                                    maxWidth:{xs:140,sm:''},
+                                }}
+                            >
+                                {feature.description}
+                            </Typography>
+                        </Box>
+                    ))}
+                </Box>
+
+                {/* SM screens - Original grid layout */}
+                <Grid container spacing={2} sx={{ display: { xs: "none", sm: "flex" } }}>
+                    {features.map((feature, index) => (
+                        <Grid item xs={4} key={`sm-${index}`}>
                             <Box
                                 component={motion.div}
                                 initial={{ y: 20, opacity: 0 }}
@@ -424,8 +504,7 @@ const HomeImage = () => {
                                     sx={{ 
                                         color: "rgba(255, 255, 255, 0.7)", 
                                         fontSize: 12,
-                                        textAlign: "center",
-                                        display: { xs: "none", sm: "block" }
+                                        textAlign: "center"
                                     }}
                                 >
                                     {feature.description}
