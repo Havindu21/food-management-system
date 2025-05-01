@@ -202,7 +202,8 @@ const Navbar = ({ callingFrom }) => {
                         Join Us
                     </Button>
                 </Box>
-                <Box sx={{ flexGrow: 0, display: callingFrom === 'PROFILE' ? 'flex' : isLogged ? 'flex' : 'none' }}>
+                {/* <Box sx={{ flexGrow: 0, display: callingFrom === 'PROFILE' ? 'flex' : isLogged ? 'flex' : 'none' }}> */}
+                <Box sx={{ flexGrow: 0, display: 'flex' }}>
                     <IconButton onClick={handleOpenUserMenu} sx={{
                         p: 0,
                         bgcolor: callingFrom === 'PROFILE' ? '#059669' : isScrolled ? '#059669' : '#FFFFFF',

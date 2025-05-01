@@ -10,7 +10,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 
 const Dashboard = () => {
-    const userRole = localStorage.getItem('userRole');
+    const userRole = localStorage.getItem('userRole') || 'Rec'; // Default to 'Don' if userRole is not set
     const tiles = userRole === 'Don' ? [
         {
             title: 'Total Meals Donated',
