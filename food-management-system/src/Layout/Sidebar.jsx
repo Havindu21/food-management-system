@@ -35,7 +35,7 @@ export default function Sidebar() {
     const initialTab = location.state?.initialTab || 'Dashboard';
     const [currentTab, setCurrentTab] = useState(initialTab);
     const navigate = useNavigate();
-    const userRole = localStorage.getItem('userRole') || 'Don'; // Default to 'Don' if not set
+    const userRole = localStorage.getItem('userRole') || 'Rec'; // Default to 'Don' if not set
 
     const handleDrawerOpen = () => {
         setOpen(true);

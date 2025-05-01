@@ -1,437 +1,401 @@
-import { Autocomplete, Box, Button, createFilterOptions, Grid2, TextField, Typography } from '@mui/material'
+import React, { useState } from 'react';
+import {
+    Box, Typography, TextField, Button, Grid, Paper, IconButton,
+    Divider, Card, CardContent, MenuItem, InputAdornment
+} from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import React from 'react'
-
-const filter = createFilterOptions();
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
+import dayjs from 'dayjs';
 
 const RequestDonations = () => {
-    const [value, setValue] = React.useState();
+    // Main request details (single for the entire form)
+    const [requestTitle, setRequestTitle] = useState('');
+    const [requestDescription, setRequestDescription] = useState('');
+    
+    // Individual food items
+    const [foodRequests, setFoodRequests] = useState([
+        { mealName: '', quantityNeeded: '', deadline: null }
+    ]);
+    
+    const [contactNumber, setContactNumber] = useState('');
+    const [contactNumberError, setContactNumberError] = useState('');
+    const [formErrors, setFormErrors] = useState({});
+
+    // Add a new food request to the list
+    const handleAddFoodRequest = () => {
+        setFoodRequests([...foodRequests, { mealName: '', quantityNeeded: '', deadline: null }]);
+    };
+
+    // Remove a food request from the list
+    const handleRemoveFoodRequest = (index) => {
+        const newFoodRequests = [...foodRequests];
+        newFoodRequests.splice(index, 1);
+        setFoodRequests(newFoodRequests);
+    };
+
+    // Update a food request field
+    const handleFoodRequestChange = (index, field, value) => {
+        const newFoodRequests = [...foodRequests];
+        newFoodRequests[index][field] = value;
+        setFoodRequests(newFoodRequests);
+
+        // Clear error when user types
+        if (formErrors[`foodRequests[${index}].${field}`]) {
+            const newErrors = { ...formErrors };
+            delete newErrors[`foodRequests[${index}].${field}`];
+            setFormErrors(newErrors);
+        }
+    };
+
+    // Update title and clear error
+    const handleTitleChange = (value) => {
+        setRequestTitle(value);
+        if (formErrors.title) {
+            const newErrors = { ...formErrors };
+            delete newErrors.title;
+            setFormErrors(newErrors);
+        }
+    };
+
+    // Update description
+    const handleDescriptionChange = (value) => {
+        setRequestDescription(value);
+    };
+
+    // Validate Sri Lankan phone number
+    const validateContactNumber = (number) => {
+        setContactNumber(number);
+
+        // Sri Lankan mobile number format
+        const regex = /^(?:0|94|\+94)?(?:(11|21|23|24|25|26|27|31|32|33|34|35|36|37|38|41|45|47|51|52|54|55|57|63|65|66|67|81|91)(0|2|3|4|5|7|9)|7(0|1|2|4|5|6|7|8)\d)\d{6}$/;
+
+        if (!number) {
+            setContactNumberError('Contact number is required');
+        } else if (!regex.test(number)) {
+            setContactNumberError('Please enter a valid Sri Lankan phone number');
+        } else {
+            setContactNumberError('');
+        }
+    };
+
+    // Form validation
+    const validateForm = () => {
+        const errors = {};
+
+        // Validate main title
+        if (!requestTitle.trim()) {
+            errors.title = 'Request title is required';
+        }
+
+        // Validate food requests
+        foodRequests.forEach((item, index) => {
+            if (!item.mealName) {
+                errors[`foodRequests[${index}].mealName`] = 'Meal name is required';
+            }
+            if (!item.quantityNeeded) {
+                errors[`foodRequests[${index}].quantityNeeded`] = 'Quantity needed is required';
+            }
+            if (!item.deadline) {
+                errors[`foodRequests[${index}].deadline`] = 'Deadline is required';
+            }
+        });
+
+        // Validate contact number
+        if (!contactNumber) {
+            errors.contactNumber = 'Contact number is required';
+        } else if (contactNumberError) {
+            errors.contactNumber = contactNumberError;
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    // Handle form submission
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (validateForm()) {
+            console.log('Form submitted:', { 
+                title: requestTitle,
+                description: requestDescription,
+                foodRequests,
+                contactNumber
+            });
+            // Here you would handle the submission to your backend
+
+            // Show success message or redirect
+            alert('Food request submitted successfully!');
+        } else {
+            console.log('Form has errors');
+        }
+    };
 
     return (
-        <Box sx={{width: '100%'}}>
-            <Box sx={{
-                px: { xs: 2, md: 3 },
-                py: { xs: 2, md: 3 },
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                bgcolor: '#FFFFFF',
-                mt: 4,
-                borderRadius: 2,
-            }}>
+        <Box sx={{ width: '100%', mb: 6 }}>
+            <Box sx={{ mb: 4 }}>
                 <Typography sx={{
-                    fontSize: { xs: 16, md: 18 },
-                    fontWeight: 600,
+                    fontSize: { xs: 24, md: 28 },
+                    fontWeight: 700,
+                    color: '#059669',
+                    mb: 1,
                 }}>
-                    Request Meal Packs
+                    Request Food Donations
                 </Typography>
-                <Grid2 container spacing={4}>
-                    {fields1.map((field, index) => (
-                        <Grid2 item key={index} size={{ xs: 12, md: 6 }}>
-                            <Typography sx={{
-                                fontSize: { xs: 14, md: 16 },
-                                fontWeight: 500,
-                                mb: 1
-                            }}>
-                                {field.title}
-                            </Typography>
-                            {field.title === 'Expiration Date' ? (
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        sx={{ width: '100%' }} // Ensures the component itself is 100% width
-                                        slotProps={{
-                                            textField: {
-                                                fullWidth: true, // Ensures TextField takes full width
-                                                sx: {
-                                                    '& .MuiInputBase-root': {
-                                                        height: 40,
-                                                        width: '100%', // Forces input base to full width
-                                                    },
-                                                    '& .MuiOutlinedInput-root': {
-                                                        width: '100%', // Fixes outlined input width issue
-                                                    },
-                                                    '& .MuiFormLabel-root': {
-                                                        mt: -1, // Adjusts label spacing
-                                                    },
-                                                }
-                                            }
-                                        }}
-                                    />
-                                </LocalizationProvider>
-                            ) : field.title === 'Food Category' || field.title === 'Meal Category' ? (
-                                <Autocomplete
-                                    size='small'
-                                    value={value}
-                                    onChange={(event, newValue) => {
-                                        if (typeof newValue === 'string') {
-                                            setValue({
-                                                title: newValue,
-                                            });
-                                        } else if (newValue && newValue.inputValue) {
-                                            // Create a new value from the user input
-                                            setValue({
-                                                title: newValue.inputValue,
-                                            });
-                                        } else {
-                                            setValue(newValue);
-                                        }
-                                    }}
-                                    filterOptions={(options, params) => {
-                                        const filtered = filter(options, params);
+                <Typography sx={{
+                    fontSize: { xs: 14, md: 16 },
+                    color: '#686D76',
+                    mb: 2,
+                }}>
+                    Let donors know what supplies you need for your community
+                </Typography>
+                <Divider sx={{ mb: 4 }} />
+            </Box>
 
-                                        const { inputValue } = params;
-                                        // Suggest the creation of a new value
-                                        const isExisting = options.some((option) => inputValue === option.title);
-                                        if (inputValue !== '' && !isExisting) {
-                                            filtered.push({
-                                                inputValue,
-                                                title: `Add "${inputValue}"`,
-                                            });
-                                        }
-
-                                        return filtered;
-                                    }}
-                                    selectOnFocus
-                                    clearOnBlur
-                                    handleHomeEndKeys
-                                    id="free-solo-with-text-demo"
-                                    options={top100Films}
-                                    getOptionLabel={(option) => {
-                                        // Value selected with enter, right from the input
-                                        if (typeof option === 'string') {
-                                            return option;
-                                        }
-                                        // Add "xxx" option created dynamically
-                                        if (option.inputValue) {
-                                            return option.inputValue;
-                                        }
-                                        // Regular option
-                                        return option.title;
-                                    }}
-                                    renderOption={(props, option) => {
-                                        const { key, ...optionProps } = props;
-                                        return (
-                                            <li key={key} {...optionProps}>
-                                                {option.title}
-                                            </li>
-                                        );
-                                    }}
-                                    freeSolo
-                                    renderInput={(params) => (
-                                        <TextField {...params} />
-                                    )}
-                                />
-                            ) : (
-                                <TextField
-                                    size='small'
-                                    fullWidth
-                                    variant="outlined"
-                                    placeholder={`Enter ${field.title.toLowerCase()}`}
-                                />
-                            )}
-                        </Grid2>
-                    ))}
-                </Grid2>
-                <Button sx={{
-                    width: { xs: '100%', md: 200, },
-                    bgcolor: '#059669',
-                    py: 1,
-                    mt: 2,
+            <form onSubmit={handleSubmit}>
+                <Paper elevation={2} sx={{
+                    p: { xs: 2, md: 4 },
+                    borderRadius: 2,
+                    background: 'linear-gradient(to right bottom, #ffffff, #f9fffc)'
                 }}>
                     <Typography sx={{
-                        fontSize: { xs: 14, md: 16 },
-                        fontWeight: 500,
-                        color: '#FFFFFF',
-                        textTransform: 'none'
+                        fontSize: 18,
+                        fontWeight: 600,
+                        mb: 3,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        color: '#333',
                     }}>
-                        Request Donation
+                        <RestaurantIcon sx={{ color: '#059669' }} /> Request Information
                     </Typography>
-                </Button>
-            </Box>
-            <Box sx={{
-                px: { xs: 2, md: 3 },
-                py: { xs: 2, md: 3 },
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                bgcolor: '#FFFFFF',
-                mt: 4,
-                borderRadius: 2,
-            }}>
-                <Typography sx={{
-                    fontSize: { xs: 16, md: 18 },
-                    fontWeight: 600,
-                }}>
-                    Request Food
-                </Typography>
-                <Grid2 container spacing={4}>
-                    {fields2.map((field, index) => (
-                        <Grid2 item key={index} size={{ xs: 12, md: 6 }}>
-                            <Typography sx={{
-                                fontSize: { xs: 14, md: 16 },
-                                fontWeight: 500,
-                                mb: 1
-                            }}>
-                                {field.title}
-                            </Typography>
-                            {field.title === 'Expiration Date' ? (
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DatePicker
-                                        sx={{ width: '100%' }} // Ensures the component itself is 100% width
-                                        slotProps={{
-                                            textField: {
-                                                fullWidth: true, // Ensures TextField takes full width
-                                                sx: {
-                                                    '& .MuiInputBase-root': {
-                                                        height: 40,
-                                                        width: '100%', // Forces input base to full width
-                                                    },
-                                                    '& .MuiOutlinedInput-root': {
-                                                        width: '100%', // Fixes outlined input width issue
-                                                    },
-                                                    '& .MuiFormLabel-root': {
-                                                        mt: -1, // Adjusts label spacing
-                                                    },
-                                                }
-                                            }
-                                        }}
+
+                    {/* Request Title and Description (Single for the whole request) */}
+                    <Card
+                        variant="outlined"
+                        sx={{
+                            mb: 4,
+                            borderColor: '#e0e0e0',
+                            borderRadius: 2,
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                            }
+                        }}
+                    >
+                        <CardContent>
+                            <Grid container spacing={3}>
+                                <Grid item xs={12}>
+                                    <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 1 }}>
+                                        Request Title<span style={{ color: 'red' }}> *</span>
+                                    </Typography>
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        placeholder="Enter a title for your food request"
+                                        value={requestTitle}
+                                        onChange={(e) => handleTitleChange(e.target.value)}
+                                        error={!!formErrors.title}
+                                        helperText={formErrors.title || ''}
+                                        sx={{ mb: 2 }}
                                     />
-                                </LocalizationProvider>
-                            ) : field.title === 'Food Category' || field.title === 'Meal Category' ? (
-                                <Autocomplete
-                                    size='small'
-                                    value={value}
-                                    onChange={(event, newValue) => {
-                                        if (typeof newValue === 'string') {
-                                            setValue({
-                                                title: newValue,
-                                            });
-                                        } else if (newValue && newValue.inputValue) {
-                                            // Create a new value from the user input
-                                            setValue({
-                                                title: newValue.inputValue,
-                                            });
-                                        } else {
-                                            setValue(newValue);
-                                        }
-                                    }}
-                                    filterOptions={(options, params) => {
-                                        const filtered = filter(options, params);
+                                </Grid>
 
-                                        const { inputValue } = params;
-                                        // Suggest the creation of a new value
-                                        const isExisting = options.some((option) => inputValue === option.title);
-                                        if (inputValue !== '' && !isExisting) {
-                                            filtered.push({
-                                                inputValue,
-                                                title: `Add "${inputValue}"`,
-                                            });
-                                        }
+                                <Grid item xs={12}>
+                                    <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 1 }}>
+                                        Request Description
+                                    </Typography>
+                                    <TextField
+                                        fullWidth
+                                        multiline
+                                        rows={3}
+                                        size="small"
+                                        placeholder="Describe your overall request and any special requirements"
+                                        value={requestDescription}
+                                        onChange={(e) => handleDescriptionChange(e.target.value)}
+                                    />
+                                </Grid>
+                            </Grid>
+                        </CardContent>
+                    </Card>
 
-                                        return filtered;
-                                    }}
-                                    selectOnFocus
-                                    clearOnBlur
-                                    handleHomeEndKeys
-                                    id="free-solo-with-text-demo"
-                                    options={top100Films}
-                                    getOptionLabel={(option) => {
-                                        // Value selected with enter, right from the input
-                                        if (typeof option === 'string') {
-                                            return option;
-                                        }
-                                        // Add "xxx" option created dynamically
-                                        if (option.inputValue) {
-                                            return option.inputValue;
-                                        }
-                                        // Regular option
-                                        return option.title;
-                                    }}
-                                    renderOption={(props, option) => {
-                                        const { key, ...optionProps } = props;
-                                        return (
-                                            <li key={key} {...optionProps}>
-                                                {option.title}
-                                            </li>
-                                        );
-                                    }}
-                                    freeSolo
-                                    renderInput={(params) => (
-                                        <TextField {...params} />
-                                    )}
-                                />
-                            ) : (
-                                <TextField
-                                    size='small'
-                                    fullWidth
-                                    variant="outlined"
-                                    placeholder={`Enter ${field.title.toLowerCase()}`}
-                                />
-                            )}
-                        </Grid2>
-                    ))}
-                </Grid2>
-                <Button sx={{
-                    width: { xs: '100%', md: 200, },
-                    bgcolor: '#059669',
-                    py: 1,
-                    mt: 2,
-                }}>
                     <Typography sx={{
-                        fontSize: { xs: 14, md: 16 },
-                        fontWeight: 500,
-                        color: '#FFFFFF',
-                        textTransform: 'none'
+                        fontSize: 16,
+                        fontWeight: 600,
+                        mb: 2,
+                        color: '#333',
                     }}>
-                        Request Donation
+                        Food Items Needed
                     </Typography>
-                </Button>
-            </Box>
+
+                    {foodRequests.map((request, index) => (
+                        <Card
+                            key={index}
+                            variant="outlined"
+                            sx={{
+                                mb: 3,
+                                position: 'relative',
+                                borderColor: '#e0e0e0',
+                                borderRadius: 2,
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                                }
+                            }}
+                        >
+                            <CardContent>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 500, fontSize: 16 }}>
+                                        Item #{index + 1}
+                                    </Typography>
+                                    {foodRequests.length > 1 && (
+                                        <IconButton
+                                            onClick={() => handleRemoveFoodRequest(index)}
+                                            size="small"
+                                            sx={{ color: '#e53935' }}
+                                            aria-label="remove food request"
+                                        >
+                                            <DeleteIcon />
+                                        </IconButton>
+                                    )}
+                                </Box>
+
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12} md={6}>
+                                        <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 1 }}>
+                                            Meal Name<span style={{ color: 'red' }}> *</span>
+                                        </Typography>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            placeholder="Enter food item name"
+                                            value={request.mealName}
+                                            onChange={(e) => handleFoodRequestChange(index, 'mealName', e.target.value)}
+                                            error={!!formErrors[`foodRequests[${index}].mealName`]}
+                                            helperText={formErrors[`foodRequests[${index}].mealName`] || ''}
+                                            sx={{ mb: 2 }}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} md={6}>
+                                        <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 1 }}>
+                                            Quantity Needed<span style={{ color: 'red' }}> *</span>
+                                        </Typography>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            placeholder="e.g., 10 meals, 5kg rice"
+                                            value={request.quantityNeeded}
+                                            onChange={(e) => handleFoodRequestChange(index, 'quantityNeeded', e.target.value)}
+                                            error={!!formErrors[`foodRequests[${index}].quantityNeeded`]}
+                                            helperText={formErrors[`foodRequests[${index}].quantityNeeded`] || ''}
+                                            sx={{ mb: 2 }}
+                                        />
+                                    </Grid>
+
+                                    <Grid item xs={12} md={12}>
+                                        <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 1 }}>
+                                            Deadline<span style={{ color: 'red' }}> *</span>
+                                        </Typography>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <DatePicker
+                                                value={request.deadline}
+                                                onChange={(date) => handleFoodRequestChange(index, 'deadline', date)}
+                                                minDate={dayjs()}
+                                                slotProps={{
+                                                    textField: {
+                                                        fullWidth: true,
+                                                        size: "small",
+                                                        error: !!formErrors[`foodRequests[${index}].deadline`],
+                                                        helperText: formErrors[`foodRequests[${index}].deadline`] || '',
+                                                    }
+                                                }}
+                                            />
+                                        </LocalizationProvider>
+                                    </Grid>
+                                </Grid>
+                            </CardContent>
+                        </Card>
+                    ))}
+
+                    <Button
+                        startIcon={<AddCircleIcon />}
+                        onClick={handleAddFoodRequest}
+                        sx={{
+                            mb: 4,
+                            color: '#059669',
+                            '&:hover': {
+                                backgroundColor: 'rgba(5, 150, 105, 0.08)',
+                            }
+                        }}
+                    >
+                        Add Another Food Item
+                    </Button>
+
+                    <Divider sx={{ my: 3 }} />
+
+                    <Typography sx={{
+                        fontSize: 18,
+                        fontWeight: 600,
+                        mb: 3,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        color: '#333',
+                    }}>
+                        Contact Details
+                    </Typography>
+
+                    <Grid container spacing={3}>
+                        <Grid item xs={12}>
+                            <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 1 }}>
+                                Contact Number<span style={{ color: 'red' }}> *</span>
+                            </Typography>
+                            <TextField
+                                fullWidth
+                                size="small"
+                                placeholder="Enter Sri Lankan mobile number"
+                                value={contactNumber}
+                                onChange={(e) => validateContactNumber(e.target.value)}
+                                error={!!contactNumberError || !!formErrors.contactNumber}
+                                helperText={contactNumberError || formErrors.contactNumber || ''}
+                                InputProps={{
+                                    startAdornment: <InputAdornment position="start">+94</InputAdornment>,
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
+
+                    <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            size="large"
+                            sx={{
+                                bgcolor: '#059669',
+                                color: 'white',
+                                px: 5,
+                                py: 1.5,
+                                borderRadius: 2,
+                                '&:hover': {
+                                    bgcolor: '#047857',
+                                },
+                                transition: 'all 0.3s ease',
+                                fontWeight: 600,
+                                boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)',
+                            }}
+                        >
+                            Submit Request
+                        </Button>
+                    </Box>
+                </Paper>
+            </form>
         </Box>
-    )
-}
+    );
+};
 
-export default RequestDonations
-
-const fields1 = [
-    { title: 'Meal Category' },
-    { title: 'Number of Meals' },
-    { title: 'Expiration Date' },
-    { title: 'Description' },
-];
-
-const fields2 = [
-    { title: 'Food Category' },
-    { title: 'Quantity (kg or g)' },
-    { title: 'Expiration Date' },
-    { title: 'Description' },
-];
-
-const top100Films = [
-    { title: 'The Shawshank Redemption', year: 1994 },
-    { title: 'The Godfather', year: 1972 },
-    { title: 'The Godfather: Part II', year: 1974 },
-    { title: 'The Dark Knight', year: 2008 },
-    { title: '12 Angry Men', year: 1957 },
-    { title: "Schindler's List", year: 1993 },
-    { title: 'Pulp Fiction', year: 1994 },
-    {
-        title: 'The Lord of the Rings: The Return of the King',
-        year: 2003,
-    },
-    { title: 'The Good, the Bad and the Ugly', year: 1966 },
-    { title: 'Fight Club', year: 1999 },
-    {
-        title: 'The Lord of the Rings: The Fellowship of the Ring',
-        year: 2001,
-    },
-    {
-        title: 'Star Wars: Episode V - The Empire Strikes Back',
-        year: 1980,
-    },
-    { title: 'Forrest Gump', year: 1994 },
-    { title: 'Inception', year: 2010 },
-    {
-        title: 'The Lord of the Rings: The Two Towers',
-        year: 2002,
-    },
-    { title: "One Flew Over the Cuckoo's Nest", year: 1975 },
-    { title: 'Goodfellas', year: 1990 },
-    { title: 'The Matrix', year: 1999 },
-    { title: 'Seven Samurai', year: 1954 },
-    {
-        title: 'Star Wars: Episode IV - A New Hope',
-        year: 1977,
-    },
-    { title: 'City of God', year: 2002 },
-    { title: 'Se7en', year: 1995 },
-    { title: 'The Silence of the Lambs', year: 1991 },
-    { title: "It's a Wonderful Life", year: 1946 },
-    { title: 'Life Is Beautiful', year: 1997 },
-    { title: 'The Usual Suspects', year: 1995 },
-    { title: 'Léon: The Professional', year: 1994 },
-    { title: 'Spirited Away', year: 2001 },
-    { title: 'Saving Private Ryan', year: 1998 },
-    { title: 'Once Upon a Time in the West', year: 1968 },
-    { title: 'American History X', year: 1998 },
-    { title: 'Interstellar', year: 2014 },
-    { title: 'Casablanca', year: 1942 },
-    { title: 'City Lights', year: 1931 },
-    { title: 'Psycho', year: 1960 },
-    { title: 'The Green Mile', year: 1999 },
-    { title: 'The Intouchables', year: 2011 },
-    { title: 'Modern Times', year: 1936 },
-    { title: 'Raiders of the Lost Ark', year: 1981 },
-    { title: 'Rear Window', year: 1954 },
-    { title: 'The Pianist', year: 2002 },
-    { title: 'The Departed', year: 2006 },
-    { title: 'Terminator 2: Judgment Day', year: 1991 },
-    { title: 'Back to the Future', year: 1985 },
-    { title: 'Whiplash', year: 2014 },
-    { title: 'Gladiator', year: 2000 },
-    { title: 'Memento', year: 2000 },
-    { title: 'The Prestige', year: 2006 },
-    { title: 'The Lion King', year: 1994 },
-    { title: 'Apocalypse Now', year: 1979 },
-    { title: 'Alien', year: 1979 },
-    { title: 'Sunset Boulevard', year: 1950 },
-    {
-        title: 'Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb',
-        year: 1964,
-    },
-    { title: 'The Great Dictator', year: 1940 },
-    { title: 'Cinema Paradiso', year: 1988 },
-    { title: 'The Lives of Others', year: 2006 },
-    { title: 'Grave of the Fireflies', year: 1988 },
-    { title: 'Paths of Glory', year: 1957 },
-    { title: 'Django Unchained', year: 2012 },
-    { title: 'The Shining', year: 1980 },
-    { title: 'WALL·E', year: 2008 },
-    { title: 'American Beauty', year: 1999 },
-    { title: 'The Dark Knight Rises', year: 2012 },
-    { title: 'Princess Mononoke', year: 1997 },
-    { title: 'Aliens', year: 1986 },
-    { title: 'Oldboy', year: 2003 },
-    { title: 'Once Upon a Time in America', year: 1984 },
-    { title: 'Witness for the Prosecution', year: 1957 },
-    { title: 'Das Boot', year: 1981 },
-    { title: 'Citizen Kane', year: 1941 },
-    { title: 'North by Northwest', year: 1959 },
-    { title: 'Vertigo', year: 1958 },
-    {
-        title: 'Star Wars: Episode VI - Return of the Jedi',
-        year: 1983,
-    },
-    { title: 'Reservoir Dogs', year: 1992 },
-    { title: 'Braveheart', year: 1995 },
-    { title: 'M', year: 1931 },
-    { title: 'Requiem for a Dream', year: 2000 },
-    { title: 'Amélie', year: 2001 },
-    { title: 'A Clockwork Orange', year: 1971 },
-    { title: 'Like Stars on Earth', year: 2007 },
-    { title: 'Taxi Driver', year: 1976 },
-    { title: 'Lawrence of Arabia', year: 1962 },
-    { title: 'Double Indemnity', year: 1944 },
-    {
-        title: 'Eternal Sunshine of the Spotless Mind',
-        year: 2004,
-    },
-    { title: 'Amadeus', year: 1984 },
-    { title: 'To Kill a Mockingbird', year: 1962 },
-    { title: 'Toy Story 3', year: 2010 },
-    { title: 'Logan', year: 2017 },
-    { title: 'Full Metal Jacket', year: 1987 },
-    { title: 'Dangal', year: 2016 },
-    { title: 'The Sting', year: 1973 },
-    { title: '2001: A Space Odyssey', year: 1968 },
-    { title: "Singin' in the Rain", year: 1952 },
-    { title: 'Toy Story', year: 1995 },
-    { title: 'Bicycle Thieves', year: 1948 },
-    { title: 'The Kid', year: 1921 },
-    { title: 'Inglourious Basterds', year: 2009 },
-    { title: 'Snatch', year: 2000 },
-    { title: '3 Idiots', year: 2009 },
-    { title: 'Monty Python and the Holy Grail', year: 1975 },
-];
+export default RequestDonations;
