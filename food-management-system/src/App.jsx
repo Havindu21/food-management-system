@@ -70,7 +70,8 @@ const router = createBrowserRouter([
         ],
     },
 ], {
-    basename: "/food-management-system"
+    basename: "/food-management-system",
+    scrollBehavior: "auto" 
 });
 
 
