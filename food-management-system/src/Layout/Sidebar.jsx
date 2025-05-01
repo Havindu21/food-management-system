@@ -37,7 +37,7 @@ export default function Sidebar() {
     const initialTab = location.state?.initialTab || 'Dashboard';
     const [currentTab, setCurrentTab] = useState(initialTab);
     const navigate = useNavigate();
-    const userRole = localStorage.getItem('userRole') || 'Don'; // Default to 'Don' if not set
+    const userRole = localStorage.getItem('userRole') || 'Rec'; // Default to 'Don' if not set
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -99,11 +99,6 @@ export default function Sidebar() {
             label: 'Request Donations',
             icon: <VolunteerActivismIcon />,
             path: 'request-donations',
-        },
-        {
-            label: 'Active Donations',
-            icon: <ShoppingBasketIcon />,
-            path: 'active-donations',
         },
         {
             label: 'Active Pickups',
