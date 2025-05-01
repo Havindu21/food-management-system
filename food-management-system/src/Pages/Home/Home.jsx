@@ -3,7 +3,7 @@ import HomeImage from "./HomeImage";
 import Insights from "./Insights";
 import Projects from "./Projects";
 import HowItWorks from "./HowItWorks";
-import { Height } from "@mui/icons-material";
+import JoinCommunity from "./JoinCommunity";
 import { Box } from "@mui/material";
 
 const Home = () => {
@@ -16,6 +16,8 @@ const Home = () => {
             <Insights />
             <div id="projects-section" />
             <Projects />
+            <div id="join-community-section" />
+            <JoinCommunity />
         </>
     );
 };
