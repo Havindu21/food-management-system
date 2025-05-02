@@ -26,6 +26,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import RequestPageIcon from '@mui/icons-material/RequestPage';
 import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 const drawerWidth = 240;
 
@@ -37,7 +38,8 @@ export default function Sidebar() {
     const initialTab = location.state?.initialTab || 'Dashboard';
     const [currentTab, setCurrentTab] = useState(initialTab);
     const navigate = useNavigate();
-    const userRole = localStorage.getItem('userRole') || 'Rec'; // Default to 'Don' if not set
+    // const userRole = localStorage.getItem('userRole') || 'Rec'; // Default to 'Don' if not set
+    const { userType: userRole } = useSelector((state) => state.user);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -48,7 +50,7 @@ export default function Sidebar() {
     };
 
 
-    const tabs = userRole === 'Don' ? [
+    const tabs = userRole === 'donor' ? [
         {
             label: 'Dashboard',
             icon: <DashboardIcon />,
@@ -84,7 +86,7 @@ export default function Sidebar() {
             icon: <AccountCircleIcon />,
             path: 'my-profile',
         }
-    ] : userRole === 'Rec' ? [
+    ] : userRole === 'recipient' ? [
         {
             label: 'Dashboard',
             icon: <DashboardIcon />,
