@@ -91,7 +91,7 @@ const Navbar = ({ callingFrom }) => {
 
     return (
         <AppBar position="fixed" sx={{
-            bgcolor: callingFrom === 'PROFILE' ? 'transparent' : isScrolled ? '#FFFFFF' : 'transparent',
+            bgcolor: callingFrom === 'PROFILE' ? '#FFFFFF' : isScrolled ? '#FFFFFF' : 'transparent',
             transition: 'background-color 0.3s ease-in-out',
             ...globalPx,
             boxShadow: 'none',
