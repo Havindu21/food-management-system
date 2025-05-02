@@ -243,9 +243,9 @@ const HomeImage = () => {
                                     }}
                                     onClick={() => {
                                         if (userType === "donor") {
-                                            navigate("/profile/donate-food");
+                                            navigate('/profile/donate-food', { state: { initialTab: 'Donate Food' } });
                                         } else if (userType === "recipient") {
-                                            navigate("/profile/request-donations");
+                                            navigate('/profile/request-donations', { state: { initialTab: 'Request Donations' } });
                                         } else {
                                             navigate("/join-us");
                                         }

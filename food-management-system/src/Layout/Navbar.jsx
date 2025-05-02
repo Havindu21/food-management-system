@@ -17,7 +17,7 @@ import { globalPx } from '../Theme/Theme';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUserData, setUserType } from '../reducers/userSlice';
 
-const pages = ['Home', 'Insights', 'Projects', 'Donate Now'];
+const pages = ['Home', 'Insights', 'Projects'];
 const settings = ['Profile', 'Logout'];
 
 const Navbar = ({ callingFrom }) => {
@@ -35,6 +35,13 @@ const Navbar = ({ callingFrom }) => {
     const [profileMenuItems, setProfileMenuItems] = useState([]);
     const [menuItems, setMenuItems] = useState([]);
     const [isScrolled, setIsScrolled] = useState(false);
+
+    let pages = [];
+    userType === 'donor'
+        ? pages = ['Home', 'Insights', 'Projects', 'Donate Now']
+        : userType === 'recipient'
+            ? pages = ['Home', 'Insights', 'Projects', 'Request Food']
+            : [];
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -62,7 +69,9 @@ const Navbar = ({ callingFrom }) => {
             dispatch(setUserData(false));
             navigate("/join-us");
         } else if (page === "Donate Now") {
-            navigate('/profile/donations', { state: { initialTab: 'Donations' } });
+            navigate('/profile/donate-food', { state: { initialTab: 'Donate Food' } });
+        }else if (page === "Request Food") {
+            navigate('/profile/request-donations', { state: { initialTab: 'Request Donations' } });
         }
     };
 
