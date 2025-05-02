@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Card,
-  CardMedia, 
-  CardContent, 
-  Chip,
-  Container,
-  Button,
-  useTheme,
-  useMediaQuery
+import {
+    Box,
+    Typography,
+    Card,
+    CardMedia,
+    CardContent,
+    Chip,
+    Container,
+    Button,
+    useTheme,
+    useMediaQuery
 } from '@mui/material';
 import project1 from '../../assets/Home/project1.jpg';
 import Slider from 'react-slick';
@@ -17,12 +17,17 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const Projects = () => {
     const theme = useTheme();
+    const navigate = useNavigate();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [isVisible, setIsVisible] = useState(false);
-    
+    const { userType } = useSelector((state) => state.user);
+    const isAuthenticated = userType && userType !== null;
+
     // Custom intersection observer to trigger animations
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
@@ -43,7 +48,16 @@ const Projects = () => {
             }
         };
     }, []);
-    
+    const handleViewAll = () => {
+        if (userType === "donor") {
+            navigate("/profile/food-requests");
+        } else if (userType === "recipient") {
+            navigate("/profile/available-donations");
+        } else {
+            navigate("/join-us");
+        }
+    }
+
     // Custom arrows for the slider
     const NextArrow = (props) => {
         const { onClick } = props;
@@ -158,29 +172,29 @@ const Projects = () => {
     };
 
     const projectData = [
-        { 
-            title: "Food Bank Distribution", 
+        {
+            title: "Food Bank Distribution",
             date: "April 15, 2024",
             location: "Colombo",
             category: "Distribution",
             description: "Distributed over 500kg of fresh produce to local food banks, helping to feed over 200 families in need."
         },
-        { 
-            title: "Restaurant Partnership", 
+        {
+            title: "Restaurant Partnership",
             date: "March 23, 2024",
             location: "Kandy",
             category: "Partnership",
             description: "Partnered with 12 local restaurants to collect surplus food and deliver it to homeless shelters in the area."
         },
-        { 
-            title: "Reducing Food Waste", 
+        {
+            title: "Reducing Food Waste",
             date: "February 10, 2024",
             location: "Galle",
             category: "Education",
             description: "Conducted workshops for local businesses on reducing food waste and improving sustainability practices."
         },
-        { 
-            title: "School Meal Program", 
+        {
+            title: "School Meal Program",
             date: "January 5, 2024",
             location: "Jaffna",
             category: "Education",
@@ -192,7 +206,7 @@ const Projects = () => {
     const getAnimationStyles = (index) => {
         const baseDelay = 0.3; // Base delay in seconds
         const staggeredDelay = baseDelay + (index * 0.15); // Each card has an additional 0.15s delay
-        
+
         return {
             opacity: 0,
             transform: 'translateY(20px)',
@@ -201,7 +215,7 @@ const Projects = () => {
     };
 
     return (
-        <Box 
+        <Box
             id="projects-section"
             sx={{
                 py: 6,
@@ -210,11 +224,11 @@ const Projects = () => {
                 overflow: 'hidden',
                 // Define keyframes for fade-in animation
                 '@keyframes fadeIn': {
-                    from: { 
+                    from: {
                         opacity: 0,
                         transform: 'translateY(20px)'
                     },
-                    to: { 
+                    to: {
                         opacity: 1,
                         transform: 'translateY(0)'
                     }
@@ -258,9 +272,9 @@ const Projects = () => {
                     zIndex: 0,
                 }}
             />
-            
+
             <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-                <Box 
+                <Box
                     sx={{
                         display: 'flex',
                         flexDirection: { xs: 'column', md: 'row' },
@@ -273,7 +287,7 @@ const Projects = () => {
                     }}
                 >
                     <Box>
-                        <Typography 
+                        <Typography
                             variant="h2"
                             sx={{
                                 fontSize: { xs: 24, sm: 28, md: 32 },
@@ -306,8 +320,8 @@ const Projects = () => {
                             Explore how we're making a difference in communities across Sri Lanka
                         </Typography>
                     </Box>
-                    
-                    {!isMobile && (
+
+                    {!isMobile && isAuthenticated && (
                         <Button
                             variant="outlined"
                             endIcon={<ArrowForwardIcon />}
@@ -324,29 +338,30 @@ const Projects = () => {
                                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                 }
                             }}
+                            onClick={handleViewAll}
                         >
                             View All Projects
                         </Button>
                     )}
                 </Box>
 
-                <Box 
-                    sx={{ 
+                <Box
+                    sx={{
                         px: { xs: 0, md: 2 }
                     }}
                 >
                     <Slider {...settings}>
                         {projectData.map((project, index) => (
-                            <Box 
-                                key={index} 
-                                sx={{ 
-                                    px: 2, 
+                            <Box
+                                key={index}
+                                sx={{
+                                    px: 2,
                                     pb: 4,
                                     ...getAnimationStyles(index)
                                 }}
                             >
-                                <Card 
-                                    sx={{ 
+                                <Card
+                                    sx={{
                                         borderRadius: 3,
                                         overflow: 'hidden',
                                         boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
@@ -365,7 +380,7 @@ const Projects = () => {
                                             image={project1}
                                             alt={project.title}
                                         />
-                                        <Chip 
+                                        <Chip
                                             label={project.category}
                                             sx={{
                                                 position: 'absolute',
@@ -378,7 +393,7 @@ const Projects = () => {
                                             }}
                                         />
                                     </Box>
-                                    
+
                                     <CardContent sx={{ p: 3 }}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                                             <CalendarTodayIcon sx={{ fontSize: 16, color: '#059669', mr: 1 }} />
@@ -386,10 +401,10 @@ const Projects = () => {
                                                 {project.date} • {project.location}
                                             </Typography>
                                         </Box>
-                                        
+
                                         <Typography
                                             variant="h5"
-                                            sx={{ 
+                                            sx={{
                                                 fontWeight: 700,
                                                 fontSize: 20,
                                                 mb: 2,
@@ -398,18 +413,18 @@ const Projects = () => {
                                         >
                                             {project.title}
                                         </Typography>
-                                        
-                                        <Typography 
-                                            variant="body2" 
-                                            sx={{ 
-                                                color: '#4B5563', 
+
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                color: '#4B5563',
                                                 mb: 2,
                                                 minHeight: 80,
                                             }}
                                         >
                                             {project.description}
                                         </Typography>
-                                        
+
                                         <Button
                                             endIcon={<ArrowForwardIcon />}
                                             sx={{
@@ -431,8 +446,8 @@ const Projects = () => {
                         ))}
                     </Slider>
                 </Box>
-                
-                {isMobile && (
+
+                {isMobile && isAuthenticated && (
                     <Box sx={{ mt: 4, textAlign: 'center' }}>
                         <Button
                             variant="outlined"
@@ -450,6 +465,7 @@ const Projects = () => {
                                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                 }
                             }}
+                            onClick={handleViewAll}
                         >
                             View All Projects
                         </Button>
