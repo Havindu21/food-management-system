@@ -25,6 +25,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import SettingsIcon from '@mui/icons-material/Settings';
 import RequestPageIcon from '@mui/icons-material/RequestPage';
 import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
+import AddTaskIcon from '@mui/icons-material/AddTask';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 
@@ -35,11 +36,11 @@ export default function Sidebar() {
     const isMdOrBelow = useMediaQuery(theme.breakpoints.down('md'));
     const [open, setOpen] = useState(isMdOrBelow ? false : true);
     const location = useLocation();
-    const initialTab = location.state?.initialTab || 'Dashboard';
-    const [currentTab, setCurrentTab] = useState(initialTab);
     const navigate = useNavigate();
     // const userRole = localStorage.getItem('userRole') || 'Rec'; // Default to 'Don' if not set
     const { userType: userRole } = useSelector((state) => state.user);
+    const initialTab = location.state?.initialTab || userRole==='admin'? 'Recipients Approval' : 'Dashboard';
+    const [currentTab, setCurrentTab] = useState(initialTab);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -116,6 +117,12 @@ export default function Sidebar() {
             label: 'Settings',
             icon: <SettingsIcon />,
             path: 'recepient-settings',
+        },
+    ] : userRole === 'admin' ? [
+        {
+            label: 'Recipients Approval',
+            icon: <AddTaskIcon />,
+            path: 'recipient-approvals',
         },
     ] : [];
 

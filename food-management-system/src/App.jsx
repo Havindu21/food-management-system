@@ -20,6 +20,7 @@ import Registration from "./Pages/JoinUs/Registration";
 import DonateFood from "./Pages/Donations/DonateFood";
 import FoodRequests from "./Pages/FoodRequests/FoodRequests";
 import ActiveDonations from "./Pages/ActiveDonations/ActiveDonations";
+import RecipientsApproval from "./Pages/Admin/RecipientsApproval";
 
 const router = createBrowserRouter([
     {
@@ -71,6 +72,7 @@ const router = createBrowserRouter([
             { path: "active-pickups", element: <ActivePickups /> },
             { path: "pickup-history", element: <PickupHistory /> },
             { path: "recepient-settings", element: <RecepientSettings /> },
+            { path: "recipient-approvals", element: <RecipientsApproval /> },
         ],
     },
 ], {

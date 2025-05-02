@@ -42,7 +42,7 @@ const Login = ({ key }) => {
         } else if (data.email === "admin") {
             dispatch(setUserData({ email: data.email, password: data.password }));
             dispatch(setUserType("admin"));
-            navigate("/home");
+            navigate("/profile/recipient-approvals");
         } else if (data.email === "don") {
             dispatch(setUserData({ email: data.email, password: data.password }));
             dispatch(setUserType("donor"));
