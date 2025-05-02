@@ -1,9 +1,11 @@
 import React from 'react';
 import { Box, Container, Typography, Button, Grid, Paper, Fade } from '@mui/material';
 import { PeopleAlt, FavoriteBorder, Restaurant, Public } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 const JoinCommunity = () => {
   const primaryColor = '#059669'; // Same primary color as HowItWorks
+  const navigate = useNavigate();
 
   const benefits = [
     {
@@ -226,6 +228,7 @@ const JoinCommunity = () => {
                   backgroundColor: 'rgba(5, 150, 105, 0.08)'
                 }
               }}
+              onClick={() => navigate('/sign-in')}
             >
               Login
             </Button>
@@ -244,6 +247,7 @@ const JoinCommunity = () => {
                   boxShadow: '0 6px 15px rgba(5, 150, 105, 0.4)'
                 }
               }}
+              onClick={() => navigate('/join-us')}
             >
               Join Us
             </Button>
