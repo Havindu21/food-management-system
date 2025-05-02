@@ -14,6 +14,7 @@ import { useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { globalPx } from '../Theme/Theme';
+import { useSelector } from 'react-redux';
 
 const pages = ['Home', 'Insights', 'Projects', 'Donate Now'];
 const settings = ['Profile', 'Logout'];
@@ -21,7 +22,8 @@ const settings = ['Profile', 'Logout'];
 const Navbar = ({ callingFrom }) => {
     const location = useLocation();
     const navigate = useNavigate();
-    const isLogged = location?.state?.isLogged || false;
+    const { userType } = useSelector((state) => state.user);
+    const isAuthenticated = userType && userType !== null;
     const theme = useTheme();
     const isXs = useMediaQuery(theme.breakpoints.only('xs'))
 
@@ -54,11 +56,10 @@ const Navbar = ({ callingFrom }) => {
             navigate('/profile/dashboard');
         } else if (page === "Logout") {
             navigate("/join-us")
-        }else if(page==="Donate Now"){
+        } else if (page === "Donate Now") {
             navigate('/profile/donations', { state: { initialTab: 'Donations' } });
         }
     };
-
 
     useEffect(() => {
         setProfileMenuItems(isXs ? [...pages, ...settings] : settings)
@@ -96,7 +97,7 @@ const Navbar = ({ callingFrom }) => {
                         objectFit: 'cover',
                     }}
                 />
-                <Box sx={{ flexGrow: 1, display: { xs: callingFrom === 'PROFILE' ? 'none' : isLogged ? 'none' : 'flex', md: 'none' } }}>
+                <Box sx={{ flexGrow: 1, display: { xs: callingFrom === 'PROFILE' ? 'none' : isAuthenticated ? 'none' : 'flex', md: 'none' } }}>
                     <IconButton
                         size="large"
                         aria-label="account of current user"
@@ -165,7 +166,7 @@ const Navbar = ({ callingFrom }) => {
                     ))}
                 </Box>
                 <Box sx={{
-                    display: { xs: 'none', md: callingFrom === 'PROFILE' ? 'none' : isLogged ? 'none' : 'flex' },
+                    display: { xs: 'none', md: callingFrom === 'PROFILE' ? 'none' : isAuthenticated ? 'none' : 'flex' },
                     gap: 2,
                 }}>
                     <Button
@@ -202,8 +203,7 @@ const Navbar = ({ callingFrom }) => {
                         Join Us
                     </Button>
                 </Box>
-                {/* <Box sx={{ flexGrow: 0, display: callingFrom === 'PROFILE' ? 'flex' : isLogged ? 'flex' : 'none' }}> */}
-                <Box sx={{ flexGrow: 0, display: 'flex' }}>
+                <Box sx={{ flexGrow: 0, display: callingFrom === 'PROFILE' ? 'flex' : isAuthenticated ? 'flex' : 'none' }}>
                     <IconButton onClick={handleOpenUserMenu} sx={{
                         p: 0,
                         bgcolor: callingFrom === 'PROFILE' ? '#059669' : isScrolled ? '#059669' : '#FFFFFF',
