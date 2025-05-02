@@ -33,8 +33,21 @@ const Login = ({ key }) => {
         formState: { errors },
     } = useForm();
 
-    const handleLogin = () => {
+    const handleLogin = (data) => {
         // Login logic here
+        if (data.email === "rec") {
+            dispatch(setUserData({ email: data.email, password: data.password }));
+            dispatch(setUserType("recipient"));
+            navigate("/home");
+        } else if (data.email === "admin") {
+            dispatch(setUserData({ email: data.email, password: data.password }));
+            dispatch(setUserType("admin"));
+            navigate("/home");
+        } else if (data.email === "don") {
+            dispatch(setUserData({ email: data.email, password: data.password }));
+            dispatch(setUserType("donor"));
+            navigate("/home");
+        }
     };
 
 
@@ -133,8 +146,7 @@ const Login = ({ key }) => {
                         }}
                     >
                         <Button
-                            // type="submit"
-                            onClick={()=>navigate("/home")}
+                            type="submit"
                             variant="contained"
                             sx={{
                                 width: 228, height: 50,
