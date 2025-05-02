@@ -2,16 +2,19 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, Typography, Container, Grid } from "@mui/material";
 import { motion } from "framer-motion";
 import HeroImage from "../../assets/JoinUs/img5.png";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import VolunteerActivismOutlinedIcon from '@mui/icons-material/VolunteerActivismOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import { useSelector } from "react-redux";
 
 const HomeImage = () => {
     const location = useLocation();
-    const isLogged = location?.state?.isLogged || false;
+    const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
+    const { userType } = useSelector((state) => state.user);
+    const isLogged = userType && userType !== null;
 
     // Intersection observer to trigger animations when section is visible
     useEffect(() => {
@@ -35,7 +38,7 @@ const HomeImage = () => {
     }, []);
 
     const title = "Share Food, Share Hope";
-    
+
     // Animation variants for text and elements
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -47,7 +50,7 @@ const HomeImage = () => {
             }
         }
     };
-    
+
     const itemVariants = {
         hidden: { opacity: 0, y: 20 },
         visible: {
@@ -85,7 +88,7 @@ const HomeImage = () => {
     ];
 
     return (
-        <Box 
+        <Box
             id="hero-section"
             sx={{
                 position: "relative",
@@ -132,37 +135,37 @@ const HomeImage = () => {
             />
 
             {/* Hero content */}
-            <Container 
-                maxWidth="xl" 
-                sx={{ 
+            <Container
+                maxWidth="xl"
+                sx={{
                     position: "relative",
                     zIndex: 1,
                     height: "100%",
                     pt: { xs: 10, md: 0 }
                 }}
             >
-                <Grid 
-                    container 
-                    spacing={4} 
-                    sx={{ 
+                <Grid
+                    container
+                    spacing={4}
+                    sx={{
                         minHeight: "100vh",
                         alignItems: "center",
                         flexDirection: { xs: "column-reverse", md: "row" } // Reverse order for small screens
                     }}
                 >
                     {/* Text content - Left side on md+ screens, bottom on xs/sm screens */}
-                    <Grid 
-                        item 
-                        xs={12} 
-                        md={6} 
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
                         component={motion.div}
                         variants={containerVariants}
                         initial="hidden"
                         animate={isVisible ? "visible" : "hidden"}
                     >
-                        <Box sx={{ maxWidth: {xs:600,md:950}, mb: { xs: 6, md: 0 },minWidth: { xs: 300,md:720, lg: 900 } }}>
+                        <Box sx={{ maxWidth: { xs: 600, md: 950 }, mb: { xs: 6, md: 0 }, minWidth: { xs: 300, md: 720, lg: 900 } }}>
                             {/* Animated title */}
-                            <Typography 
+                            <Typography
                                 component="h1"
                                 sx={{
                                     fontSize: { xs: 27, sm: 52, md: 58, lg: 64 },
@@ -187,7 +190,7 @@ const HomeImage = () => {
 
                             {/* Subtitle with animation */}
                             <motion.div variants={itemVariants}>
-                                <Typography 
+                                <Typography
                                     sx={{
                                         fontSize: { xs: 18, sm: 20, md: 22 },
                                         lineHeight: 1.5,
@@ -199,9 +202,9 @@ const HomeImage = () => {
                                     Join our mission to reduce food waste and feed communities in need.
                                 </Typography>
                             </motion.div>
-                            
+
                             <motion.div variants={itemVariants}>
-                                <Typography 
+                                <Typography
                                     sx={{
                                         fontSize: { xs: 16, sm: 18, md: 18 },
                                         lineHeight: 1.5,
@@ -238,14 +241,27 @@ const HomeImage = () => {
                                         },
                                         transition: 'all 0.3s ease',
                                     }}
+                                    onClick={() => {
+                                        if (userType === "donor") {
+                                            navigate("/profile/donate-food");
+                                        } else if (userType === "recipient") {
+                                            navigate("/profile/request-donations");
+                                        } else {
+                                            navigate("/join-us");
+                                        }
+                                    }}
                                 >
-                                    {isLogged ? 'Donate Now' : 'Get Started'}
+                                    {userType === "donor"
+                                        ? "Donate Now"
+                                        : userType === "recipient"
+                                            ? "Request Food"
+                                            : "Get Started"}
                                 </Button>
                             </motion.div>
 
                             {/* Feature cards */}
-                            <Box 
-                                sx={{ 
+                            <Box
+                                sx={{
                                     mt: 8,
                                     display: { xs: "none", md: "flex" },
                                     gap: 3,
@@ -262,7 +278,7 @@ const HomeImage = () => {
                                                 display: "flex",
                                                 flexDirection: "column",
                                                 alignItems: "center",
-                                                width: {xs:100,md: 170,},
+                                                width: { xs: 100, md: 170, },
                                                 height: 180,
                                                 p: 2,
                                                 backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -276,8 +292,8 @@ const HomeImage = () => {
                                                 }
                                             }}
                                         >
-                                            <Box 
-                                                sx={{ 
+                                            <Box
+                                                sx={{
                                                     bgcolor: "rgba(5, 150, 105, 0.2)",
                                                     width: 50,
                                                     height: 50,
@@ -290,9 +306,9 @@ const HomeImage = () => {
                                             >
                                                 <feature.icon sx={{ color: "#10b981", fontSize: 28 }} />
                                             </Box>
-                                            <Typography 
-                                                sx={{ 
-                                                    color: "white", 
+                                            <Typography
+                                                sx={{
+                                                    color: "white",
                                                     fontWeight: 600,
                                                     fontSize: 15,
                                                     mb: 0.5,
@@ -301,9 +317,9 @@ const HomeImage = () => {
                                             >
                                                 {feature.title}
                                             </Typography>
-                                            <Typography 
-                                                sx={{ 
-                                                    color: "rgba(255, 255, 255, 0.7)", 
+                                            <Typography
+                                                sx={{
+                                                    color: "rgba(255, 255, 255, 0.7)",
                                                     fontSize: 13,
                                                     textAlign: "center"
                                                 }}
@@ -349,7 +365,7 @@ const HomeImage = () => {
                                     right: { xs: 'auto', md: '5%' }
                                 }}
                             />
-                            
+
                             {/* Image with animation */}
                             <Box
                                 component={motion.img}
@@ -375,21 +391,21 @@ const HomeImage = () => {
             </Container>
 
             {/* Mobile feature cards */}
-            <Container 
-                maxWidth="xl" 
-                sx={{ 
+            <Container
+                maxWidth="xl"
+                sx={{
                     display: { xs: "block", md: "none" },
                     pb: 8,
                     zIndex: 1,
                     position: "relative",
-                    px: { xs: 2, sm: 10,md:0 },
+                    px: { xs: 2, sm: 10, md: 0 },
                 }}
             >
                 {/* XS screens - Horizontal layout */}
-                <Box sx={{ 
-                    display: { xs: "flex", sm: "none" }, 
-                    flexDirection: "column", 
-                    gap: 2 
+                <Box sx={{
+                    display: { xs: "flex", sm: "none" },
+                    flexDirection: "column",
+                    gap: 2
                 }}>
                     {features.map((feature, index) => (
                         <Box
@@ -405,17 +421,17 @@ const HomeImage = () => {
                                 borderRadius: 2,
                                 border: "1px solid rgba(255, 255, 255, 0.1)",
                                 py: 2,
-                                px: {xs:1,sm:2,},
+                                px: { xs: 1, sm: 2, },
                                 alignItems: "center"
                             }}
                         >
-                            <Box sx={{ 
-                                display: "flex", 
-                                alignItems: "center", 
-                                minWidth: 130 
+                            <Box sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                minWidth: 130
                             }}>
-                                <Box 
-                                    sx={{ 
+                                <Box
+                                    sx={{
                                         bgcolor: "rgba(5, 150, 105, 0.2)",
                                         width: 36,
                                         height: 36,
@@ -428,9 +444,9 @@ const HomeImage = () => {
                                 >
                                     <feature.icon sx={{ color: "#10b981", fontSize: 18 }} />
                                 </Box>
-                                <Typography 
-                                    sx={{ 
-                                        color: "white", 
+                                <Typography
+                                    sx={{
+                                        color: "white",
                                         fontWeight: 600,
                                         fontSize: 13,
                                     }}
@@ -438,14 +454,14 @@ const HomeImage = () => {
                                     {feature.title}
                                 </Typography>
                             </Box>
-                            
-                            <Typography 
-                                sx={{ 
-                                    color: "rgba(255, 255, 255, 0.7)", 
+
+                            <Typography
+                                sx={{
+                                    color: "rgba(255, 255, 255, 0.7)",
                                     fontSize: 11,
-                                    ml: {xs:'auto',sm: 1,},
+                                    ml: { xs: 'auto', sm: 1, },
                                     flex: 1,
-                                    maxWidth:{xs:140,sm:''},
+                                    maxWidth: { xs: 140, sm: '' },
                                 }}
                             >
                                 {feature.description}
@@ -475,8 +491,8 @@ const HomeImage = () => {
                                     height: "100%"
                                 }}
                             >
-                                <Box 
-                                    sx={{ 
+                                <Box
+                                    sx={{
                                         bgcolor: "rgba(5, 150, 105, 0.2)",
                                         width: 40,
                                         height: 40,
@@ -489,9 +505,9 @@ const HomeImage = () => {
                                 >
                                     <feature.icon sx={{ color: "#10b981", fontSize: 20 }} />
                                 </Box>
-                                <Typography 
-                                    sx={{ 
-                                        color: "white", 
+                                <Typography
+                                    sx={{
+                                        color: "white",
                                         fontWeight: 600,
                                         fontSize: 14,
                                         mb: 0.5,
@@ -500,9 +516,9 @@ const HomeImage = () => {
                                 >
                                     {feature.title}
                                 </Typography>
-                                <Typography 
-                                    sx={{ 
-                                        color: "rgba(255, 255, 255, 0.7)", 
+                                <Typography
+                                    sx={{
+                                        color: "rgba(255, 255, 255, 0.7)",
                                         fontSize: 12,
                                         textAlign: "center"
                                     }}
