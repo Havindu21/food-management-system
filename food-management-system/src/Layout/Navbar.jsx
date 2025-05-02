@@ -14,7 +14,8 @@ import { useMediaQuery } from '@mui/material';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { globalPx } from '../Theme/Theme';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setUserData, setUserType } from '../reducers/userSlice';
 
 const pages = ['Home', 'Insights', 'Projects', 'Donate Now'];
 const settings = ['Profile', 'Logout'];
@@ -22,6 +23,7 @@ const settings = ['Profile', 'Logout'];
 const Navbar = ({ callingFrom }) => {
     const location = useLocation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const { userType } = useSelector((state) => state.user);
     const isAuthenticated = userType && userType !== null;
     const theme = useTheme();
@@ -55,7 +57,10 @@ const Navbar = ({ callingFrom }) => {
         } else if (page === "Profile") {
             navigate('/profile/dashboard');
         } else if (page === "Logout") {
-            navigate("/join-us")
+            // Clear Redux state on logout
+            dispatch(setUserType(null));
+            dispatch(setUserData(false));
+            navigate("/join-us");
         } else if (page === "Donate Now") {
             navigate('/profile/donations', { state: { initialTab: 'Donations' } });
         }
