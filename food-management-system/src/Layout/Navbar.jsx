@@ -17,8 +17,6 @@ import { globalPx } from '../Theme/Theme';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUserData, setUserType } from '../reducers/userSlice';
 
-const pages = ['Home', 'Insights', 'Projects'];
-const settings = ['Profile', 'Logout'];
 
 const Navbar = ({ callingFrom }) => {
     const location = useLocation();
@@ -42,6 +40,7 @@ const Navbar = ({ callingFrom }) => {
         : userType === 'recipient'
             ? pages = ['Home', 'Insights', 'Projects', 'Request Food']
             : [];
+    const settings = callingFrom === 'PROFILE' ? ['Logout'] : ['Profile', 'Logout'];
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -70,7 +69,7 @@ const Navbar = ({ callingFrom }) => {
             navigate("/join-us");
         } else if (page === "Donate Now") {
             navigate('/profile/donate-food', { state: { initialTab: 'Donate Food' } });
-        }else if (page === "Request Food") {
+        } else if (page === "Request Food") {
             navigate('/profile/request-donations', { state: { initialTab: 'Request Donations' } });
         }
     };
