@@ -4,9 +4,9 @@ import { motion } from "framer-motion";
 import HeroImage from "../../assets/JoinUs/img5.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import VolunteerActivismOutlinedIcon from '@mui/icons-material/VolunteerActivismOutlined';
+import RestaurantMenuOutlinedIcon from '@mui/icons-material/RestaurantMenuOutlined';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
-import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import EmojiNatureOutlinedIcon from '@mui/icons-material/EmojiNatureOutlined';
 import { useSelector } from "react-redux";
 
 const HomeImage = () => {
@@ -65,25 +65,25 @@ const HomeImage = () => {
         visible: (i) => ({
             opacity: 1,
             y: 0,
-            transition: { delay: i * 0.07, duration: 0.5 },
+            transition: { delay: i * 0.05, duration: 0.5 },
         }),
     };
 
     const features = [
         {
-            icon: VolunteerActivismOutlinedIcon,
-            title: "Donate Surplus",
-            description: "Share your extra food with those in need"
+            icon: RestaurantMenuOutlinedIcon,
+            title: "Surplus Redistribution",
+            description: "Connect excess food with those who need it"
+        },
+        {
+            icon: EmojiNatureOutlinedIcon,
+            title: "Environmental Impact",
+            description: "Track CO₂ emissions saved through redistribution"
         },
         {
             icon: LocalShippingOutlinedIcon,
-            title: "Fast Distribution",
-            description: "We ensure food reaches recipients quickly"
-        },
-        {
-            icon: PeopleAltOutlinedIcon,
-            title: "Community Impact",
-            description: "Join thousands making a difference"
+            title: "Real-time Tracking",
+            description: "Monitor donations from acceptance to pickup"
         }
     ];
 
@@ -168,7 +168,7 @@ const HomeImage = () => {
                             <Typography
                                 component="h1"
                                 sx={{
-                                    fontSize: { xs: 27, sm: 52, md: 58, lg: 64 },
+                                    fontSize: { xs: 30, sm: 48, md: 54, lg: 60 },
                                     fontWeight: 800,
                                     color: "white",
                                     mb: 3,
@@ -199,7 +199,7 @@ const HomeImage = () => {
                                         maxWidth: "90%",
                                     }}
                                 >
-                                    Join our mission to reduce food waste and feed communities in need.
+                                    Help eliminate Sri Lanka's 260,000+ tons of annual food waste while feeding 4.8 million people facing food insecurity.
                                 </Typography>
                             </motion.div>
 
@@ -213,7 +213,7 @@ const HomeImage = () => {
                                         maxWidth: "85%",
                                     }}
                                 >
-                                    Every meal shared makes a difference. Together, we can create a world where good food is never wasted.
+                                    Connect surplus food with those in need. Every donation reduces environmental impact and feeds communities.
                                 </Typography>
                             </motion.div>
 
@@ -252,10 +252,10 @@ const HomeImage = () => {
                                     }}
                                 >
                                     {userType === "donor"
-                                        ? "Donate Now"
+                                        ? "Donate Surplus Food"
                                         : userType === "recipient"
-                                            ? "Request Food"
-                                            : "Get Started"}
+                                            ? "Request Donations"
+                                            : "Join the Movement"}
                                 </Button>
                             </motion.div>
 
@@ -370,7 +370,7 @@ const HomeImage = () => {
                             <Box
                                 component={motion.img}
                                 src={HeroImage}
-                                alt="Food Sharing Initiative"
+                                alt="Food Redistribution Initiative"
                                 initial={{ y: 30, opacity: 0 }}
                                 animate={{ y: isVisible ? 0 : 30, opacity: isVisible ? 1 : 0 }}
                                 transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}

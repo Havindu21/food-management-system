@@ -24,9 +24,9 @@ const FoodRequests = () => {
             dateRequested: "2023-10-15",
             status: "active",
             foodItems: [
-                { id: 101, mealName: "Rice", quantityNeeded: "20kg", deadline: "2023-10-30", contributedAmount: "5kg" },
-                { id: 102, mealName: "Vegetable Curry", quantityNeeded: "10 portions", deadline: "2023-10-25", contributedAmount: "2 portions" },
-                { id: 103, mealName: "Chicken Curry", quantityNeeded: "8kg", deadline: "2023-10-28", contributedAmount: "0kg" }
+                { id: 101, mealName: "Rice", quantityNeeded: "20kg", deadline: "2025-05-30", contributedAmount: "5kg" },
+                { id: 102, mealName: "Vegetable Curry", quantityNeeded: "10 portions", deadline: "2025-06-10", contributedAmount: "2 portions" },
+                { id: 103, mealName: "Chicken Curry", quantityNeeded: "8kg", deadline: "2025-07-15", contributedAmount: "0kg" }
             ]
         },
         {

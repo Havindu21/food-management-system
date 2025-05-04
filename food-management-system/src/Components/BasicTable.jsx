@@ -6,16 +6,40 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Typography } from '@mui/material';
+import { Typography, Chip, Box } from '@mui/material';
 
 const BasicTable = ({ headers, data }) => {
     return (
-        <TableContainer component={Paper}>
+        <TableContainer 
+            component={Paper} 
+            sx={{ 
+                borderRadius: 3,
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+                border: '1px solid #E5E7EB',
+                overflow: 'hidden',
+            }}
+        >
             <Table sx={{ minWidth: 650 }} aria-label="dynamic table">
                 <TableHead>
-                    <TableRow>
+                    <TableRow sx={{ 
+                        backgroundColor: '#1e293b',
+                        '& .MuiTableCell-head': {
+                            color: '#FFFFFF',
+                            fontWeight: 600,
+                            fontSize: '0.95rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                        }
+                    }}>
                         {headers.map((header, index) => (
-                            <TableCell key={index} align="center" sx={{ fontWeight: 600 }}>
+                            <TableCell 
+                                key={index} 
+                                align="center"
+                                sx={{ 
+                                    borderBottom: '2px solid #059669',
+                                    py: 2.5,
+                                }}
+                            >
                                 {header}
                             </TableCell>
                         ))}
@@ -23,56 +47,100 @@ const BasicTable = ({ headers, data }) => {
                 </TableHead>
                 <TableBody>
                     {data.map((row, rowIndex) => (
-                        <TableRow key={rowIndex} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                        <TableRow 
+                            key={rowIndex} 
+                            sx={{ 
+                                '&:last-child td, &:last-child th': { border: 0 },
+                                '&:nth-of-type(odd)': { 
+                                    backgroundColor: '#F9FAFB' 
+                                },
+                                '&:hover': { 
+                                    backgroundColor: '#F0FDF4' 
+                                },
+                                transition: 'background-color 0.2s ease',
+                            }}
+                        >
                             {headers.map((header, colIndex) => (
-                                <TableCell key={colIndex} align="center">
+                                <TableCell 
+                                    key={colIndex} 
+                                    align="center"
+                                    sx={{
+                                        borderBottom: '1px solid #E5E7EB',
+                                        py: 1.5,
+                                        color: '#374151',
+                                        fontSize: '0.925rem',
+                                    }}
+                                >
                                     {header === "Status" ? (
-                                        <Typography
+                                        <Chip
+                                            label={row[header]}
+                                            size="small"
                                             sx={{
                                                 ...statusStyles[row[header]],
-                                                borderRadius: { xs: 3, md: 6 },
-                                                fontSize: 14,
-                                                py: { xs: 0, md: 0.2 },
-                                                px: 0,
-                                                width: 100,
-                                                display: 'inline-block',
-                                                textAlign: 'center',
+                                                height: 28,
+                                                fontSize: '0.875rem',
+                                                fontWeight: 600,
+                                                borderRadius: 5,
+                                                minWidth: 100,
+                                                '& .MuiChip-label': {
+                                                    paddingLeft: 12,
+                                                    paddingRight: 12,
+                                                },
                                             }}
-                                        >
-                                            {row[header]}
-                                        </Typography>
+                                        />
                                     ) : header === "Expiry Date" ? (
-                                        <Typography
+                                        <Chip
+                                            label={row[header]}
+                                            size="small"
                                             sx={{
                                                 ...expiryDateStyles[expiryDateStyles[row[header]] ? row[header] : 'Default'],
-                                                borderRadius: { xs: 3, md: 6 },
-                                                fontSize: 14,
-                                                fontWeight: 500,
-                                                py: { xs: 0, md: 0.2 },
-                                                px: 0,
-                                                width: 100,
-                                                display: 'inline-block',
-                                                textAlign: 'center',
+                                                height: 28,
+                                                fontSize: '0.875rem',
+                                                fontWeight: 600,
+                                                borderRadius: 5,
+                                                minWidth: 100,
+                                                '& .MuiChip-label': {
+                                                    paddingLeft: 12,
+                                                    paddingRight: 12,
+                                                },
+                                            }}
+                                        />
+                                    ) : header === "Action" ? (
+                                        <Box
+                                            sx={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                ...actionStyles[row[header]],
+                                                borderRadius: 1.5,
+                                                px: 2,
+                                                py: 0.75,
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s ease',
+                                                '&:hover': {
+                                                    transform: 'translateY(-2px)',
+                                                    boxShadow: '0 4px 12px rgba(5, 150, 105, 0.2)',
+                                                },
                                             }}
                                         >
-                                            {row[header]}
-                                        </Typography>
-                                    ) : header === "Action" ? (
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 600,
+                                                }}
+                                            >
+                                                {row[header]}
+                                            </Typography>
+                                        </Box>
+                                    ) : (
                                         <Typography
                                             sx={{
-                                                ...actionStyles[row[header]],
-                                                borderRadius:1,
-                                                p:1,
-                                                fontSize: 14,
                                                 fontWeight: 500,
-                                                display: 'inline-block',
-                                                textAlign: 'center',
+                                                fontSize: '0.925rem',
+                                                color: '#374151',
                                             }}
                                         >
                                             {row[header]}
                                         </Typography>
-                                    ) : (
-                                        row[header]
                                     )}
                                 </TableCell>
                             ))}
@@ -87,19 +155,67 @@ const BasicTable = ({ headers, data }) => {
 export default BasicTable;
 
 const statusStyles = {
-    'Completed': { bgcolor: '#059669', color: '#C2FFC7' },
-    'Pending': { bgcolor: '#F6E05E', color: '#92400E' },
-    'Confirmed': { bgcolor: '#F59E0B', color: '#443627' },
-    'In Transit': { bgcolor: '#0EA5E9', color: '#211C84' },
-    'Cancelled': { bgcolor: '#F87171', color: '#A31D1D' },
-    'Expired': { bgcolor: '#B17F59', color: '#E3D2C3' },
+    'Completed': { 
+        backgroundColor: '#DCFCE7', 
+        color: '#166534', 
+        fontWeight: 600 
+    },
+    'Pending': { 
+        backgroundColor: '#FEF3C7', 
+        color: '#92400E', 
+        fontWeight: 600 
+    },
+    'Confirmed': { 
+        backgroundColor: '#FECACA', 
+        color: '#991B1B', 
+        fontWeight: 600 
+    },
+    'In Transit': { 
+        backgroundColor: '#DBEAFE', 
+        color: '#1E40AF', 
+        fontWeight: 600 
+    },
+    'Cancelled': { 
+        backgroundColor: '#FEE2E2', 
+        color: '#991B1B', 
+        fontWeight: 600 
+    },
+    'Expired': { 
+        backgroundColor: '#E5E7EB', 
+        color: '#374151', 
+        fontWeight: 600 
+    },
 };
+
 const actionStyles = {
-    'Request Pickup': { color: '#059669', bgcolor: '#C2FFC7' },
+    'Request Pickup': { 
+        color: '#FFFFFF', 
+        backgroundColor: '#059669',
+        '&:hover': {
+            backgroundColor: '#047857',
+        } 
+    },
 };
+
 const expiryDateStyles = {
-    'Default': { bgcolor: '#059669', color: '#C2FFC7' },
-    'Today': { bgcolor: '#F59E0B', color: '#443627' },
-    'Tomorrow': { bgcolor: '#F87171', color: '#A31D1D' },
-    'Expired': { bgcolor: '#B17F59', color: '#E3D2C3' },
+    'Default': { 
+        backgroundColor: '#DCFCE7', 
+        color: '#166534', 
+        fontWeight: 600 
+    },
+    'Today': { 
+        backgroundColor: '#FEF3C7', 
+        color: '#92400E', 
+        fontWeight: 600 
+    },
+    'Tomorrow': { 
+        backgroundColor: '#FECACA', 
+        color: '#991B1B', 
+        fontWeight: 600 
+    },
+    'Expired': { 
+        backgroundColor: '#E5E7EB', 
+        color: '#374151', 
+        fontWeight: 600 
+    },
 };

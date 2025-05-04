@@ -36,10 +36,10 @@ const Navbar = ({ callingFrom }) => {
 
     let pages = [];
     userType === 'donor'
-        ? pages = ['Home', 'Insights', 'Projects', 'Donate Now']
+        ? pages = ['Home', 'Insights', 'Projects', 'About Us', 'Donate Now']
         : userType === 'recipient'
-            ? pages = ['Home', 'Insights', 'Projects', 'Request Food']
-            : [];
+            ? pages = ['Home', 'Insights', 'Projects', 'About Us', 'Request Food']
+            : pages = ['Home', 'Insights', 'Projects', 'About Us'];
     const settings = callingFrom === 'PROFILE' ? ['Logout'] : ['Profile', 'Logout'];
 
     const handleOpenNavMenu = (event) => {
@@ -60,6 +60,8 @@ const Navbar = ({ callingFrom }) => {
             document.querySelector("#projects-section")?.scrollIntoView({ behavior: "smooth" });
         } else if (page === "Home") {
             window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (page === "About Us") {
+            navigate('/about-us');
         } else if (page === "Profile") {
             navigate('/profile/dashboard');
         } else if (page === "Logout") {

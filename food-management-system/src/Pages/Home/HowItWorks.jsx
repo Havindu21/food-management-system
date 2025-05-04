@@ -40,31 +40,31 @@ const HowItWorks = () => {
 
   const steps = [
     {
-      icon: <Search sx={{ fontSize: 40, color: primaryColor }} />,
-      title: "Search & Browse",
-      description: "Browse through our extensive catalog of fresh, high-quality food items from top local restaurants and markets.",
-      additionalDetail: "Use filters to narrow down options by cuisine, dietary restrictions, or price range.",
+      icon: <RestaurantMenu sx={{ fontSize: 40, color: primaryColor }} />,
+      title: "List or Request",
+      description: "Restaurants, hotels, and grocery stores list surplus food while recipients can browse or request specific food items.",
+      additionalDetail: "Donors provide detailed descriptions including quantity, expiration date, and pickup location.",
       color: '#E2F8F0' // Lighter shade of the primary color
     },
     {
-      icon: <RestaurantMenu sx={{ fontSize: 40, color: primaryColor }} />,
-      title: "Select Your Food",
-      description: "Choose from a variety of meals prepared with the freshest ingredients and tailored to your preferences.",
-      additionalDetail: "View detailed nutritional information and ingredient lists for all items.",
+      icon: <Search sx={{ fontSize: 40, color: primaryColor }} />,
+      title: "Match & Connect",
+      description: "Recipients find suitable donations through search filters and accept food listings via our real-time matching system.",
+      additionalDetail: "View donation details, location maps, and coordinate pickup times instantly.",
       color: '#C8F5E2' // Another shade of the primary color
     },
     {
       icon: <LocalShipping sx={{ fontSize: 40, color: primaryColor }} />,
-      title: "Fast Delivery",
-      description: "Enjoy rapid delivery with real-time tracking straight to your doorstep, ensuring your food remains hot and fresh.",
-      additionalDetail: "Rate your delivery experience and provide feedback for continuous improvement.",
+      title: "Pickup & Track",
+      description: "Track order status from acceptance to pickup completion. Navigate to donation locations using integrated map directions.",
+      additionalDetail: "Update order status through each stage: accepted, in-transit, and completed.",
       color: '#A7F0D1' // Another shade of the primary color
     },
     {
       icon: <ThumbUp sx={{ fontSize: 40, color: primaryColor }} />,
-      title: "Enjoy & Review",
-      description: "Savor your meal and share your dining experience with others through detailed reviews and ratings.",
-      additionalDetail: "Earn reward points for each review you leave to use on future orders.",
+      title: "Rate & Impact",
+      description: "Rate your experience and track environmental impact. See meals saved and CO2 emissions reduced through redistribution.",
+      additionalDetail: "Build trust through the rating system and earn achievements for your contributions.",
       color: '#8FEDD5' // Another shade of the primary color
     },
   ];
@@ -195,7 +195,7 @@ const HowItWorks = () => {
                 }
               }}
             >
-              Our Process Simplified
+              Food Redistribution Made Simple
             </Typography>
             <Typography 
               variant="h6" 
@@ -211,7 +211,7 @@ const HowItWorks = () => {
                 lineHeight: 1.6
               }}
             >
-              From selecting your favorite meal to enjoying it in the comfort of your home - we've made the entire experience seamless and enjoyable.
+              Connect surplus food with those in need while reducing waste and environmental impact. Join our community in fighting food insecurity and saving our planet.
             </Typography>
           </Box>
         </Fade>
@@ -367,7 +367,7 @@ const HowItWorks = () => {
                                 },
                               }}
                             >
-                              Get Started Now
+                              Join Our Community
                             </Button>
                           )}
                         </Box>

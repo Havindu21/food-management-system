@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Container, Typography, Button, Grid, Paper, Fade } from '@mui/material';
-import { PeopleAlt, FavoriteBorder, Restaurant, Public } from '@mui/icons-material';
+import { LocalDining, RestaurantMenu, EmojiNature, RemoveCircle } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const JoinCommunity = () => {
@@ -9,24 +9,24 @@ const JoinCommunity = () => {
 
   const benefits = [
     {
-      icon: <PeopleAlt sx={{ fontSize: 40, color: primaryColor }} />,
-      title: "Connect",
-      description: "Connect with food enthusiasts and share your culinary experiences"
+      icon: <RemoveCircle sx={{ fontSize: 40, color: primaryColor }} />,
+      title: "Reduce Waste",
+      description: "Help reduce the 260,000-275,000 tons of food wasted annually in Sri Lanka"
     },
     {
-      icon: <Restaurant sx={{ fontSize: 40, color: primaryColor }} />,
-      title: "Share",
-      description: "Share your surplus food and reduce waste while helping others"
+      icon: <LocalDining sx={{ fontSize: 40, color: primaryColor }} />,
+      title: "Feed Communities",
+      description: "Support the 4.8 million Sri Lankans facing food insecurity with surplus food"
     },
     {
-      icon: <FavoriteBorder sx={{ fontSize: 40, color: primaryColor }} />,
-      title: "Support",
-      description: "Support local communities through sustainable food practices"
+      icon: <EmojiNature sx={{ fontSize: 40, color: primaryColor }} />,
+      title: "Save Environment",
+      description: "Reduce CO₂ emissions by preventing food waste from reaching landfills"
     },
     {
-      icon: <Public sx={{ fontSize: 40, color: primaryColor }} />,
-      title: "Impact",
-      description: "Make a positive environmental impact by minimizing food waste"
+      icon: <RestaurantMenu sx={{ fontSize: 40, color: primaryColor }} />,
+      title: "Build Trust",
+      description: "Create reliable connections between donors and recipients through our rating system"
     }
   ];
 
@@ -105,7 +105,7 @@ const JoinCommunity = () => {
                 }
               }}
             >
-              Join Our Food Sharing Community
+              Join Sri Lanka's Food Redistribution Network
             </Typography>
             <Typography 
               variant="h6" 
@@ -121,8 +121,8 @@ const JoinCommunity = () => {
                 lineHeight: 1.6
               }}
             >
-              Be part of a growing movement that's transforming how we think about food. 
-              Together, we can reduce waste, support local communities, and create a more sustainable food system.
+              Be part of the solution to food waste and hunger in Sri Lanka. 
+              Together, we can ensure surplus food reaches those who need it while protecting our environment.
             </Typography>
           </Box>
         </Fade>
@@ -205,12 +205,12 @@ const JoinCommunity = () => {
           }}
         >
           <Typography variant="h4" gutterBottom fontWeight="700">
-            Ready to Get Started?
+            Start Making a Difference Today
           </Typography>
           <Typography variant="body1" sx={{ mb: 4, maxWidth: '700px', mx: 'auto' }}>
-            Join thousands of food enthusiasts who are already making a difference. 
-            Whether you're looking to share your food, discover new local options, or just connect with like-minded people, 
-            our community welcomes you with open arms.
+            Whether you're a business with surplus food, a charitable organization serving communities, 
+            or someone passionate about reducing waste - your contribution matters. 
+            Join our network and help build a more sustainable future for Sri Lanka.
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
             <Button
@@ -230,7 +230,7 @@ const JoinCommunity = () => {
               }}
               onClick={() => navigate('/sign-in')}
             >
-              Login
+              I'm a Business
             </Button>
             <Button
               variant="contained"
@@ -247,9 +247,9 @@ const JoinCommunity = () => {
                   boxShadow: '0 6px 15px rgba(5, 150, 105, 0.4)'
                 }
               }}
-              onClick={() => navigate('/join-us')}
+              onClick={() => navigate('/sign-in')}
             >
-              Join Us
+              I'm a Charity
             </Button>
           </Box>
         </Box>

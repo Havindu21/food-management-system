@@ -21,6 +21,7 @@ import DonateFood from "./Pages/Donations/DonateFood";
 import FoodRequests from "./Pages/FoodRequests/FoodRequests";
 import ActiveDonations from "./Pages/ActiveDonations/ActiveDonations";
 import RecipientsApproval from "./Pages/Admin/RecipientsApproval";
+import AboutUs from "./Pages/AboutUs/AboutUs";
 
 const router = createBrowserRouter([
     {
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
             { path: "insights", element: <Home /> },
             { path: "projects", element: <Home /> },
             { path: "donate-now", element: <Home /> },
+            { path: "about-us", element: <AboutUs /> },
         ],
     },
     {

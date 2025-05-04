@@ -14,12 +14,12 @@ const Dashboard = () => {
     const tiles = userRole === 'Don' ? [
         {
             title: 'Total Meals Donated',
-            count: '12,458',
+            count: '500',
             image: RestaurantIcon,
         },
         {
             title: 'CO2 Emissions Saved',
-            count: '2.4 tons',
+            count: '850 kg',
             image: SpaIcon,
         },
         {
@@ -47,10 +47,10 @@ const Dashboard = () => {
     ] : []
     const tableHeaders = userRole === 'Don' ? ["Date", "Items", "Quantity", "Status"] : userRole === 'Rec' ? ['Item', 'Quantity', 'Expiry Date', 'Donor', 'Action'] : [];
     const tableData = userRole === 'Don' ? [
-        { Date: "2025-03-15", Items: "Laptop", Quantity: 3, Status: "Completed" },
-        { Date: "2025-03-18", Items: "Mouse", Quantity: 5, Status: "Completed" },
-        { Date: "2025-03-19", Items: "Keyboard", Quantity: 2, Status: "Completed" },
-        { Date: "2025-03-20", Items: "Monitor", Quantity: 1, Status: "Completed" },
+        { Date: "2025-03-15", Items: "Rice and Curry (Chicken)", Quantity: "30 meals", Status: "Completed" },
+        { Date: "2025-03-18", Items: "Chicken Fried Rice", Quantity: "25 meals", Status: "Completed" },
+        { Date: "2025-03-19", Items: "White Rice", Quantity: "20kg", Status: "Completed" },
+        { Date: "2025-03-20", Items: "Lentils", Quantity: "20kg", Status: "Completed" },
     ] : userRole === 'Rec' ? [
         { Item: "Fresh Bread", Quantity: "50 Loaves", 'Expiry Date': 'Today', Donor: "Hansana Sandipa", Action: 'Request Pickup' },
         { Item: "Mixed Vegetables", Quantity: "200 kg", 'Expiry Date': '3 Days', Donor: "Fresh Market", Action: 'Request Pickup' },
