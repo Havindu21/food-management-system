@@ -22,8 +22,8 @@ import FoodRequests from "./Pages/FoodRequests/FoodRequests";
 import ActiveDonations from "./Pages/ActiveDonations/ActiveDonations";
 import RecipientsApproval from "./Pages/Admin/RecipientsApproval";
 import AboutUs from "./Pages/AboutUs/AboutUs";
-import UserManagement from "./Pages/UserManagement/UserManagement";
-import Analytics from "./Pages/Analytics/Analytics";
+import UserManagement from "./Pages/Admin/UserManagement";
+import Analytics from "./Pages/Admin/Analytics";
 
 const router = createBrowserRouter([
     {
