@@ -71,6 +71,7 @@ export default function Sidebar() {
         { label: 'Pickup History', icon: <HistoryIcon />, path: 'pickup-history' },
         { label: 'Settings', icon: <SettingsIcon />, path: 'recepient-settings' }
     ] : userRole === 'admin' ? [
+        { label: 'Dashboard', icon: <DashboardIcon />, path: 'dashboard' },
         { label: 'Recipients Approval', icon: <AddTaskIcon />, path: 'recipient-approvals' }
     ] : [];
 

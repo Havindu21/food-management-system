@@ -8,9 +8,11 @@ import BasicTable from '../../Components/BasicTable';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
+import { useSelector } from 'react-redux';
 
 const Dashboard = () => {
-    const userRole = localStorage.getItem('userRole') || 'Rec'; // Default to 'Don' if userRole is not set
+    const { userType: userRole } = useSelector((state) => state.user);
+    // const userRole = localStorage.getItem('userRole') || 'Rec'; // Default to 'Don' if userRole is not set
     const tiles = userRole === 'Don' ? [
         {
             title: 'Total Meals Donated',
@@ -44,7 +46,40 @@ const Dashboard = () => {
             count: '500 meals',
             image: FoodBankIcon,
         },
-    ] : []
+    ] : [
+        {
+            title: 'Total Meals Donated',
+            count: '500',
+            image: RestaurantIcon,
+        },
+        {
+            title: 'CO2 Emissions Saved',
+            count: '850 kg',
+            image: SpaIcon,
+        },
+        {
+            title: 'Total Meals Donated',
+            count: '4.5/5.0',
+            image: StarIcon,
+            rate: 4.5,
+        },
+        {
+            title: 'Available Donations',
+            count: '3',
+            image: VolunteerActivismIcon,
+        },
+        {
+            title: 'Successful Pickups',
+            count: '156',
+            image: LocalShippingIcon,
+        },
+        {
+            title: 'Total Meals Saved',
+            count: '500 meals',
+            image: FoodBankIcon,
+        },
+
+    ]
     const tableHeaders = userRole === 'Don' ? ["Date", "Items", "Quantity", "Status"] : userRole === 'Rec' ? ['Item', 'Quantity', 'Expiry Date', 'Donor', 'Action'] : [];
     const tableData = userRole === 'Don' ? [
         { Date: "2025-03-15", Items: "Rice and Curry (Chicken)", Quantity: "30 meals", Status: "Completed" },
@@ -93,7 +128,7 @@ const Dashboard = () => {
                 }}>
                     AvailableDonations
                 </Typography>
-                <Box sx={{ mt: 4, pb: { xs: 4, md: 0 }, }}>
+                <Box sx={{ mt: 4, pb: { xs: 4, md: 0 }, display: userRole === 'admin' ? 'none' : 'block' }}>
                     <BasicTable headers={tableHeaders} data={tableData} />
                 </Box>
             </Box>
