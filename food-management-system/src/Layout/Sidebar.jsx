@@ -27,6 +27,8 @@ import RequestPageIcon from '@mui/icons-material/RequestPage';
 import ShoppingBasketIcon from '@mui/icons-material/ShoppingBasket';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -72,7 +74,9 @@ export default function Sidebar() {
         { label: 'Settings', icon: <SettingsIcon />, path: 'recepient-settings' }
     ] : userRole === 'admin' ? [
         { label: 'Dashboard', icon: <DashboardIcon />, path: 'dashboard' },
-        { label: 'Recipients Approval', icon: <AddTaskIcon />, path: 'recipient-approvals' }
+        { label: 'Recipients Approval', icon: <AddTaskIcon />, path: 'recipient-approvals' },
+        { label: 'User Management', icon: <SupervisedUserCircleIcon />, path: 'user-management' },
+        { label: 'Analytics', icon: <AnalyticsIcon />, path: 'analytics' },
     ] : [];
 
     const LogoutButton = (

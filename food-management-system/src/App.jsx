@@ -22,6 +22,8 @@ import FoodRequests from "./Pages/FoodRequests/FoodRequests";
 import ActiveDonations from "./Pages/ActiveDonations/ActiveDonations";
 import RecipientsApproval from "./Pages/Admin/RecipientsApproval";
 import AboutUs from "./Pages/AboutUs/AboutUs";
+import UserManagement from "./Pages/UserManagement/UserManagement";
+import Analytics from "./Pages/Analytics/Analytics";
 
 const router = createBrowserRouter([
     {
@@ -75,6 +77,8 @@ const router = createBrowserRouter([
             { path: "pickup-history", element: <PickupHistory /> },
             { path: "recepient-settings", element: <RecepientSettings /> },
             { path: "recipient-approvals", element: <RecipientsApproval /> },
+            { path: "user-management", element: <UserManagement /> },
+            { path: "analytics", element: <Analytics /> },
         ],
     },
 ], {
