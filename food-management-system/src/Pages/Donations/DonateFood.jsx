@@ -128,7 +128,23 @@ const DonateFood = () => {
         e.preventDefault();
 
         if (validateForm()) {
-            console.log('Form submitted:', { foodItems, contactNumber, selectedLocation });
+            // Format the date and time for submission
+            const formattedFoodItems = foodItems.map(item => {
+                return {
+                    ...item,
+                    // Format date to dd-mm-yyyy if exists
+                    expiryDate: item.expiryDate ? dayjs(item.expiryDate).format('DD-MM-YYYY') : null,
+                    // Format time to hh:mm if exists
+                    expiryTime: item.expiryTime ? dayjs(item.expiryTime).format('HH:mm') : null
+                };
+            });
+
+            console.log('Form submitted:', { 
+                foodItems: formattedFoodItems, 
+                contactNumber, 
+                selectedLocation 
+            });
+            
             // Here you would handle the submission to your backend
 
             // Show success message or redirect
@@ -263,6 +279,7 @@ const DonateFood = () => {
                                                 value={item.expiryDate}
                                                 onChange={(date) => handleFoodItemChange(index, 'expiryDate', date)}
                                                 minDate={dayjs()}
+                                                format="DD-MM-YYYY"
                                                 slotProps={{
                                                     textField: {
                                                         fullWidth: true,
@@ -282,6 +299,7 @@ const DonateFood = () => {
                                             <TimePicker
                                                 value={item.expiryTime}
                                                 onChange={(time) => handleFoodItemChange(index, 'expiryTime', time)}
+                                                format="HH:mm"
                                                 slotProps={{
                                                     textField: {
                                                         fullWidth: true,
