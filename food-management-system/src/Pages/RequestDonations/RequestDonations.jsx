@@ -12,6 +12,9 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import dayjs from 'dayjs';
 
+// Date format configuration
+const DATE_FORMAT = 'DD-MM-YYYY';
+
 const RequestDonations = () => {
     // Main request details (single for the entire form)
     const [requestTitle, setRequestTitle] = useState('');
@@ -143,10 +146,16 @@ const RequestDonations = () => {
         e.preventDefault();
 
         if (validateForm()) {
+            // Format deadlines for submission
+            const formattedFoodRequests = foodRequests.map(request => ({
+                ...request,
+                deadline: request.deadline ? request.deadline.format(DATE_FORMAT) : null
+            }));
+            
             console.log('Form submitted:', { 
                 title: requestTitle,
                 description: requestDescription,
-                foodRequests,
+                foodRequests: formattedFoodRequests,
                 contactNumber
             });
             // Here you would handle the submission to your backend
@@ -343,12 +352,14 @@ const RequestDonations = () => {
                                                 value={request.deadline}
                                                 onChange={(date) => handleFoodRequestChange(index, 'deadline', date)}
                                                 minDate={dayjs()}
+                                                format={DATE_FORMAT}
                                                 slotProps={{
                                                     textField: {
                                                         fullWidth: true,
                                                         size: "small",
                                                         error: !!formErrors[`foodRequests[${index}].deadline`],
                                                         helperText: formErrors[`foodRequests[${index}].deadline`] || '',
+                                                        placeholder: 'DD-MM-YYYY',
                                                     }
                                                 }}
                                             />
