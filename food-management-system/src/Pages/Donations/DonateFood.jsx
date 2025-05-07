@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
     Box, Typography, TextField, Button, Grid, Paper, IconButton,
-    Divider, Card, CardContent, Stack, InputAdornment
+    Divider, Card, CardContent, Stack, InputAdornment,
+    Select, MenuItem, FormControl
 } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -15,16 +16,29 @@ import dayjs from 'dayjs';
 
 const DonateFood = () => {
     const [foodItems, setFoodItems] = useState([
-        { mealName: '', quantity: '', expiryDate: null, expiryTime: null }
+        { mealName: '', quantity: '', unit: 'none', expiryDate: null, expiryTime: null }
     ]);
     const [contactNumber, setContactNumber] = useState('');
     const [contactNumberError, setContactNumberError] = useState('');
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [formErrors, setFormErrors] = useState({});
 
+    // List of unit types
+    const unitTypes = [
+        { value: 'none', label: 'None' },
+        { value: 'kg', label: 'Kilograms (kg)' },
+        { value: 'g', label: 'Grams (g)' },
+        { value: 'l', label: 'Liters (L)' },
+        { value: 'ml', label: 'Milliliters (ml)' },
+        { value: 'pcs', label: 'Pieces' },
+        { value: 'boxes', label: 'Boxes' },
+        { value: 'plates', label: 'Plates' },
+        { value: 'servings', label: 'Servings' },
+    ];
+
     // Add a new food item to the list
     const handleAddFoodItem = () => {
-        setFoodItems([...foodItems, { mealName: '', quantity: '', expiryDate: null, expiryTime: null }]);
+        setFoodItems([...foodItems, { mealName: '', quantity: '', unit: 'none', expiryDate: null, expiryTime: null }]);
     };
 
     // Remove a food item from the list
@@ -37,6 +51,15 @@ const DonateFood = () => {
     // Update a food item field
     const handleFoodItemChange = (index, field, value) => {
         const newFoodItems = [...foodItems];
+
+        // If the field is quantity, validate that it only contains numbers
+        if (field === 'quantity') {
+            // Allow only numbers or empty string
+            if (value !== '' && !/^\d*\.?\d*$/.test(value)) {
+                return;
+            }
+        }
+
         newFoodItems[index][field] = value;
         setFoodItems(newFoodItems);
 
@@ -151,7 +174,7 @@ const DonateFood = () => {
                         gap: 1,
                         color: '#333',
                     }}>
-                        <FoodBankIcon sx={{ color: '#059669' }} /> Food Details
+                        <FoodBankIcon sx={{ color: '#059669' }} /> Food / Meal Details
                     </Typography>
 
                     {foodItems.map((item, index) => (
@@ -189,7 +212,7 @@ const DonateFood = () => {
                                 <Grid container spacing={3}>
                                     <Grid item xs={12} md={6}>
                                         <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 1 }}>
-                                            Meal Name<span style={{ color: 'red' }}> *</span>
+                                            Name<span style={{ color: 'red' }}> *</span>
                                         </Typography>
                                         <TextField
                                             fullWidth
@@ -206,16 +229,30 @@ const DonateFood = () => {
                                         <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 1 }}>
                                             Quantity<span style={{ color: 'red' }}> *</span>
                                         </Typography>
-                                        <TextField
-                                            fullWidth
-                                            size="small"
-                                            placeholder="e.g., 2kg, 500g, 3 boxes"
-                                            value={item.quantity}
-                                            onChange={(e) => handleFoodItemChange(index, 'quantity', e.target.value)}
-                                            error={!!formErrors[`foodItems[${index}].quantity`]}
-                                            helperText={formErrors[`foodItems[${index}].quantity`] || ''}
-                                            sx={{ mb: 2 }}
-                                        />
+                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                            <TextField
+                                                sx={{ flex: 1, mb: 2 }}
+                                                size="small"
+                                                placeholder="Enter quantity"
+                                                value={item.quantity}
+                                                onChange={(e) => handleFoodItemChange(index, 'quantity', e.target.value)}
+                                                error={!!formErrors[`foodItems[${index}].quantity`]}
+                                                helperText={formErrors[`foodItems[${index}].quantity`] || ''}
+                                                inputProps={{ inputMode: 'numeric' }}
+                                            />
+                                            <FormControl sx={{ minWidth: 120, mb: 2 }} size="small">
+                                                <Select
+                                                    value={item.unit}
+                                                    onChange={(e) => handleFoodItemChange(index, 'unit', e.target.value)}
+                                                >
+                                                    {unitTypes.map((unit) => (
+                                                        <MenuItem key={unit.value} value={unit.value}>
+                                                            {unit.label}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        </Box>
                                     </Grid>
                                     <Grid item xs={12} md={6}>
                                         <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 1 }}>
