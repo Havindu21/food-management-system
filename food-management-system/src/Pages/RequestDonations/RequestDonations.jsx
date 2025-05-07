@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
     Box, Typography, TextField, Button, Grid, Paper, IconButton,
-    Divider, Card, CardContent, MenuItem, InputAdornment
+    Divider, Card, CardContent, MenuItem, InputAdornment,
+    Select, FormControl
 } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -18,16 +19,29 @@ const RequestDonations = () => {
     
     // Individual food items
     const [foodRequests, setFoodRequests] = useState([
-        { mealName: '', quantityNeeded: '', deadline: null }
+        { mealName: '', quantityNeeded: '', unit: 'none', deadline: null }
     ]);
     
     const [contactNumber, setContactNumber] = useState('');
     const [contactNumberError, setContactNumberError] = useState('');
     const [formErrors, setFormErrors] = useState({});
 
+    // List of unit types
+    const unitTypes = [
+        { value: 'none', label: 'None' },
+        { value: 'kg', label: 'Kilograms (kg)' },
+        { value: 'g', label: 'Grams (g)' },
+        { value: 'l', label: 'Liters (L)' },
+        { value: 'ml', label: 'Milliliters (ml)' },
+        { value: 'pcs', label: 'Pieces' },
+        { value: 'boxes', label: 'Boxes' },
+        { value: 'plates', label: 'Plates' },
+        { value: 'servings', label: 'Servings' },
+    ];
+
     // Add a new food request to the list
     const handleAddFoodRequest = () => {
-        setFoodRequests([...foodRequests, { mealName: '', quantityNeeded: '', deadline: null }]);
+        setFoodRequests([...foodRequests, { mealName: '', quantityNeeded: '', unit: 'none', deadline: null }]);
     };
 
     // Remove a food request from the list
@@ -40,6 +54,15 @@ const RequestDonations = () => {
     // Update a food request field
     const handleFoodRequestChange = (index, field, value) => {
         const newFoodRequests = [...foodRequests];
+        
+        // If the field is quantityNeeded, validate that it only contains numbers
+        if (field === 'quantityNeeded') {
+            // Allow only numbers or empty string
+            if (value !== '' && !/^\d*\.?\d*$/.test(value)) {
+                return;
+            }
+        }
+        
         newFoodRequests[index][field] = value;
         setFoodRequests(newFoodRequests);
 
@@ -229,7 +252,7 @@ const RequestDonations = () => {
                         mb: 2,
                         color: '#333',
                     }}>
-                        Food Items Needed
+                        Food / Meal Items Needed
                     </Typography>
 
                     {foodRequests.map((request, index) => (
@@ -285,16 +308,30 @@ const RequestDonations = () => {
                                         <Typography sx={{ fontSize: 14, fontWeight: 500, mb: 1 }}>
                                             Quantity Needed<span style={{ color: 'red' }}> *</span>
                                         </Typography>
-                                        <TextField
-                                            fullWidth
-                                            size="small"
-                                            placeholder="e.g., 10 meals, 5kg rice"
-                                            value={request.quantityNeeded}
-                                            onChange={(e) => handleFoodRequestChange(index, 'quantityNeeded', e.target.value)}
-                                            error={!!formErrors[`foodRequests[${index}].quantityNeeded`]}
-                                            helperText={formErrors[`foodRequests[${index}].quantityNeeded`] || ''}
-                                            sx={{ mb: 2 }}
-                                        />
+                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                            <TextField
+                                                sx={{ flex: 1, mb: 2 }}
+                                                size="small"
+                                                placeholder="Enter quantity"
+                                                value={request.quantityNeeded}
+                                                onChange={(e) => handleFoodRequestChange(index, 'quantityNeeded', e.target.value)}
+                                                error={!!formErrors[`foodRequests[${index}].quantityNeeded`]}
+                                                helperText={formErrors[`foodRequests[${index}].quantityNeeded`] || ''}
+                                                inputProps={{ inputMode: 'numeric' }}
+                                            />
+                                            <FormControl sx={{ minWidth: 120, mb: 2 }} size="small">
+                                                <Select
+                                                    value={request.unit || 'none'}
+                                                    onChange={(e) => handleFoodRequestChange(index, 'unit', e.target.value)}
+                                                >
+                                                    {unitTypes.map((unit) => (
+                                                        <MenuItem key={unit.value} value={unit.value}>
+                                                            {unit.label}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
+                                        </Box>
                                     </Grid>
 
                                     <Grid item xs={12} md={12}>
