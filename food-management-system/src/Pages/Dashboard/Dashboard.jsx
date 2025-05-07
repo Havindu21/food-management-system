@@ -8,78 +8,128 @@ import BasicTable from '../../Components/BasicTable';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
+import GroupsIcon from '@mui/icons-material/Groups';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import { useSelector } from 'react-redux';
 
 const Dashboard = () => {
     const { userType: userRole } = useSelector((state) => state.user);
-    // const userRole = localStorage.getItem('userRole') || 'Rec'; // Default to 'Don' if userRole is not set
+    // Define the tiles for each user role
     const tiles = userRole === 'Don' ? [
         {
             title: 'Total Meals Donated',
             count: '500',
             image: RestaurantIcon,
+            trend: 12
         },
         {
             title: 'CO2 Emissions Saved',
             count: '850 kg',
             image: SpaIcon,
+            trend: 8
         },
         {
             title: 'Total Meals Donated',
             count: '4.5/5.0',
             image: StarIcon,
             rate: 4.5,
+            trend: 5
         },
     ] : userRole === 'Rec' ? [
         {
             title: 'Available Donations',
             count: '3',
             image: VolunteerActivismIcon,
+            trend: 20
         },
         {
             title: 'Successful Pickups',
             count: '156',
             image: LocalShippingIcon,
+            trend: 15
         },
         {
             title: 'Total Meals Saved',
             count: '500 meals',
             image: FoodBankIcon,
+            trend: 10
         },
     ] : [
+        // Row 1: User/Stakeholder metrics
         {
-            title: 'Total Meals Donated',
-            count: '500',
-            image: RestaurantIcon,
+            title: 'Total Donors',
+            count: '125',
+            image: PeopleAltIcon,
+            trend: 8,
+            trendStyle: 'modern'
         },
+        {
+            title: 'Total Recipients',
+            count: '42',
+            image: AccessibilityNewIcon,
+            trend: 15,
+            trendStyle: 'modern'
+        },
+        {
+            title: 'Total Participants',
+            count: '167',
+            image: GroupsIcon,
+            trend: 12,
+            trendStyle: 'modern'
+        },
+        
+        // Row 2: Current Activity metrics
+        {
+            title: 'Available Food Donations',
+            count: '18',
+            image: InventoryIcon,
+            trend: 25,
+            trendStyle: 'modern'
+        },
+        {
+            title: 'Available Food Requests',
+            count: '7',
+            image: ListAltIcon,
+            trend: 14,
+            trendStyle: 'modern'
+        },
+        {
+            title: 'Active Pickups',
+            count: '5',
+            image: ReceiptLongIcon,
+            trend: 10,
+            trendStyle: 'modern'
+        },
+        
+        // Row 3: Impact metrics
         {
             title: 'CO2 Emissions Saved',
-            count: '850 kg',
+            count: '4,250 kg',
             image: SpaIcon,
-        },
-        {
-            title: 'Total Meals Donated',
-            count: '4.5/5.0',
-            image: StarIcon,
-            rate: 4.5,
-        },
-        {
-            title: 'Available Donations',
-            count: '3',
-            image: VolunteerActivismIcon,
-        },
-        {
-            title: 'Successful Pickups',
-            count: '156',
-            image: LocalShippingIcon,
+            trend: 9,
+            trendStyle: 'modern'
         },
         {
             title: 'Total Meals Saved',
-            count: '500 meals',
-            image: FoodBankIcon,
+            count: '2,850',
+            image: RestaurantMenuIcon,
+            trend: 12,
+            trendStyle: 'modern'
         },
-
-    ]
+        {
+            title: 'Successful Pickups',
+            count: '342',
+            image: LocalShippingIcon,
+            trend: 17,
+            trendStyle: 'modern'
+        },
+    ];
+    
     const tableHeaders = userRole === 'Don' ? ["Date", "Items", "Quantity", "Status"] : userRole === 'Rec' ? ['Item', 'Quantity', 'Expiry Date', 'Donor', 'Action'] : [];
     const tableData = userRole === 'Don' ? [
         { Date: "2025-03-15", Items: "Rice and Curry (Chicken)", Quantity: "30 meals", Status: "Completed" },
@@ -99,13 +149,13 @@ const Dashboard = () => {
                 fontWeight: { xs: 500, md: 600 },
                 color: '#3F4F44',
             }}>
-                Welcome back, Hansana
+                Welcome back, Admin
             </Typography>
             <Typography sx={{
                 fontSize: { xs: 14, md: 16 },
                 color: '#686D76',
             }}>
-                Here's your donation impact overview
+                Here's the impact overview of the platform
             </Typography>
             <Grid2 container spacing={4} sx={{
                 mt: 4,

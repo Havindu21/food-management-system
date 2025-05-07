@@ -115,29 +115,57 @@ const DashboardTile = ({ tile }) => {
                 </Box>
             )}
 
-            {/* Optional trend indicator */}
+            {/* Optional trend indicator - with modern style option */}
             {tile?.trend && (
-                <Chip
-                    label={`${tile.trend > 0 ? '+' : ''}${tile.trend}%`}
-                    size="small"
-                    sx={{
-                        position: 'absolute',
-                        top: 16,
-                        right: 16,
-                        height: 24,
-                        fontSize: '0.75rem',
-                        fontWeight: 600,
-                        backgroundColor: tile.trend > 0 ? '#DCFCE7' : '#FEE2E2',
-                        color: tile.trend > 0 ? '#166534' : '#991B1B',
-                        '& .MuiChip-label': {
-                            paddingLeft: 8,
-                            paddingRight: 8,
-                        },
-                        '&:hover': {
+                tile?.trendStyle === 'modern' ? (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 16,
+                            right: 16,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: 28,
+                            padding: '0 12px',
+                            borderRadius: 14,
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
+                            letterSpacing: '0.02em',
+                            backgroundColor: tile.trend > 0 ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                            color: tile.trend > 0 ? '#059669' : '#DC2626',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                                backgroundColor: tile.trend > 0 ? 'rgba(16, 185, 129, 0.18)' : 'rgba(239, 68, 68, 0.18)',
+                            }
+                        }}
+                    >
+                        {`${tile.trend > 0 ? '+' : ''}${tile.trend}%`}
+                    </Box>
+                ) : (
+                    <Chip
+                        label={`${tile.trend > 0 ? '+' : ''}${tile.trend}%`}
+                        size="small"
+                        sx={{
+                            position: 'absolute',
+                            top: 16,
+                            right: 16,
+                            height: 24,
+                            fontSize: '0.75rem',
+                            fontWeight: 600,
                             backgroundColor: tile.trend > 0 ? '#DCFCE7' : '#FEE2E2',
-                        }
-                    }}
-                />
+                            color: tile.trend > 0 ? '#166534' : '#991B1B',
+                            '& .MuiChip-label': {
+                                paddingLeft: 8,
+                                paddingRight: 8,
+                            },
+                            '&:hover': {
+                                backgroundColor: tile.trend > 0 ? '#DCFCE7' : '#FEE2E2',
+                            }
+                        }}
+                    />
+                )
             )}
 
             {/* Decorative circle element */}
