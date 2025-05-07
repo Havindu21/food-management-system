@@ -15,6 +15,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
 import Logo from "../assets/logo-remove-bg.png";
 import CustomTextField from "../Components/GreenTextField";
+import { loginUser } from "../Services/auth";
 
 const Login = ({ key }) => {
     const dateNow = key;
@@ -33,22 +34,36 @@ const Login = ({ key }) => {
         formState: { errors },
     } = useForm();
 
-    const handleLogin = (data) => {
-        // Login logic here
-        if (data.email === "rec") {
-            dispatch(setUserData({ email: data.email, password: data.password }));
-            dispatch(setUserType("recipient"));
-            navigate("/home");
-        } else if (data.email === "admin") {
-            dispatch(setUserData({ email: data.email, password: data.password }));
-            dispatch(setUserType("admin"));
-            navigate("/profile/recipient-approvals");
-        } else if (data.email === "don") {
-            dispatch(setUserData({ email: data.email, password: data.password }));
-            dispatch(setUserType("donor"));
-            navigate("/home");
+    const handleLogin = async (data) => {
+        try {
+            const response = await loginUser(data);
+
+            if (response) {
+                dispatch(setUserData(response)); // adjust based on your response structure
+                navigate("/home");
+            } else {
+                console.error("Invalid login response:", response);
+            }
+        } catch (error) {
+            console.error("Login failed:", error?.message || error);
         }
     };
+
+    // Login logic here
+    // if (data.email === "rec") {
+    // dispatch(setUserData({ email: data.email, password: data.password }));
+    // dispatch(setUserType("recipient"));
+    // navigate("/home");
+    // } else if (data.email === "admin") {
+    //     dispatch(setUserData({ email: data.email, password: data.password }));
+    //     dispatch(setUserType("admin"));
+    //     navigate("/profile/recipient-approvals");
+    // } else if (data.email === "don") {
+    //     dispatch(setUserData({ email: data.email, password: data.password }));
+    //     dispatch(setUserType("donor"));
+    //     navigate("/home");
+    // }
+    // };
 
 
     return (
