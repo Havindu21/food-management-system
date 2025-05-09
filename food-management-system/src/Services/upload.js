@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:5001/api';
+const baseUrl = import.meta.env.VITE_API_URL;
 
 /**
  * Uploads a verification document and returns the filename
@@ -11,7 +10,7 @@ const uploadDocument = async (document) => {
   const formData = new FormData();
   formData.append('document', document);
   
-  const response = await axios.post(`${API_URL}/upload/document`, formData, {
+  const response = await axios.post(`${baseUrl}/upload/document`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }

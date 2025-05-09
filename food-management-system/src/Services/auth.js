@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:5001/api/auth';
+const baseUrl = import.meta.env.VITE_API_URL;
 
 /**
  * Register a new user
@@ -15,7 +14,8 @@ const registerUser = async (userData) => {
   //   throw new Error("Document must be uploaded before registration");
   // }
   
-  const response = await axios.post(`${API_URL}/register`, userData);
+  const response = await axios.post(`${baseUrl}/auth/register`, userData);
+  localStorage.setItem('token', response.data.token);
   return response.data;
 };
 
@@ -25,7 +25,8 @@ const registerUser = async (userData) => {
  * @returns {Promise<Object>} - User data and tokens
  */
 const loginUser = async (userData) => {
-  const response = await axios.post(`${API_URL}/login`, userData);
+  const response = await axios.post(`${baseUrl}/auth/login`, userData);
+  localStorage.setItem('token', response.data.token);
   return response.data;
 };
 
