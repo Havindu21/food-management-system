@@ -11,11 +11,17 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import dayjs from 'dayjs';
+import requestService from '../../Services/requestService';
+import { showAlertMessage } from '../../app/alertMessageController';
+import { showLoadingAnimation, hideLoadingAnimation } from '../../app/loadingAnimationController';
+import { useNavigate } from 'react-router-dom';
 
 // Date format configuration
 const DATE_FORMAT = 'DD-MM-YYYY';
 
 const RequestDonations = () => {
+    const navigate = useNavigate();
+    
     // Main request details (single for the entire form)
     const [requestTitle, setRequestTitle] = useState('');
     const [requestDescription, setRequestDescription] = useState('');
@@ -142,28 +148,61 @@ const RequestDonations = () => {
     };
 
     // Handle form submission
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
         if (validateForm()) {
             // Format deadlines for submission
             const formattedFoodRequests = foodRequests.map(request => ({
-                ...request,
+                mealName: request.mealName,
+                quantityNeeded: request.quantityNeeded,
+                unit: request.unit,
                 deadline: request.deadline ? request.deadline.format(DATE_FORMAT) : null
             }));
             
-            console.log('Form submitted:', { 
+            const requestData = { 
                 title: requestTitle,
                 description: requestDescription,
                 foodRequests: formattedFoodRequests,
                 contactNumber
-            });
-            // Here you would handle the submission to your backend
-
-            // Show success message or redirect
-            alert('Food request submitted successfully!');
+            };
+            
+            showLoadingAnimation({ message: "Submitting food request..." });
+            
+            try {
+                const response = await requestService.createRequest(requestData);
+                
+                if (response.success) {
+                    showAlertMessage({ 
+                        message: "Your food request has been submitted successfully!", 
+                        type: "success" 
+                    });
+                    
+                    // Reset form or redirect
+                    setTimeout(() => {
+                        navigate('/profile/dashboard');  // Redirect to requests history
+                    }, 1500);
+                    
+                } else {
+                    showAlertMessage({ 
+                        message: response.message || "Failed to submit food request", 
+                        type: "error" 
+                    });
+                }
+            } catch (error) {
+                console.error("Error submitting food request:", error);
+                showAlertMessage({ 
+                    message: error.response?.data?.message || error?.response?.data?.error || "An error occurred while submitting your food request", 
+                    type: "error" 
+                });
+            } finally {
+                hideLoadingAnimation();
+            }
         } else {
             console.log('Form has errors');
+            showAlertMessage({ 
+                message: "Please fix the errors in the form before submitting", 
+                type: "error" 
+            });
         }
     };
 
