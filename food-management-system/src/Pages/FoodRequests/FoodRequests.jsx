@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Button, Grid, Paper, Card, CardContent, Divider, 
     Chip, Avatar, TextField, Dialog, DialogActions, DialogContent, 
@@ -11,53 +11,15 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonIcon from '@mui/icons-material/Person';
 import PhoneIcon from '@mui/icons-material/Phone';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
+import { showLoadingAnimation, hideLoadingAnimation } from '../../app/loadingAnimationController';
+import { showAlertMessage } from '../../app/alertMessageController';
+import requestService from '../../Services/requestService';
 
 const FoodRequests = () => {
-    // Mock data - in a real app this would come from an API
-    const [requests, setRequests] = useState([
-        {
-            id: 1,
-            title: "Weekly Meals for Community Center",
-            description: "We need food for our weekly community lunch program that serves 50 underprivileged individuals.",
-            requestor: "Community Welfare Center",
-            contactNumber: "+94771234567",
-            dateRequested: "2023-10-15",
-            status: "active",
-            foodItems: [
-                { id: 101, mealName: "Rice", quantityNeeded: "20kg", deadline: "2025-05-30", contributedAmount: "5kg" },
-                { id: 102, mealName: "Vegetable Curry", quantityNeeded: "10 portions", deadline: "2025-06-10", contributedAmount: "2 portions" },
-                { id: 103, mealName: "Chicken Curry", quantityNeeded: "8kg", deadline: "2025-07-15", contributedAmount: "0kg" }
-            ]
-        },
-        {
-            id: 2,
-            title: "School Lunch Program",
-            description: "Supporting underprivileged children with nutritious lunch meals for a week.",
-            requestor: "Happy Kids Foundation",
-            contactNumber: "+94777654321",
-            dateRequested: "2023-10-18",
-            status: "active",
-            foodItems: [
-                { id: 201, mealName: "Sandwiches", quantityNeeded: "100 pcs", deadline: "2023-11-05", contributedAmount: "30 pcs" },
-                { id: 202, mealName: "Fruit Packets", quantityNeeded: "80 packs", deadline: "2023-11-02", contributedAmount: "20 packs" }
-            ]
-        },
-        {
-            id: 3,
-            title: "Elderly Home Monthly Supply",
-            description: "Food supplies needed for our local elderly care home with 30 residents.",
-            requestor: "Golden Age Care Home",
-            contactNumber: "+94712345678",
-            dateRequested: "2023-10-12",
-            status: "active",
-            foodItems: [
-                { id: 301, mealName: "Rice", quantityNeeded: "25kg", deadline: "2023-10-31", contributedAmount: "10kg" },
-                { id: 302, mealName: "Lentils", quantityNeeded: "10kg", deadline: "2023-10-31", contributedAmount: "5kg" },
-                { id: 303, mealName: "Vegetables", quantityNeeded: "15kg", deadline: "2023-10-29", contributedAmount: "5kg" },
-                { id: 304, mealName: "Fruit", quantityNeeded: "10kg", deadline: "2023-10-27", contributedAmount: "2kg" }
-            ]
-        }
-    ]);
+    // State variables
+    const [requests, setRequests] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // State for contribution dialog
     const [openDialog, setOpenDialog] = useState(false);
@@ -67,6 +29,64 @@ const FoodRequests = () => {
     const [contributionError, setContributionError] = useState("");
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
+
+    // Fetch food requests from API when component mounts
+    useEffect(() => {
+        fetchRequests();
+    }, []);
+
+    // Function to fetch food requests from API
+    const fetchRequests = async () => {
+        showLoadingAnimation({ message: "Fetching food requests..." });
+        try {
+            const response = await requestService.getAllRequests();
+            if (response && response.success) {
+                const formattedRequests = formatRequestsData(response.data);
+                setRequests(formattedRequests);
+            } else {
+                throw new Error("Failed to fetch food requests data");
+            }
+        } catch (error) {
+            console.error("Error fetching food requests:", error);
+            setError(error.message);
+            showAlertMessage({
+                message: error.response?.data?.message || "Failed to load food requests. Please try again.",
+                type: "error"
+            });
+        } finally {
+            hideLoadingAnimation();
+            setIsLoading(false);
+        }
+    };
+
+    // Function to format API response data to match our component structure
+    const formatRequestsData = (requestsData) => {
+        return requestsData.map(request => {
+            return {
+                id: request._id,
+                title: request.title,
+                description: request.description,
+                requestor: request.recipient.name,
+                contactNumber: request.recipient.phone,
+                dateRequested: new Date(request.recipient.createdAt).toISOString().split('T')[0],
+                status: "active",
+                foodItems: request.foodRequests.map(item => {
+                    // Parse deadline from string format (DD-MM-YYYY to YYYY-MM-DD)
+                    const [day, month, year] = item.deadline.split('-');
+                    const formattedDeadline = `${year}-${month}-${day}`;
+                    
+                    return {
+                        id: item._id,
+                        mealName: item.mealName,
+                        quantityNeeded: `${item.quantityNeeded} ${item.unit !== 'none' ? item.unit : ''}`.trim(),
+                        deadline: formattedDeadline,
+                        contributedAmount: `${item.quantityFulfilled || 0} ${item.unit !== 'none' ? item.unit : ''}`.trim(),
+                        unit: item.unit
+                    };
+                })
+            };
+        });
+    };
 
     // Open dialog for contributing to a specific food item
     const handleContributeClick = (request, foodItem) => {
@@ -101,43 +121,57 @@ const FoodRequests = () => {
     };
 
     // Handle the contribution submission
-    const handleSubmitContribution = () => {
+    const handleSubmitContribution = async () => {
         if (validateContribution()) {
-            // In a real app, this would call an API to record the contribution
-            setSnackbarMessage(selectedFoodItem 
-                ? `Thank you for contributing ${contributionAmount} of ${selectedFoodItem.mealName}!` 
-                : "Thank you for contributing to the entire request!");
-            setSnackbarOpen(true);
-            setOpenDialog(false);
+            showLoadingAnimation({ message: "Processing your contribution..." });
             
-            // Update the mock data to reflect the contribution
-            if (selectedFoodItem) {
-                // Contributing to a specific food item
-                const updatedRequests = requests.map(request => {
-                    if (request.id === selectedRequest.id) {
-                        const updatedFoodItems = request.foodItems.map(item => {
-                            if (item.id === selectedFoodItem.id) {
-                                // This is simplified - in real app, would need to parse and add amounts properly
-                                return {
-                                    ...item,
-                                    contributedAmount: contributionAmount
-                                };
-                            }
-                            return item;
-                        });
-                        
-                        return {
-                            ...request,
-                            foodItems: updatedFoodItems
-                        };
-                    }
-                    return request;
-                });
+            try {
+                // In a real implementation, we'd call an API to record the contribution
+                // For now, we'll just update the UI
+                setSnackbarMessage(selectedFoodItem 
+                    ? `Thank you for contributing ${contributionAmount} of ${selectedFoodItem.mealName}!` 
+                    : "Thank you for contributing to the entire request!");
                 
-                setRequests(updatedRequests);
-            } else {
-                // Mark as contributing to the entire request (this is simplified)
-                console.log("Contributing to entire request:", selectedRequest.id, contributionAmount);
+                // Update the local state to reflect the contribution
+                if (selectedFoodItem) {
+                    // Contributing to a specific food item
+                    const updatedRequests = requests.map(request => {
+                        if (request.id === selectedRequest.id) {
+                            const updatedFoodItems = request.foodItems.map(item => {
+                                if (item.id === selectedFoodItem.id) {
+                                    return {
+                                        ...item,
+                                        contributedAmount: contributionAmount
+                                    };
+                                }
+                                return item;
+                            });
+                            
+                            return {
+                                ...request,
+                                foodItems: updatedFoodItems
+                            };
+                        }
+                        return request;
+                    });
+                    
+                    setRequests(updatedRequests);
+                } else {
+                    // Mark as contributing to the entire request
+                    console.log("Contributing to entire request:", selectedRequest.id, contributionAmount);
+                    // In a real implementation, we would call an API to update all food items
+                }
+                
+                setSnackbarOpen(true);
+                setOpenDialog(false);
+            } catch (error) {
+                console.error("Error submitting contribution:", error);
+                showAlertMessage({
+                    message: "Failed to process your contribution. Please try again.",
+                    type: "error"
+                });
+            } finally {
+                hideLoadingAnimation();
             }
         }
     };
@@ -187,7 +221,19 @@ const FoodRequests = () => {
                 <Divider sx={{ mb: 4 }} />
             </Box>
 
-            {requests.length === 0 ? (
+            {isLoading ? (
+                <Paper elevation={2} sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
+                    <Typography variant="h6" color="textSecondary">
+                        Loading food requests...
+                    </Typography>
+                </Paper>
+            ) : error ? (
+                <Paper elevation={2} sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
+                    <Typography variant="h6" color="error">
+                        Error: {error}. Please try again.
+                    </Typography>
+                </Paper>
+            ) : requests.length === 0 ? (
                 <Paper elevation={2} sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
                     <Typography variant="h6" color="textSecondary">
                         No food requests available at the moment.

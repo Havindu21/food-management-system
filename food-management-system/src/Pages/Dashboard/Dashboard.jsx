@@ -18,9 +18,9 @@ import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import { useSelector } from 'react-redux';
 
 const Dashboard = () => {
-    const { userType: userRole } = useSelector((state) => state.user);
+    const { userType: userRole } = useSelector((state) => state.user.userData);
     // Define the tiles for each user role
-    const tiles = userRole === 'Don' ? [
+    const tiles = userRole === 'donor' ? [
         {
             title: 'Total Meals Donated',
             count: '500',
@@ -40,7 +40,7 @@ const Dashboard = () => {
             rate: 4.5,
             trend: 5
         },
-    ] : userRole === 'Rec' ? [
+    ] : userRole === 'recipient' ? [
         {
             title: 'Available Donations',
             count: '3',
@@ -130,13 +130,13 @@ const Dashboard = () => {
         },
     ];
     
-    const tableHeaders = userRole === 'Don' ? ["Date", "Items", "Quantity", "Status"] : userRole === 'Rec' ? ['Item', 'Quantity', 'Expiry Date', 'Donor', 'Action'] : [];
-    const tableData = userRole === 'Don' ? [
+    const tableHeaders = userRole === 'donor' ? ["Date", "Items", "Quantity", "Status"] : userRole === 'recipient' ? ['Item', 'Quantity', 'Expiry Date', 'Donor', 'Action'] : [];
+    const tableData = userRole === 'donor' ? [
         { Date: "2025-03-15", Items: "Rice and Curry (Chicken)", Quantity: "30 meals", Status: "Completed" },
         { Date: "2025-03-18", Items: "Chicken Fried Rice", Quantity: "25 meals", Status: "Completed" },
         { Date: "2025-03-19", Items: "White Rice", Quantity: "20kg", Status: "Completed" },
         { Date: "2025-03-20", Items: "Lentils", Quantity: "20kg", Status: "Completed" },
-    ] : userRole === 'Rec' ? [
+    ] : userRole === 'recipient' ? [
         { Item: "Fresh Bread", Quantity: "50 Loaves", 'Expiry Date': 'Today', Donor: "Hansana Sandipa", Action: 'Request Pickup' },
         { Item: "Mixed Vegetables", Quantity: "200 kg", 'Expiry Date': '3 Days', Donor: "Fresh Market", Action: 'Request Pickup' },
         { Item: "Chicken Rice", Quantity: "50 meals", 'Expiry Date': 'Tomorrow', Donor: "Hansana Sandipa", Action: 'Request Pickup' },
@@ -149,7 +149,7 @@ const Dashboard = () => {
                 fontWeight: { xs: 500, md: 600 },
                 color: '#3F4F44',
             }}>
-                Welcome back, Admin
+                Welcome back
             </Typography>
             <Typography sx={{
                 fontSize: { xs: 14, md: 16 },
