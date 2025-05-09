@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Box, Typography, Button, Grid, Paper, Card, CardContent, Divider, 
-    Chip, Avatar, Dialog, DialogActions, DialogContent, 
-    DialogTitle, Alert, Snackbar, Table, TableBody, TableCell, 
-    TableContainer, TableHead, TableRow, IconButton, Tooltip,
-    CircularProgress
+  Box, Typography, Button, Grid, Paper, Card, CardContent, Divider,
+  Chip, Avatar, Dialog, DialogActions, DialogContent,
+  DialogTitle, Alert, Snackbar, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, IconButton, Tooltip,
+  CircularProgress
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
@@ -55,8 +55,7 @@ const RecipientsApproval = () => {
 
   // Open document preview
   const handleViewDocument = (recipient) => {
-    const documentUrl = userService.getVerificationDocumentUrl(recipient.verificationDocument);
-    setSelectedDocument(documentUrl);
+    setSelectedDocument(recipient.verificationDocument);
     setSelectedRecipient(recipient);
     setOpenDocumentDialog(true);
   };
@@ -84,25 +83,25 @@ const RecipientsApproval = () => {
   const handleRecipientStatus = async () => {
     const { type, recipient } = confirmDialog;
     setLoading(true);
-    
+
     try {
       if (type === "approved") {
         await userService.approveRecipient(recipient._id);
       } else {
         await userService.rejectRecipient(recipient._id);
       }
-      
+
       // Update local state by removing the processed recipient
-      setPendingRecipients(prevRecipients => 
+      setPendingRecipients(prevRecipients =>
         prevRecipients.filter(item => item._id !== recipient._id)
       );
-      
+
       setSnackbar({
         open: true,
         message: `${recipient.businessName || recipient.name} has been ${type === "approved" ? "approved" : "rejected"} successfully.`,
         severity: "success"
       });
-      
+
     } catch (error) {
       console.error(`Error ${type === "approved" ? "approving" : "rejecting"} recipient:`, error);
       setSnackbar({
@@ -141,8 +140,8 @@ const RecipientsApproval = () => {
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={fetchUnverifiedRecipients}
           sx={{ bgcolor: '#059669', '&:hover': { bgcolor: '#047857' } }}
         >
@@ -180,10 +179,10 @@ const RecipientsApproval = () => {
           </Typography>
         </Paper>
       ) : (
-        <TableContainer component={Paper} sx={{ 
+        <TableContainer component={Paper} sx={{
           borderRadius: 2,
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-          mb: 4 
+          mb: 4
         }}>
           <Table>
             <TableHead>
@@ -220,7 +219,7 @@ const RecipientsApproval = () => {
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <LocationOnIcon fontSize="small" sx={{ color: '#059669' }} />
-                        <Typography variant="body2" sx={{ 
+                        <Typography variant="body2" sx={{
                           maxWidth: '200px',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
@@ -232,7 +231,7 @@ const RecipientsApproval = () => {
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Chip 
+                    <Chip
                       label={formatDate(recipient.createdAt)}
                       sx={{ bgcolor: '#F0FFF4', color: '#22543D' }}
                     />
@@ -240,7 +239,7 @@ const RecipientsApproval = () => {
                   <TableCell>
                     {recipient.verificationDocument ? (
                       <Tooltip title="View Document">
-                        <IconButton 
+                        <IconButton
                           onClick={() => handleViewDocument(recipient)}
                           sx={{ color: '#059669' }}
                         >
@@ -248,7 +247,7 @@ const RecipientsApproval = () => {
                         </IconButton>
                       </Tooltip>
                     ) : (
-                      <Chip 
+                      <Chip
                         label="No Document"
                         sx={{ bgcolor: '#FEF2F2', color: '#B91C1C' }}
                       />
@@ -257,7 +256,7 @@ const RecipientsApproval = () => {
                   <TableCell>
                     <Box sx={{ display: 'flex', gap: 1 }}>
                       <Tooltip title="Approve">
-                        <IconButton 
+                        <IconButton
                           onClick={() => handleConfirmAction("approved", recipient)}
                           sx={{ color: '#059669' }}
                         >
@@ -265,7 +264,7 @@ const RecipientsApproval = () => {
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Reject">
-                        <IconButton 
+                        <IconButton
                           onClick={() => handleConfirmAction("rejected", recipient)}
                           sx={{ color: '#EF4444' }}
                         >
@@ -282,8 +281,8 @@ const RecipientsApproval = () => {
       )}
 
       {/* Document Preview Dialog */}
-      <Dialog 
-        open={openDocumentDialog} 
+      <Dialog
+        open={openDocumentDialog}
         onClose={handleCloseDocumentDialog}
         maxWidth="md"
         fullWidth
@@ -296,12 +295,11 @@ const RecipientsApproval = () => {
         </DialogTitle>
         <DialogContent sx={{ p: 0, height: '70vh' }}>
           {selectedDocument ? (
-            <iframe 
-              src={selectedDocument} 
-              width="100%" 
-              height="100%" 
-              style={{ border: 'none' }} 
-              title="Verification Document"
+            <Box
+              component="img"
+              src={`http://localhost:5001/uploads/${selectedDocument}`}
+              alt="Verification Document"
+              sx={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />
           ) : (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -312,14 +310,14 @@ const RecipientsApproval = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'center', p: 2 }}>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             onClick={() => {
               handleCloseDocumentDialog();
               handleConfirmAction("rejected", selectedRecipient);
             }}
-            sx={{ 
-              borderColor: '#EF4444', 
+            sx={{
+              borderColor: '#EF4444',
               color: '#EF4444',
               '&:hover': { borderColor: '#DC2626', bgcolor: 'rgba(239, 68, 68, 0.04)' }
             }}
@@ -327,7 +325,7 @@ const RecipientsApproval = () => {
           >
             Reject
           </Button>
-          <Button 
+          <Button
             variant="contained"
             onClick={() => {
               handleCloseDocumentDialog();
@@ -368,9 +366,9 @@ const RecipientsApproval = () => {
           <Button onClick={handleCloseConfirmDialog} sx={{ color: '#4A5568' }}>
             Cancel
           </Button>
-          <Button 
+          <Button
             onClick={handleRecipientStatus}
-            variant="contained" 
+            variant="contained"
             disabled={loading}
             sx={{
               bgcolor: confirmDialog.type === "approved" ? '#059669' : '#EF4444',
