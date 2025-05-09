@@ -6,12 +6,16 @@ import { theme } from './Theme/Theme.js';
 import { CssBaseline } from '@mui/material';
 import { Provider } from 'react-redux';
 import store from './app/store.js';
+import SuccessMessage  from '../src/Components/SuccessMessage/SuccessMessage';
+import  LoadingAnimation  from '../src/Components/LoadingAnimation/LoadingAnimation';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <SuccessMessage />
+            <LoadingAnimation />
         <App />
       </ThemeProvider>
     </Provider>

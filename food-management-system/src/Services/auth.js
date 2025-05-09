@@ -9,11 +9,11 @@ const API_URL = 'http://localhost:5001/api/auth';
  */
 const registerUser = async (userData) => {
   // If there's a verificationDocument File object, replace it with the filename
-  if (userData.verificationDocument && userData.verificationDocument instanceof File) {
-    // This shouldn't be called directly - the document should be uploaded first
-    // and then the filename should be provided here
-    throw new Error("Document must be uploaded before registration");
-  }
+  // if (userData.verificationDocument && userData.verificationDocument instanceof File) {
+  //   // This shouldn't be called directly - the document should be uploaded first
+  //   // and then the filename should be provided here
+  //   throw new Error("Document must be uploaded before registration");
+  // }
   
   const response = await axios.post(`${API_URL}/register`, userData);
   return response.data;

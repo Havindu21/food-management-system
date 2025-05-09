@@ -17,7 +17,8 @@ const uploadDocument = async (document) => {
     }
   });
   
-  return response.data.filename; // Return the filename received from server
+  return response?.data;
+  // return response?.data?.data?.filename; // Return the filename received from server
 };
 
 export { uploadDocument };

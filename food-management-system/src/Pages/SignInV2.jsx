@@ -16,6 +16,8 @@ import { useForm } from "react-hook-form";
 import Logo from "../assets/logo-remove-bg.png";
 import CustomTextField from "../Components/GreenTextField";
 import { loginUser } from "../Services/auth";
+import { showLoadingAnimation, hideLoadingAnimation } from "../app/loadingAnimationController";
+import { showAlertMessage } from "../app/alertMessageController";
 
 const Login = ({ key }) => {
     const dateNow = key;
@@ -36,15 +38,27 @@ const Login = ({ key }) => {
 
     const handleLogin = async (data) => {
         try {
+            showLoadingAnimation({ message: "Logging in..." });
             const response = await loginUser(data);
 
             if (response) {
                 dispatch(setUserData(response)); // adjust based on your response structure
-                navigate("/home");
+                hideLoadingAnimation();
+                showAlertMessage({ message: "Login successful!", type: "success" });
+                setTimeout(() => {
+                    navigate("/home");
+                }, 1000);
             } else {
+                hideLoadingAnimation();
+                showAlertMessage({ message: "Invalid login credentials", type: "error" });
                 console.error("Invalid login response:", response);
             }
         } catch (error) {
+            hideLoadingAnimation();
+            showAlertMessage({ 
+                message: error.response?.data?.message || "Login failed. Please check your credentials.", 
+                type: "error" 
+            });
             console.error("Login failed:", error?.message || error);
         }
     };
@@ -189,7 +203,7 @@ const Login = ({ key }) => {
                                 color: "#808080",
                             }}
                         >
-                            Don’t have an account?
+                            Don't have an account?
                         </Typography>
                         <Typography
                             sx={{

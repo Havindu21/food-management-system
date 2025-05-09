@@ -9,6 +9,9 @@ import Logo from '../../assets/logo-remove-bg.png'; // You'll need to add your l
 // Custom components
 import MapSelector from '../../Components/MapSelector';
 import CustomTextField from '../../Components/GreenTextField';
+import { uploadDocument } from '../../Services/upload';
+import { showLoadingAnimation, hideLoadingAnimation } from '../../app/loadingAnimationController';
+import { showAlertMessage } from '../../app/alertMessageController';
 
 const Registration = ({ userType }) => {
     const navigate = useNavigate();
@@ -20,19 +23,50 @@ const Registration = ({ userType }) => {
     } = useForm();
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [verificationDocument, setVerificationDocument] = useState(null);
+
+    const handleUploadFile = async (file) => {
+        try {
+            showLoadingAnimation({ message: 'Uploading document...' });
+            const response = await uploadDocument(file);
+            hideLoadingAnimation();
+            console.log('File upload response:', response?.data?.fileName);
+            setVerificationDocument(response?.data?.fileName);
+            setSelectedFile(file);
+            showAlertMessage({ message: 'Document uploaded successfully', type: 'success' });
+        } catch (error) {
+            hideLoadingAnimation();
+            console.error('File upload error:', error);
+            showAlertMessage({ message: 'Failed to upload document. Please try again.', type: 'error' });
+        }
+    }
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file && file.size <= 5 * 1024 * 1024) {
-            setSelectedFile(file);
+            handleUploadFile(file);
         } else {
-            alert('File size exceeds 5MB or invalid format.');
+            showAlertMessage({ message: 'File size exceeds 5MB or invalid format.', type: 'error' });
         }
     };
 
     const newPassword = watch('password');
 
     const onSubmit = async (data) => {
+        const phoneRegex = /^(?:0|94|\+94)?[0-9]{9,10}$/;
+        if (!phoneRegex.test(data.phone)) {
+            showAlertMessage({ message: 'Please enter a valid Sri Lankan phone number', type: 'error' });
+            return;
+        }
+        if (!selectedLocation) {
+            showAlertMessage({ message: 'Please select your location on the map', type: 'error' });
+            return;
+        }
+        if (!verificationDocument && userType === 'recipient') {
+            showAlertMessage({ message: 'Please upload verification document', type: 'error' });
+            return;
+        }
+
         const userData = userType === 'recipient' ? {
             name: data.recipientName,
             email: data.email,
@@ -42,7 +76,7 @@ const Registration = ({ userType }) => {
             latitude: selectedLocation?.latitude,
             longitude: selectedLocation?.longitude,
             userType: 'recipient',
-            verificationDocument: selectedFile,
+            verificationDocument: verificationDocument,
         } : userType === 'donor' ? {
             name: `${data.firstName} ${data.lastName}`,
             email: data.email,
@@ -56,51 +90,35 @@ const Registration = ({ userType }) => {
         } : {};
 
         try {
+            showLoadingAnimation({ message: 'Creating your account...' });
             console.log('UserData:', userData);
             const response = await registerUser(userData);
-            alert('Registration Successful');
-            navigate('/home');
+            hideLoadingAnimation();
+            showAlertMessage({ message: 'Registration Successful', type: 'success' });
+            setTimeout(() => {
+                navigate('/home');
+            }, 1500);
         } catch (error) {
+            hideLoadingAnimation();
             console.error('Registration Error:', error.response?.data || error.message);
-            alert('Registration Failed');
+            showAlertMessage({
+                message: error.response?.data?.error || error.response?.data?.errors?.[0]?.msg || 'Registration Failed',
+                type: 'error'
+              });              
         }
     };
 
     return (
-        // <Box sx={{ 
-        //     bgcolor: '#EEEEEE', 
-        //     minHeight: '100vh',
-        //     display: 'flex',
-        //     justifyContent: 'center',
-        //     py: { xs: 4, md: 6 },
-        //     px: { xs: 2, md: 4 }
-        // }}>
-        //     <Box maxWidth={700} width="100%" sx={{ bgcolor: '#FFFFFF', p: 3, borderRadius: 2 }}>
         <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={2}>
                 <Grid item xs={12} textAlign="center">
                     <Typography sx={{ fontSize: { xs: 22, sm: 26, md: 30 }, fontWeight: 600 }}>
                         Register as {userType.charAt(0).toUpperCase() + userType.slice(1)}
                     </Typography>
-                    <Typography sx={{ fontSize: { xs: 14, md: 18 }, textAlign: 'center', color: '#686D76',mb:{xs:3,md:0} }}>
-                    Join our food redistribution platform
-                </Typography>
+                    <Typography sx={{ fontSize: { xs: 14, md: 18 }, textAlign: 'center', color: '#686D76', mb: { xs: 3, md: 0 } }}>
+                        Join our food redistribution platform
+                    </Typography>
                 </Grid>
-
-                {/* <Grid item xs={12} display="flex" justifyContent="center" mt={-2}>
-                            <Box
-                                component="img"
-                                alt="Logo"
-                                src={Logo}
-                                sx={{
-                                    maxWidth: {
-                                        xs: 115,
-                                        sm: 145,
-                                        lg: 190,
-                                    },
-                                }}
-                            />
-                        </Grid> */}
 
                 {userType === 'donor' && (
                     <>
@@ -273,14 +291,21 @@ const Registration = ({ userType }) => {
                 </Grid>
 
                 <Grid item xs={12}>
-                    <Typography  variant="h6">
+                    <Typography variant="h6">
                         Mobile Number<span style={{ color: 'red' }}> *</span>
                     </Typography>
                     <CustomTextField
                         fullWidth
                         size="small"
                         error={!!errors.phone}
-                        {...register('phone', { required: 'Phone number is required' })}
+                        // placeholder="e.g., 0712345678 or +94712345678"
+                        {...register('phone', { 
+                            required: 'Phone number is required',
+                            pattern: {
+                                value: /^(?:0|94|\+94)?[0-9]{9,10}$/,
+                                message: 'Please enter a valid Sri Lankan phone number'
+                            }
+                        })}
                     />
                     <Typography sx={{
                         fontSize: '12px',
@@ -292,7 +317,7 @@ const Registration = ({ userType }) => {
                 </Grid>
 
                 <Grid item xs={12}>
-                    <Typography  variant="h6" mb={1}>
+                    <Typography variant="h6" mb={1}>
                         Select Your Location<span style={{ color: 'red' }}> *</span>
                     </Typography>
                     <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 1, overflow: 'hidden' }}>
@@ -302,7 +327,7 @@ const Registration = ({ userType }) => {
 
                 {userType === 'recipient' && (
                     <Grid item xs={12}>
-                        <Typography  variant="h6">
+                        <Typography variant="h6">
                             Verification Document
                         </Typography>
                         <Box
@@ -376,7 +401,7 @@ const Registration = ({ userType }) => {
                     justifyContent="center"
                     sx={{
                         mt: { xs: 0, md: 2 },
-                        mx:'auto',
+                        mx: 'auto',
                     }}
                 >
                     <Button
@@ -404,7 +429,6 @@ const Registration = ({ userType }) => {
                 >
                     <Typography
                         sx={{
-                            // fontWeight: 600,
                             fontSize: { xs: 14, sm: 16 },
                             color: "#808080",
                         }}
@@ -420,15 +444,13 @@ const Registration = ({ userType }) => {
                             ml: 1,
                             cursor: 'pointer'
                         }}
-                        onClick={() => navigate('/sign-in')} 
+                        onClick={() => navigate('/sign-in')}
                     >
                         Log in here
                     </Typography>
                 </Grid>
             </Grid>
         </form>
-        //     </Box>
-        // </Box>
     );
 };
 
