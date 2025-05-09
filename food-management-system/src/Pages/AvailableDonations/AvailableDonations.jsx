@@ -105,31 +105,35 @@ const AvailableDonations = () => {
         donations.forEach(donation => {
             // Create a separate card for each food item in the donation
             donation.foodItems.forEach(foodItem => {
-                // Parse expiry date from string format
-                const [day, month, year] = foodItem.expiryDate.split('-');
-                const formattedExpiryDate = `${year}-${month}-${day}`;
-                
-                formattedDonations.push({
-                    id: donation._id,
-                    foodItemId: foodItem._id, // Added to differentiate between food items in the same donation
-                    category: foodItem.unit !== 'none' ? `${foodItem.unit}` : 'Food items',
-                    title: foodItem.mealName,
-                    name: donation.donor.businessName || donation.donor.name,
-                    donorId: donation.donor._id,
-                    quantity: `${foodItem.quantity} ${foodItem.unit !== 'none' ? foodItem.unit : 'units'}`,
-                    rawQuantity: foodItem.quantity,
-                    unit: foodItem.unit,
-                    expiryDate: formattedExpiryDate,
-                    expiryTime: foodItem.expiryTime,
-                    postDate: new Date(donation.createdAt).toISOString().split('T')[0],
-                    address: donation.location.address,
-                    latitude: donation.location.latitude,
-                    longitude: donation.location.longitude,
-                    description: `${foodItem.mealName} - ${foodItem.quantity} ${foodItem.unit !== 'none' ? foodItem.unit : ''}`,
-                    contactNumber: donation.contactNumber,
-                    donorPhone: donation.donor.phone,
-                    requested: false,
-                });
+                // Only include food items with "available" status
+                if (foodItem.status === 'available') {
+                    // Parse expiry date from string format
+                    const [day, month, year] = foodItem.expiryDate.split('-');
+                    const formattedExpiryDate = `${year}-${month}-${day}`;
+                    
+                    formattedDonations.push({
+                        id: donation._id,
+                        foodItemId: foodItem._id, // Added to differentiate between food items in the same donation
+                        category: foodItem.unit !== 'none' ? `${foodItem.unit}` : 'Food items',
+                        title: foodItem.mealName,
+                        name: donation.donor.businessName || donation.donor.name,
+                        donorId: donation.donor._id,
+                        quantity: `${foodItem.quantity} ${foodItem.unit !== 'none' ? foodItem.unit : 'units'}`,
+                        rawQuantity: foodItem.quantity,
+                        unit: foodItem.unit,
+                        expiryDate: formattedExpiryDate,
+                        expiryTime: foodItem.expiryTime,
+                        postDate: new Date(donation.createdAt).toISOString().split('T')[0],
+                        address: donation.location?.address || 'Location not specified',
+                        latitude: donation.location?.latitude,
+                        longitude: donation.location?.longitude,
+                        description: `${foodItem.mealName} - ${foodItem.quantity} ${foodItem.unit !== 'none' ? foodItem.unit : ''}`,
+                        contactNumber: donation.contactNumber,
+                        donorPhone: donation.donor?.phone,
+                        status: foodItem.status,
+                        requested: false,
+                    });
+                }
             });
         });
         
@@ -180,10 +184,10 @@ const AvailableDonations = () => {
 
     // Handle submitting a request
     const handleRequestSubmit = async () => {
-        if (!requestQuantity.trim()) {
-            setRequestError('Please specify the quantity you need');
-            return;
-        }
+        // if (!requestQuantity.trim()) {
+        //     setRequestError('Please specify the quantity you need');
+        //     return;
+        // }
 
         showLoadingAnimation({ message: "Sending donation request..." });
         
@@ -191,8 +195,8 @@ const AvailableDonations = () => {
             await donationService.requestDonation({
                 donationId: selectedDonation.id,
                 foodItemId: selectedDonation.foodItemId, // Add foodItemId to the request
-                quantity: requestQuantity,
-                notes: requestNotes
+                // quantity: requestQuantity,
+                // notes: requestNotes
             });
             
             setSnackbarMessage(`Request for ${selectedDonation.title} has been sent to ${selectedDonation.name}`);
@@ -821,7 +825,7 @@ const AvailableDonations = () => {
                                 </Box>
                             </Box>
                             
-                            <TextField
+                            {/* <TextField
                                 autoFocus
                                 margin="dense"
                                 label="How much do you need?"
@@ -846,7 +850,7 @@ const AvailableDonations = () => {
                                 onChange={(e) => setRequestNotes(e.target.value)}
                                 placeholder="Add any specific requirements or arrangements for pickup"
                                 sx={{ mb: 2 }}
-                            />
+                            /> */}
                             
                             <Alert severity="info" sx={{ mb: 2 }}>
                                 Your request will be sent to the donor. They will review your request and contact you with pickup details.
