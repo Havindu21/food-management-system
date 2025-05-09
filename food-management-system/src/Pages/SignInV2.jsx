@@ -42,7 +42,7 @@ const Login = ({ key }) => {
             const response = await loginUser(data);
 
             if (response) {
-                dispatch(setUserData(response)); // adjust based on your response structure
+                dispatch(setUserData(response)); 
                 hideLoadingAnimation();
                 showAlertMessage({ message: "Login successful!", type: "success" });
                 setTimeout(() => {

@@ -12,9 +12,12 @@ import CustomTextField from '../../Components/GreenTextField';
 import { uploadDocument } from '../../Services/upload';
 import { showLoadingAnimation, hideLoadingAnimation } from '../../app/loadingAnimationController';
 import { showAlertMessage } from '../../app/alertMessageController';
+import { setUserData } from '../../reducers/userSlice';
+import { useDispatch } from 'react-redux';
 
 const Registration = ({ userType }) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const {
         register,
         handleSubmit,
@@ -93,6 +96,7 @@ const Registration = ({ userType }) => {
             showLoadingAnimation({ message: 'Creating your account...' });
             console.log('UserData:', userData);
             const response = await registerUser(userData);
+            dispatch(setUserData(response));
             hideLoadingAnimation();
             showAlertMessage({ message: 'Registration Successful', type: 'success' });
             setTimeout(() => {
@@ -104,7 +108,7 @@ const Registration = ({ userType }) => {
             showAlertMessage({
                 message: error.response?.data?.error || error.response?.data?.errors?.[0]?.msg || 'Registration Failed',
                 type: 'error'
-              });              
+            });
         }
     };
 
@@ -299,7 +303,7 @@ const Registration = ({ userType }) => {
                         size="small"
                         error={!!errors.phone}
                         // placeholder="e.g., 0712345678 or +94712345678"
-                        {...register('phone', { 
+                        {...register('phone', {
                             required: 'Phone number is required',
                             pattern: {
                                 value: /^(?:0|94|\+94)?[0-9]{9,10}$/,
