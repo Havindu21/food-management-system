@@ -69,7 +69,7 @@ const Navbar = ({ callingFrom }) => {
             dispatch(setUserType(null));
             dispatch(setUserData(false));
             localStorage.removeItem('token');
-            navigate("/join-us");
+            navigate("/home");
         } else if (page === "Donate Now") {
             navigate('/profile/donate-food', { state: { initialTab: 'Donate Food' } });
         } else if (page === "Request Food") {
