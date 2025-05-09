@@ -13,8 +13,13 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import MapSelector from '../../Components/MapSelector';
 import dayjs from 'dayjs';
+import donationService from '../../Services/donationService';
+import { showAlertMessage } from '../../app/alertMessageController';
+import { showLoadingAnimation, hideLoadingAnimation } from '../../app/loadingAnimationController';
+import { useNavigate } from 'react-router-dom';
 
 const DonateFood = () => {
+    const navigate = useNavigate();
     const [foodItems, setFoodItems] = useState([
         { mealName: '', quantity: '', unit: 'none', expiryDate: null, expiryTime: null }
     ]);
@@ -124,14 +129,16 @@ const DonateFood = () => {
     };
 
     // Handle form submission
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (validateForm()) {
             // Format the date and time for submission
             const formattedFoodItems = foodItems.map(item => {
                 return {
-                    ...item,
+                    mealName: item.mealName,
+                    quantity: item.quantity,
+                    unit: item.unit,
                     // Format date to dd-mm-yyyy if exists
                     expiryDate: item.expiryDate ? dayjs(item.expiryDate).format('DD-MM-YYYY') : null,
                     // Format time to hh:mm if exists
@@ -139,18 +146,49 @@ const DonateFood = () => {
                 };
             });
 
-            console.log('Form submitted:', { 
-                foodItems: formattedFoodItems, 
-                contactNumber, 
-                selectedLocation 
-            });
-            
-            // Here you would handle the submission to your backend
+            const donationData = {
+                foodItems: formattedFoodItems,
+                contactNumber,
+                selectedLocation
+            };
 
-            // Show success message or redirect
-            alert('Donation form submitted successfully!');
+            showLoadingAnimation({ message: "Submitting donation..." });
+
+            try {
+                const response = await donationService.createDonation(donationData);
+
+                if (response.success) {
+                    showAlertMessage({ 
+                        message: "Your donation has been submitted successfully!", 
+                        type: "success" 
+                    });
+
+                    // Reset form or redirect
+                    setTimeout(() => {
+                        navigate('/profile/donation-history');
+                    }, 1500);
+
+                } else {
+                    showAlertMessage({ 
+                        message: response.message || "Failed to submit donation", 
+                        type: "error" 
+                    });
+                }
+            } catch (error) {
+                console.error("Error submitting donation:", error);
+                showAlertMessage({ 
+                    message: error.response?.data?.message || error?.response?.data?.error || "An error occurred while submitting your donation", 
+                    type: "error" 
+                });
+            } finally {
+                hideLoadingAnimation();
+            }
         } else {
             console.log('Form has errors');
+            showAlertMessage({ 
+                message: "Please fix the errors in the form before submitting", 
+                type: "error" 
+            });
         }
     };
 
