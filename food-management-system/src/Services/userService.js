@@ -15,7 +15,7 @@ export const userService = {
   // Approve a recipient
   approveRecipient: async (userId) => {
     try {
-      const response = await apiClient.patch(`/users/${userId}/verify`, { isVerified: true });
+      const response = await apiClient.put(`users/verify/${userId}`);
       return response.data;
     } catch (error) {
       console.error('Error approving recipient:', error);
@@ -27,7 +27,7 @@ export const userService = {
   rejectRecipient: async (userId) => {
     try {
       // Depending on your API, this could be a delete request or a patch to set status
-      const response = await apiClient.delete(`/users/${userId}`);
+      const response = await apiClient.put(`users/reject/${userId}`);
       return response.data;
     } catch (error) {
       console.error('Error rejecting recipient:', error);
