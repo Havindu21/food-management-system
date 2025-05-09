@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Button, Grid, Paper, Card, CardContent, Divider,
   Chip, Avatar, Dialog, DialogActions, DialogContent,
-  DialogTitle, Alert, Snackbar, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, IconButton, Tooltip,
-  CircularProgress
+  DialogTitle, Alert, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, IconButton, Tooltip
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
@@ -15,12 +14,13 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import userService from '../../Services/userService';
+import { showAlertMessage } from '../../app/alertMessageController';
+import { showLoadingAnimation, hideLoadingAnimation } from '../../app/loadingAnimationController';
 
 
 const RecipientsApproval = () => {
   // State for pending recipients
   const [pendingRecipients, setPendingRecipients] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // State for document preview dialog
@@ -28,7 +28,6 @@ const RecipientsApproval = () => {
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [selectedRecipient, setSelectedRecipient] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ open: false, type: "", recipient: null });
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   // Fetch unverified recipients on component mount
   useEffect(() => {
@@ -37,19 +36,24 @@ const RecipientsApproval = () => {
 
   // Function to fetch unverified recipients
   const fetchUnverifiedRecipients = async () => {
-    setLoading(true);
+    showLoadingAnimation({ message: "Loading recipients..." });
     try {
       const response = await userService.getUnverifiedRecipients();
       if (response.success) {
         setPendingRecipients(response.data);
       } else {
         setError("Failed to load recipients");
+        showAlertMessage({ message: "Failed to load recipients", type: "error" });
       }
     } catch (error) {
       console.error("Error fetching unverified recipients:", error);
       setError("An error occurred while loading recipients");
+      showAlertMessage({ 
+        message: error.response?.data?.message || error?.response?.data?.error || "An error occurred while loading recipients", 
+        type: "error" 
+      });
     } finally {
-      setLoading(false);
+      hideLoadingAnimation();
     }
   };
 
@@ -82,7 +86,7 @@ const RecipientsApproval = () => {
   // Handle approval or rejection
   const handleRecipientStatus = async () => {
     const { type, recipient } = confirmDialog;
-    setLoading(true);
+    showLoadingAnimation({ message: `${type === "approved" ? "Approving" : "Rejecting"} recipient...` });
 
     try {
       if (type === "approved") {
@@ -96,21 +100,19 @@ const RecipientsApproval = () => {
         prevRecipients.filter(item => item._id !== recipient._id)
       );
 
-      setSnackbar({
-        open: true,
+      showAlertMessage({
         message: `${recipient.businessName || recipient.name} has been ${type === "approved" ? "approved" : "rejected"} successfully.`,
-        severity: "success"
+        type: "success"
       });
 
     } catch (error) {
       console.error(`Error ${type === "approved" ? "approving" : "rejecting"} recipient:`, error);
-      setSnackbar({
-        open: true,
-        message: `Failed to ${type === "approved" ? "approve" : "reject"} recipient. Please try again.`,
-        severity: "error"
+      showAlertMessage({
+        message: error.response?.data?.message || error?.response?.data?.error || `Failed to ${type === "approved" ? "approve" : "reject"} recipient. Please try again.`,
+        type: "error"
       });
     } finally {
-      setLoading(false);
+      hideLoadingAnimation();
       handleCloseConfirmDialog();
     }
   };
@@ -120,19 +122,6 @@ const RecipientsApproval = () => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-
-  // Handle snackbar close
-  const handleSnackbarClose = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
-  if (loading && pendingRecipients.length === 0) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <CircularProgress sx={{ color: '#059669' }} />
-      </Box>
-    );
-  }
 
   if (error && pendingRecipients.length === 0) {
     return (
@@ -369,7 +358,6 @@ const RecipientsApproval = () => {
           <Button
             onClick={handleRecipientStatus}
             variant="contained"
-            disabled={loading}
             sx={{
               bgcolor: confirmDialog.type === "approved" ? '#059669' : '#EF4444',
               '&:hover': {
@@ -377,22 +365,10 @@ const RecipientsApproval = () => {
               }
             }}
           >
-            {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : (confirmDialog.type === "approved" ? "Approve" : "Reject")}
+            {confirmDialog.type === "approved" ? "Approve" : "Reject"}
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Status Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };
