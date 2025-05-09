@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Button, Tabs, Tab, Paper, Table, TableBody, 
     TableCell, TableContainer, TableHead, TableRow, Avatar, Chip,
@@ -15,7 +15,11 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import WarningIcon from '@mui/icons-material/Warning';
 import RestoreIcon from '@mui/icons-material/Restore';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import userService from '../../Services/userService';
+import { showAlertMessage } from '../../app/alertMessageController';
+import { showLoadingAnimation, hideLoadingAnimation } from '../../app/loadingAnimationController';
 
 const UserManagement = () => {
   const theme = useTheme();
@@ -24,93 +28,11 @@ const UserManagement = () => {
   // State for tab selection
   const [tabValue, setTabValue] = useState(0);
   
-  // Mock data for donors
-  const [donors, setDonors] = useState([
-    {
-      id: 1,
-      name: "Green Foods Restaurant",
-      email: "contact@greenfoods.com",
-      phone: "+94771234567",
-      address: "45 Green Lane, Colombo, Sri Lanka",
-      joinDate: "2023-05-15",
-      donationCount: 28,
-      status: "active"
-    },
-    {
-      id: 2,
-      name: "Fresh Harvest Supermarket",
-      email: "support@freshharvest.com",
-      phone: "+94777654321",
-      address: "120 Market Street, Kandy, Sri Lanka",
-      joinDate: "2023-06-20",
-      donationCount: 15,
-      status: "active"
-    },
-    {
-      id: 3,
-      name: "Royal Bakery",
-      email: "info@royalbakery.com",
-      phone: "+94712345678",
-      address: "67 Main Road, Galle, Sri Lanka",
-      joinDate: "2023-07-10",
-      donationCount: 12,
-      status: "suspended"
-    },
-    {
-      id: 4,
-      name: "Sunny Day Catering",
-      email: "bookings@sunnyday.com",
-      phone: "+94765432198",
-      address: "32 Beach Road, Negombo, Sri Lanka",
-      joinDate: "2023-08-05",
-      donationCount: 8,
-      status: "active"
-    }
-  ]);
-  
-  // Mock data for recipients
-  const [recipients, setRecipients] = useState([
-    {
-      id: 1,
-      name: "Community Welfare Center",
-      email: "community@welfare.org",
-      phone: "+94771234567",
-      address: "123 Main St, Colombo, Sri Lanka",
-      joinDate: "2023-04-15",
-      receivedCount: 32,
-      status: "active"
-    },
-    {
-      id: 2,
-      name: "Happy Kids Foundation",
-      email: "info@happykids.org",
-      phone: "+94777654321",
-      address: "45 Park Avenue, Kandy, Sri Lanka",
-      joinDate: "2023-05-10",
-      receivedCount: 24,
-      status: "active"
-    },
-    {
-      id: 3,
-      name: "Golden Age Care Home",
-      email: "contact@goldenage.org",
-      phone: "+94712345678",
-      address: "78 Beach Road, Galle, Sri Lanka",
-      joinDate: "2023-06-05",
-      receivedCount: 18,
-      status: "suspended"
-    },
-    {
-      id: 4,
-      name: "Hope Shelter",
-      email: "help@hopeshelter.org",
-      phone: "+94765432198",
-      address: "15 Hill Street, Nuwara Eliya, Sri Lanka",
-      joinDate: "2023-07-20",
-      receivedCount: 10,
-      status: "active"
-    }
-  ]);
+  // State for donors and recipients
+  const [donors, setDonors] = useState([]);
+  const [recipients, setRecipients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
   // State for search
   const [searchTerm, setSearchTerm] = useState("");
@@ -129,6 +51,36 @@ const UserManagement = () => {
     message: "",
     severity: "success"
   });
+
+  // Fetch users data on component mount
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+  
+  // Function to fetch all users
+  const fetchUsers = async () => {
+    showLoadingAnimation({ message: "Loading users..." });
+    try {
+            const response = await userService.getAllUsers();
+      if (response.success) {
+        setDonors(response.data.filter(user => user.userType === "donor"));
+        setRecipients(response.data.filter(user => user.userType === "recipient"));
+      } else {
+        setError("Failed to load users");
+        showAlertMessage({ message: "Failed to load users", type: "error" });
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setError("An error occurred while loading users");
+      showAlertMessage({ 
+        message: error.response?.data?.message || error?.response?.data?.error || "An error occurred while loading users", 
+        type: "error" 
+      });
+    } finally {
+      setLoading(false);
+      hideLoadingAnimation();
+    }
+  };
   
   // Handle tab change
   const handleTabChange = (event, newValue) => {
@@ -142,13 +94,15 @@ const UserManagement = () => {
   
   // Filter users based on search term
   const filteredDonors = donors.filter(donor => 
-    donor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    donor.email.toLowerCase().includes(searchTerm.toLowerCase())
+    donor.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    donor.businessName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    donor.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
   const filteredRecipients = recipients.filter(recipient => 
-    recipient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    recipient.email.toLowerCase().includes(searchTerm.toLowerCase())
+    recipient.businessName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    recipient.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    recipient.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
   // Open confirmation dialog
@@ -172,38 +126,58 @@ const UserManagement = () => {
   };
   
   // Handle user status change
-  const handleUserStatusChange = () => {
+  const handleUserStatusChange = async () => {
     const { type, user, userType } = confirmDialog;
+    showLoadingAnimation({ message: `${type === "suspend" ? "Suspending" : "Restoring"} user...` });
     
-    if (userType === "donor") {
-      const updatedDonors = donors.map(donor => {
-        if (donor.id === user.id) {
-          return { ...donor, status: type === "suspend" ? "suspended" : "active" };
-        }
-        return donor;
+    try {
+      if (type === "suspend") {
+        await userService.suspendUser(user._id);
+      } else {
+        await userService.restoreUser(user._id);
+      }
+      
+      if (userType === "recipient") {
+        // Update local state for recipients
+        const updatedRecipients = recipients.map(recipient => {
+          if (recipient._id === user._id) {
+            return { ...recipient, isActive: type === "suspend" ? false : true };
+          }
+          return recipient;
+        });
+        setRecipients(updatedRecipients);
+      } else if (userType === "donor") {
+        // Update local state for donors
+        const updatedDonors = donors.map(donor => {
+          if (donor._id === user._id) {
+            return { ...donor, isActive: type === "suspend" ? false : true };
+          }
+          return donor;
+        });
+        setDonors(updatedDonors);
+      }
+      
+      setSnackbar({
+        open: true,
+        message: `${user.businessName || user.name} has been ${type === "suspend" ? "suspended" : "restored"} successfully.`,
+        severity: "success"
       });
-      setDonors(updatedDonors);
-    } else if (userType === "recipient") {
-      const updatedRecipients = recipients.map(recipient => {
-        if (recipient.id === user.id) {
-          return { ...recipient, status: type === "suspend" ? "suspended" : "active" };
-        }
-        return recipient;
+      
+    } catch (error) {
+      console.error(`Error ${type === "suspend" ? "suspending" : "restoring"} user:`, error);
+      showAlertMessage({
+        message: error.response?.data?.message || error?.response?.data?.error || `Failed to ${type === "suspend" ? "suspend" : "restore"} user. Please try again.`,
+        type: "error"
       });
-      setRecipients(updatedRecipients);
+    } finally {
+      hideLoadingAnimation();
+      handleCloseConfirmDialog();
     }
-    
-    setSnackbar({
-      open: true,
-      message: `${user.name} has been ${type === "suspend" ? "suspended" : "restored"} successfully.`,
-      severity: "success"
-    });
-    
-    handleCloseConfirmDialog();
   };
   
   // Format date
   const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
@@ -212,33 +186,40 @@ const UserManagement = () => {
   const handleSnackbarClose = () => {
     setSnackbar({ ...snackbar, open: false });
   };
+
+  // Function to retry loading if there was an error
+  const retryLoading = () => {
+    setError(null);
+    setLoading(true);
+    fetchUsers();
+  };
   
   // Render user cards for mobile view
   const renderUserCards = (users, userType) => {
     return (
       <Grid container spacing={2}>
         {users.map((user) => (
-          <Grid item xs={12} key={user.id}>
+          <Grid item xs={12} key={user._id}>
             <Card sx={{ 
               mb: 2, 
-              borderLeft: user.status === 'suspended' ? '4px solid #EF4444' : '4px solid #059669'
+              borderLeft: user.isActive ? '4px solid #059669' : '4px solid #EF4444'
             }}>
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar sx={{ bgcolor: user.status === 'suspended' ? '#EF4444' : '#059669', mr: 1 }}>
-                      <PersonIcon />
+                    <Avatar sx={{ bgcolor: user.isActive ? '#059669' : '#EF4444', mr: 1 }}>
+                      {userType === "donor" ? <LocalShippingIcon /> : <StorefrontIcon />}
                     </Avatar>
                     <Box>
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                        {user.name}
+                        {user.businessName || user.name}
                       </Typography>
                       <Chip 
                         size="small"
-                        label={user.status === 'active' ? 'Active' : 'Suspended'}
+                        label={user.isActive ? 'Active' : 'Suspended'}
                         sx={{ 
-                          bgcolor: user.status === 'active' ? '#F0FFF4' : '#FEF2F2',
-                          color: user.status === 'active' ? '#059669' : '#EF4444',
+                          bgcolor: user.isActive ? '#F0FFF4' : '#FEF2F2',
+                          color: user.isActive ? '#059669' : '#EF4444',
                           fontSize: '0.7rem'
                         }}
                       />
@@ -246,12 +227,12 @@ const UserManagement = () => {
                   </Box>
                   <IconButton
                     onClick={() => handleConfirmAction(
-                      user.status === 'active' ? 'suspend' : 'restore',
+                      user.isActive ? 'suspend' : 'restore',
                       user,
                       userType
                     )}
                   >
-                    {user.status === 'active' ? 
+                    {user.isActive ? 
                       <BlockIcon sx={{ color: '#EF4444' }} /> : 
                       <RestoreIcon sx={{ color: '#059669' }} />
                     }
@@ -277,13 +258,11 @@ const UserManagement = () => {
                 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
                   <Typography variant="caption" color="textSecondary">
-                    Joined: {formatDate(user.joinDate)}
+                    Joined: {formatDate(user.createdAt)}
                   </Typography>
                   <Typography variant="caption" sx={{ fontWeight: 500 }}>
-                    {userType === "donor" 
-                      ? `${user.donationCount} Donations` 
-                      : `${user.receivedCount} Received`
-                    }
+                    {userType === "donor" && `${user.donationCount || 0} Donations`}
+                    {userType === "recipient" && `${user.receivedCount || 0} Received`}
                   </Typography>
                 </Box>
               </CardContent>
@@ -293,6 +272,32 @@ const UserManagement = () => {
       </Grid>
     );
   };
+  
+  // Display loading or error states
+  if (loading) {
+    return (
+      <Box sx={{ width: '100%', mb: 6, display: 'flex', justifyContent: 'center', py: 8 }}>
+        <Typography>Loading users...</Typography>
+      </Box>
+    );
+  }
+
+  if (error && recipients.length === 0 && donors.length === 0) {
+    return (
+      <Box sx={{ width: '100%', mb: 6 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+        <Button
+          variant="contained"
+          onClick={retryLoading}
+          sx={{ bgcolor: '#059669', '&:hover': { bgcolor: '#047857' } }}
+        >
+          Try Again
+        </Button>
+      </Box>
+    );
+  }
   
   return (
     <Box sx={{ width: '100%', mb: 6 }}>
@@ -359,6 +364,7 @@ const UserManagement = () => {
         </Box>
       </Box>
       
+      {/* Donors Tab Panel */}
       <Box sx={{ mt: 2 }} role="tabpanel" hidden={tabValue !== 0}>
         {tabValue === 0 && (
           filteredDonors.length === 0 ? (
@@ -377,24 +383,23 @@ const UserManagement = () => {
               <Table>
                 <TableHead>
                   <TableRow sx={{ bgcolor: '#F7FAFC' }}>
-                    <TableCell sx={{ fontWeight: 600 }}>Organization</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Donor</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Contact Information</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Joined On</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Donations</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredDonors.map((donor) => (
-                    <TableRow key={donor.id} sx={{ '&:hover': { bgcolor: '#F7FAFC' } }}>
+                    <TableRow key={donor._id} sx={{ '&:hover': { bgcolor: '#F7FAFC' } }}>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Avatar sx={{ bgcolor: donor.status === "active" ? '#059669' : '#EF4444', mr: 2 }}>
-                            <PersonIcon />
+                          <Avatar sx={{ bgcolor: donor.isActive ? '#059669' : '#EF4444', mr: 2 }}>
+                            <LocalShippingIcon />
                           </Avatar>
                           <Typography sx={{ fontWeight: 500 }}>
-                            {donor.name}
+                            {donor.businessName || donor.name}
                           </Typography>
                         </Box>
                       </TableCell>
@@ -410,30 +415,29 @@ const UserManagement = () => {
                           </Box>
                         </Box>
                       </TableCell>
-                      <TableCell>{formatDate(donor.joinDate)}</TableCell>
-                      <TableCell>{donor.donationCount}</TableCell>
+                      <TableCell>{formatDate(donor.createdAt)}</TableCell>
                       <TableCell>
                         <Chip 
-                          label={donor.status === "active" ? "Active" : "Suspended"}
+                          label={donor.isActive ? "Active" : "Suspended"}
                           sx={{ 
-                            bgcolor: donor.status === "active" ? '#F0FFF4' : '#FEF2F2',
-                            color: donor.status === "active" ? '#059669' : '#EF4444',
+                            bgcolor: donor.isActive ? '#F0FFF4' : '#FEF2F2',
+                            color: donor.isActive ? '#059669' : '#EF4444',
                           }}
                         />
                       </TableCell>
                       <TableCell>
-                        <Tooltip title={donor.status === "active" ? "Suspend User" : "Restore User"}>
+                        <Tooltip title={donor.isActive ? "Suspend User" : "Restore User"}>
                           <IconButton
                             onClick={() => handleConfirmAction(
-                              donor.status === "active" ? "suspend" : "restore",
+                              donor.isActive ? "suspend" : "restore",
                               donor,
                               "donor"
                             )}
                             sx={{ 
-                              color: donor.status === "active" ? '#EF4444' : '#059669'
+                              color: donor.isActive ? '#EF4444' : '#059669'
                             }}
                           >
-                            {donor.status === "active" ? <BlockIcon /> : <RestoreIcon />}
+                            {donor.isActive ? <BlockIcon /> : <RestoreIcon />}
                           </IconButton>
                         </Tooltip>
                       </TableCell>
@@ -446,6 +450,7 @@ const UserManagement = () => {
         )}
       </Box>
       
+      {/* Recipients Tab Panel */}
       <Box sx={{ mt: 2 }} role="tabpanel" hidden={tabValue !== 1}>
         {tabValue === 1 && (
           filteredRecipients.length === 0 ? (
@@ -467,21 +472,20 @@ const UserManagement = () => {
                     <TableCell sx={{ fontWeight: 600 }}>Organization</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Contact Information</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Joined On</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Received</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredRecipients.map((recipient) => (
-                    <TableRow key={recipient.id} sx={{ '&:hover': { bgcolor: '#F7FAFC' } }}>
+                    <TableRow key={recipient._id} sx={{ '&:hover': { bgcolor: '#F7FAFC' } }}>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Avatar sx={{ bgcolor: recipient.status === "active" ? '#059669' : '#EF4444', mr: 2 }}>
-                            <PersonIcon />
+                          <Avatar sx={{ bgcolor: recipient.isActive ? '#059669' : '#EF4444', mr: 2 }}>
+                            <StorefrontIcon />
                           </Avatar>
                           <Typography sx={{ fontWeight: 500 }}>
-                            {recipient.name}
+                            {recipient.businessName || recipient.name}
                           </Typography>
                         </Box>
                       </TableCell>
@@ -497,30 +501,29 @@ const UserManagement = () => {
                           </Box>
                         </Box>
                       </TableCell>
-                      <TableCell>{formatDate(recipient.joinDate)}</TableCell>
-                      <TableCell>{recipient.receivedCount}</TableCell>
+                      <TableCell>{formatDate(recipient.createdAt)}</TableCell>
                       <TableCell>
                         <Chip 
-                          label={recipient.status === "active" ? "Active" : "Suspended"}
+                          label={recipient.isActive ? "Active" : "Suspended"}
                           sx={{ 
-                            bgcolor: recipient.status === "active" ? '#F0FFF4' : '#FEF2F2',
-                            color: recipient.status === "active" ? '#059669' : '#EF4444',
+                            bgcolor: recipient.isActive ? '#F0FFF4' : '#FEF2F2',
+                            color: recipient.isActive ? '#059669' : '#EF4444',
                           }}
                         />
                       </TableCell>
                       <TableCell>
-                        <Tooltip title={recipient.status === "active" ? "Suspend User" : "Restore User"}>
+                        <Tooltip title={recipient.isActive ? "Suspend User" : "Restore User"}>
                           <IconButton
                             onClick={() => handleConfirmAction(
-                              recipient.status === "active" ? "suspend" : "restore",
+                              recipient.isActive ? "suspend" : "restore",
                               recipient,
                               "recipient"
                             )}
                             sx={{ 
-                              color: recipient.status === "active" ? '#EF4444' : '#059669'
+                              color: recipient.isActive ? '#EF4444' : '#059669'
                             }}
                           >
-                            {recipient.status === "active" ? <BlockIcon /> : <RestoreIcon />}
+                            {recipient.isActive ? <BlockIcon /> : <RestoreIcon />}
                           </IconButton>
                         </Tooltip>
                       </TableCell>
@@ -549,7 +552,7 @@ const UserManagement = () => {
         </DialogTitle>
         <DialogContent sx={{ pt: 2, pb: 1, px: 3, mt: 2 }}>
           <Typography variant="body1">
-            Are you sure you want to {confirmDialog.type === "restore" ? "restore access for" : "suspend"} <strong>{confirmDialog.user?.name}</strong>?
+            Are you sure you want to {confirmDialog.type === "restore" ? "restore access for" : "suspend"} <strong>{confirmDialog.user?.businessName || confirmDialog.user?.name}</strong>?
           </Typography>
           
           {confirmDialog.type === "suspend" ? (
