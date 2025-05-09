@@ -22,7 +22,7 @@ const Navbar = ({ callingFrom }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const { userType } = useSelector((state) => state.user);
+    const { userType } = useSelector((state) => state.user.userData);
     const isAuthenticated = userType && userType !== null;
     const theme = useTheme();
     const isXs = useMediaQuery(theme.breakpoints.only('xs'))

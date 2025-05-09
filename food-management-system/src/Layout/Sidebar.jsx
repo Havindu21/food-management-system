@@ -41,7 +41,7 @@ export default function Sidebar() {
     const [open, setOpen] = useState(isMdOrBelow ? false : true);
     const location = useLocation();
     const navigate = useNavigate();
-    const { userType: userRole } = useSelector((state) => state.user);
+    const { userType: userRole } = useSelector((state) => state.user.userData);
     const initialTab = location.state?.initialTab || userRole === 'admin' ? 'Recipients Approval' : 'Dashboard';
     const [currentTab, setCurrentTab] = useState(initialTab);
 
