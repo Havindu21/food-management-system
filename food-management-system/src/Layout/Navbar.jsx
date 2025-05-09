@@ -68,6 +68,7 @@ const Navbar = ({ callingFrom }) => {
             // Clear Redux state on logout
             dispatch(setUserType(null));
             dispatch(setUserData(false));
+            localStorage.removeItem('token');
             navigate("/join-us");
         } else if (page === "Donate Now") {
             navigate('/profile/donate-food', { state: { initialTab: 'Donate Food' } });
