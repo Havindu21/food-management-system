@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     Box, TextField, MenuItem, Select, Typography, Grid, Card, 
     CardContent, Avatar, Chip, Button, Dialog, DialogActions, 
@@ -19,6 +19,9 @@ import SortIcon from '@mui/icons-material/Sort';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import { showLoadingAnimation, hideLoadingAnimation } from '../../app/loadingAnimationController';
+import { showAlertMessage } from '../../app/alertMessageController';
+import donationService from '../../Services/donationService';
 
 // TabPanel component to handle tab content
 function TabPanel(props) {
@@ -60,8 +63,78 @@ const AvailableDonations = () => {
     const [openIgnoreDialog, setOpenIgnoreDialog] = useState(false);
     const [selectedContribution, setSelectedContribution] = useState(null);
     
-    // State for my contributions
+    // State for my contributions and available donations
     const [myContributions, setMyContributions] = useState(contributionsToMyRequests);
+    const [availableDonations, setAvailableDonations] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fetch donations from API when component mounts
+    useEffect(() => {
+        fetchDonations();
+    }, []);
+
+    // Function to fetch donations from API using the donationService
+    const fetchDonations = async () => {
+        showLoadingAnimation({ message: "Fetching available donations..." });
+        try {
+            const response = await donationService.getAllDonations();
+            if (response && response.success) {
+                const formattedDonations = formatDonationsData(response.data);
+                setAvailableDonations(formattedDonations);
+            } else {
+                throw new Error("Failed to fetch donations data");
+            }
+        } catch (error) {
+            console.error("Error fetching donations:", error);
+            setError(error.message);
+            showAlertMessage({
+                message: error.response?.data?.message || "Failed to load donations. Please try again.",
+                type: "error"
+            });
+        } finally {
+            hideLoadingAnimation();
+            setIsLoading(false);
+        }
+    };
+
+    // Function to format API response data to match our component structure
+    const formatDonationsData = (donations) => {
+        const formattedDonations = [];
+        
+        donations.forEach(donation => {
+            // Create a separate card for each food item in the donation
+            donation.foodItems.forEach(foodItem => {
+                // Parse expiry date from string format
+                const [day, month, year] = foodItem.expiryDate.split('-');
+                const formattedExpiryDate = `${year}-${month}-${day}`;
+                
+                formattedDonations.push({
+                    id: donation._id,
+                    foodItemId: foodItem._id, // Added to differentiate between food items in the same donation
+                    category: foodItem.unit !== 'none' ? `${foodItem.unit}` : 'Food items',
+                    title: foodItem.mealName,
+                    name: donation.donor.businessName || donation.donor.name,
+                    donorId: donation.donor._id,
+                    quantity: `${foodItem.quantity} ${foodItem.unit !== 'none' ? foodItem.unit : 'units'}`,
+                    rawQuantity: foodItem.quantity,
+                    unit: foodItem.unit,
+                    expiryDate: formattedExpiryDate,
+                    expiryTime: foodItem.expiryTime,
+                    postDate: new Date(donation.createdAt).toISOString().split('T')[0],
+                    address: donation.location.address,
+                    latitude: donation.location.latitude,
+                    longitude: donation.location.longitude,
+                    description: `${foodItem.mealName} - ${foodItem.quantity} ${foodItem.unit !== 'none' ? foodItem.unit : ''}`,
+                    contactNumber: donation.contactNumber,
+                    donorPhone: donation.donor.phone,
+                    requested: false,
+                });
+            });
+        });
+        
+        return formattedDonations;
+    };
 
     // Handle tab change
     const handleTabChange = (event, newValue) => {
@@ -69,7 +142,7 @@ const AvailableDonations = () => {
     };
 
     // Filtered donations based on search and filters
-    const filteredDonations = donationsCards.filter(donation => {
+    const filteredDonations = availableDonations.filter(donation => {
         const matchesSearch = donation.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             donation.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             donation.category.toLowerCase().includes(searchTerm.toLowerCase());
@@ -106,19 +179,43 @@ const AvailableDonations = () => {
     };
 
     // Handle submitting a request
-    const handleRequestSubmit = () => {
+    const handleRequestSubmit = async () => {
         if (!requestQuantity.trim()) {
             setRequestError('Please specify the quantity you need');
             return;
         }
 
-        // In a real app, this would call an API to send the request
-        setSnackbarMessage(`Request for ${selectedDonation.title} has been sent to ${selectedDonation.name}`);
-        setSnackbarOpen(true);
-        setOpenDialog(false);
+        showLoadingAnimation({ message: "Sending donation request..." });
+        
+        try {
+            await donationService.requestDonation({
+                donationId: selectedDonation.id,
+                foodItemId: selectedDonation.foodItemId, // Add foodItemId to the request
+                quantity: requestQuantity,
+                notes: requestNotes
+            });
+            
+            setSnackbarMessage(`Request for ${selectedDonation.title} has been sent to ${selectedDonation.name}`);
+            setSnackbarOpen(true);
+            setOpenDialog(false);
 
-        // Update the donation to show requested status (this is just for demo, in real app would be handled via API)
-        // This would typically be managed by the API and state management
+            // Update the donation to show requested status
+            const updatedDonations = availableDonations.map(donation => 
+                (donation.id === selectedDonation.id && donation.foodItemId === selectedDonation.foodItemId) 
+                ? {...donation, requested: true} 
+                : donation
+            );
+            setAvailableDonations(updatedDonations);
+            
+        } catch (error) {
+            console.error("Error requesting donation:", error);
+            showAlertMessage({
+                message: error.response?.data?.message || "Failed to send request. Please try again.",
+                type: "error"
+            });
+        } finally {
+            hideLoadingAnimation();
+        }
     };
 
     // Format date for display
@@ -184,7 +281,6 @@ const AvailableDonations = () => {
 
     // Handle confirming a contribution
     const handleConfirmContribution = () => {
-        // In a real app, this would call an API to update the contribution status
         const updatedContributions = myContributions.map(contribution => {
             if (contribution.id === selectedContribution.id) {
                 return { ...contribution, status: 'confirmed' };
@@ -200,7 +296,6 @@ const AvailableDonations = () => {
 
     // Handle ignoring a contribution
     const handleIgnoreContribution = () => {
-        // In a real app, this would call an API to update the contribution status
         const updatedContributions = myContributions.map(contribution => {
             if (contribution.id === selectedContribution.id) {
                 return { ...contribution, status: 'ignored' };
@@ -309,11 +404,11 @@ const AvailableDonations = () => {
                             startAdornment={<FilterAltIcon sx={{ color: '#9CA3AF', mr: 1 }} />}
                         >
                             <MenuItem value="">All Categories</MenuItem>
-                            <MenuItem value="Meal packs">Meal Packs</MenuItem>
-                            <MenuItem value="Food items">Food Items</MenuItem>
-                            <MenuItem value="Groceries">Groceries</MenuItem>
-                            <MenuItem value="Fruits">Fruits</MenuItem>
-                            <MenuItem value="Vegetables">Vegetables</MenuItem>
+                            <MenuItem value="kg">Kilograms</MenuItem>
+                            <MenuItem value="g">Grams</MenuItem>
+                            <MenuItem value="l">Liters</MenuItem>
+                            <MenuItem value="ml">Milliliters</MenuItem>
+                            <MenuItem value="pcs">Pieces</MenuItem>
                         </Select>
                         <Select
                             value={sort}
@@ -331,7 +426,31 @@ const AvailableDonations = () => {
                     </Box>
                 </Box>
 
-                {sortedDonations.length === 0 ? (
+                {isLoading ? (
+                    <Box sx={{ 
+                        p: 4, 
+                        textAlign: 'center', 
+                        bgcolor: '#f9fafb', 
+                        borderRadius: 2,
+                        mt: 2
+                    }}>
+                        <Typography variant="h6" color="textSecondary">
+                            Loading available donations...
+                        </Typography>
+                    </Box>
+                ) : error ? (
+                    <Box sx={{ 
+                        p: 4, 
+                        textAlign: 'center', 
+                        bgcolor: '#f9fafb', 
+                        borderRadius: 2,
+                        mt: 2
+                    }}>
+                        <Typography variant="h6" color="error">
+                            Error loading donations. Please try refreshing the page.
+                        </Typography>
+                    </Box>
+                ) : sortedDonations.length === 0 ? (
                     <Box sx={{ 
                         p: 4, 
                         textAlign: 'center', 
@@ -345,8 +464,14 @@ const AvailableDonations = () => {
                     </Box>
                 ) : (
                     <Grid container spacing={3} mt={2}>
-                        {sortedDonations.map((donation, index) => (
-                            <Grid item key={index} xs={12} sm={6} lg={4}>
+                        {sortedDonations.map((donation) => (
+                            <Grid 
+                                item 
+                                key={`${donation.id}-${donation.foodItemId}`} 
+                                xs={12} 
+                                sm={6} 
+                                lg={4}
+                            >
                                 <Card sx={{ 
                                     height: '100%', 
                                     display: 'flex', 
@@ -835,82 +960,6 @@ const AvailableDonations = () => {
 };
 
 export default AvailableDonations;
-
-// Enhanced mock data with more details relevant for recipients
-const donationsCards = [
-    {
-        category: 'Meal packs',
-        title: 'Chicken Fried rice',
-        name: 'Hansana - Shanghai Terrace',
-        quantity: '25 meals',
-        expiryDate: '2025-03-15',
-        postDate: '2025-02-25',
-        address: '251/1 Kaduwela Road, Battaramulla',
-        description: 'Freshly made chicken fried rice, suitable for immediate consumption.',
-        contactNumber: '+94771234567',
-        requested: false,
-    },
-    {
-        category: 'Food items',
-        title: 'Mixed Vegetables',
-        name: 'Upul - Upul Traders',
-        quantity: '20 kg',
-        expiryDate: '2025-03-12',
-        postDate: '2025-03-01',
-        address: '251/1 Dematagoda Road, Dematagoda',
-        description: 'Fresh mixed vegetables including carrots, beans, and potatoes.',
-        contactNumber: '+94777654321',
-        requested: false,
-    },
-    {
-        category: 'Food Items',
-        title: 'Yoghurt Cups',
-        name: 'Harsha',
-        quantity: '100 cups',
-        expiryDate: '2025-03-14',
-        postDate: '2025-02-28',
-        address: '251 Dewman Palace, Battaramulla',
-        description: 'Individual yoghurt cups, various flavors.',
-        contactNumber: '+94712345678',
-        requested: false,
-    },
-    {
-        category: 'Groceries',
-        title: 'Rice and Lentils',
-        name: 'Food Supply Co.',
-        quantity: '50 kg rice, 10 kg lentils',
-        expiryDate: '2025-06-20',
-        postDate: '2025-02-15',
-        address: '45 Main Street, Colombo 03',
-        description: 'Bulk rice and lentils for community kitchens.',
-        contactNumber: '+94765432109',
-        requested: true,
-    },
-    {
-        category: 'Fruits',
-        title: 'Fresh Bananas',
-        name: 'Green Farms',
-        quantity: '15 kg',
-        expiryDate: '2025-03-10',
-        postDate: '2025-03-05',
-        address: '78 Fruit Market, Kandy',
-        description: 'Fresh bananas, perfect for immediate distribution.',
-        contactNumber: '+94701234567',
-        requested: false,
-    },
-    {
-        category: 'Vegetables',
-        title: 'Organic Carrots',
-        name: 'Organic Farms',
-        quantity: '8 kg',
-        expiryDate: '2025-03-20',
-        postDate: '2025-03-02',
-        address: '16 Green Lane, Gampaha',
-        description: 'Organic carrots freshly harvested.',
-        contactNumber: '+94723456789',
-        requested: false,
-    }
-];
 
 // Mock data for contributions to user's requests
 const contributionsToMyRequests = [
