@@ -42,7 +42,7 @@ const Login = ({ key }) => {
             const response = await loginUser(data);
 
             if (response) {
-                dispatch(setUserData(response)); 
+                dispatch(setUserData(response));
                 hideLoadingAnimation();
                 showAlertMessage({ message: "Login successful!", type: "success" });
                 setTimeout(() => {
@@ -55,11 +55,11 @@ const Login = ({ key }) => {
             }
         } catch (error) {
             hideLoadingAnimation();
-            showAlertMessage({ 
-                message: error.response?.data?.message || "Login failed. Please check your credentials.", 
-                type: "error" 
+            showAlertMessage({
+                message: error.response?.data?.message || error?.response?.data?.error || "Login failed. Please check your credentials.",
+                type: "error"
             });
-            console.error("Login failed:", error?.message || error);
+            console.error("Login failed:", error?.response?.data?.error || error?.message || error);
         }
     };
 

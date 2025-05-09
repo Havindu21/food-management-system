@@ -94,14 +94,21 @@ const Registration = ({ userType }) => {
 
         try {
             showLoadingAnimation({ message: 'Creating your account...' });
-            console.log('UserData:', userData);
             const response = await registerUser(userData);
-            dispatch(setUserData(response));
             hideLoadingAnimation();
-            showAlertMessage({ message: 'Registration Successful', type: 'success' });
-            setTimeout(() => {
-                navigate('/home');
-            }, 1500);
+            if (userType === 'recipient') {
+                showAlertMessage({ message: 'Please wait for admin approval', type: 'info' });
+                setTimeout(() => {
+                    navigate('/home');
+                }, 1500);
+            } else if (userType === 'donor') {
+                dispatch(setUserData(response));
+                showAlertMessage({ message: 'Registration Successful', type: 'success' });
+                setTimeout(() => {
+                    navigate('/home');
+                }, 1500);
+            }
+
         } catch (error) {
             hideLoadingAnimation();
             console.error('Registration Error:', error.response?.data || error.message);
