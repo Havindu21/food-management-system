@@ -507,12 +507,24 @@ const FoodRequests = () => {
                             
                             <TextField
                                 fullWidth
-                                label={selectedFoodItem ? `Amount to contribute (e.g., "5kg", "10 portions")` : "Specify your contribution"}
+                                label={selectedFoodItem ? `Amount to contribute (numbers only)` : "Specify your contribution (numbers only)"}
                                 variant="outlined"
                                 value={contributionAmount}
-                                onChange={(e) => setContributionAmount(e.target.value)}
+                                onChange={(e) => {
+                                    // Only allow numeric input (digits and decimal point)
+                                    const value = e.target.value;
+                                    if (value === '' || /^[0-9]+\.?[0-9]*$/.test(value)) {
+                                        setContributionAmount(value);
+                                        setContributionError('');
+                                    }
+                                }}
+                                type="number"
+                                inputProps={{ 
+                                    step: "0.01",
+                                    min: "0.01"
+                                }}
                                 error={!!contributionError}
-                                helperText={contributionError}
+                                helperText={contributionError || `Enter numeric value only (e.g., "5" for ${selectedFoodItem?.unit || 'units'})`}
                                 sx={{ mb: 2 }}
                             />
                             
