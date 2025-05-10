@@ -31,7 +31,8 @@ import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserData, setUserType } from '../reducers/userSlice';
 
 const drawerWidth = 240;
 
@@ -41,6 +42,7 @@ export default function Sidebar() {
     const [open, setOpen] = useState(isMdOrBelow ? false : true);
     const location = useLocation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const { userType: userRole } = useSelector((state) => state.user.userData);
     const initialTab = location.state?.initialTab || userRole === 'admin' ? 'Recipients Approval' : 'Dashboard';
     const [currentTab, setCurrentTab] = useState(initialTab);
@@ -54,8 +56,11 @@ export default function Sidebar() {
     };
 
     const handleLogout = () => {
-        console.log('Logout clicked');
-        navigate('/login'); // replace with actual logout logic
+        // Clear Redux state on logout
+        dispatch(setUserType(null));
+        dispatch(setUserData(false));
+        localStorage.removeItem('token');
+        navigate('/home');
     };
 
     const tabs = userRole === 'donor' ? [
