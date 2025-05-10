@@ -12,6 +12,10 @@ import {
     useMediaQuery
 } from '@mui/material';
 import project1 from '../../assets/Home/project1.jpg';
+import wallpaper from '../../assets/Home/wallpaper.jpg';
+import wallpaper1 from '../../assets/Home/wallpaper1.jpeg';
+import communityImage from '../../assets/AboutUs/community.jpg';
+import heroImage from '../../assets/AboutUs/heroimage.jpg';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -25,7 +29,7 @@ const Projects = () => {
     const navigate = useNavigate();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [isVisible, setIsVisible] = useState(false);
-    const { userType } = useSelector((state) => state.user);
+    const { userType } = useSelector((state) => state.user.userData);
     const isAuthenticated = userType && userType !== null;
 
     // Custom intersection observer to trigger animations
@@ -177,28 +181,40 @@ const Projects = () => {
             date: "April 15, 2024",
             location: "Colombo",
             category: "Distribution",
-            description: "Distributed over 500kg of fresh produce to local food banks, helping to feed over 200 families in need."
+            description: "Distributed over 500kg of fresh produce to local food banks, helping to feed over 200 families in need.",
+            image: project1
         },
         {
             title: "Restaurant Partnership",
             date: "March 23, 2024",
             location: "Kandy",
             category: "Partnership",
-            description: "Partnered with 12 local restaurants to collect surplus food and deliver it to homeless shelters in the area."
+            description: "Partnered with 12 local restaurants to collect surplus food and deliver it to homeless shelters in the area.",
+            image: wallpaper
         },
         {
             title: "Reducing Food Waste",
             date: "February 10, 2024",
             location: "Galle",
             category: "Education",
-            description: "Conducted workshops for local businesses on reducing food waste and improving sustainability practices."
+            description: "Conducted workshops for local businesses on reducing food waste and improving sustainability practices.",
+            image: communityImage
         },
         {
             title: "School Meal Program",
             date: "January 5, 2024",
             location: "Jaffna",
             category: "Education",
-            description: "Launched a nutritious meal program for underprivileged schools, serving over 1,000 students daily."
+            description: "Launched a nutritious meal program for underprivileged schools, serving over 1,000 students daily.",
+            image: heroImage
+        },
+        {
+            title: "Community Garden Initiative",
+            date: "December 12, 2023",
+            location: "Matara",
+            category: "Sustainability",
+            description: "Started community gardens in urban areas to promote local food production and reduce transportation emissions.",
+            image: wallpaper1
         },
     ];
 
@@ -377,7 +393,7 @@ const Projects = () => {
                                         <CardMedia
                                             component="img"
                                             height="220"
-                                            image={project1}
+                                            image={project.image}
                                             alt={project.title}
                                         />
                                         <Chip
@@ -437,6 +453,7 @@ const Projects = () => {
                                                     textDecoration: 'underline',
                                                 }
                                             }}
+                                            onClick={handleViewAll}
                                         >
                                             Read More
                                         </Button>
