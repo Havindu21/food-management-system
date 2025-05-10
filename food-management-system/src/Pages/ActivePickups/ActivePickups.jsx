@@ -1,10 +1,9 @@
-import { Box, Button, Grid, Typography, List, ListItem, ListItemText, Divider, Avatar, Card, CardContent } from '@mui/material'
-import React, { useState } from 'react'
+import { Box, Button, Grid, Typography, List, Divider, Card, CardContent } from '@mui/material'
+import React, { useState, useEffect } from 'react'
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import Person3Icon from '@mui/icons-material/Person3';
 import BentoIcon from '@mui/icons-material/Bento';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -15,6 +14,10 @@ import CheckIcon from '@mui/icons-material/Check';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import pickupService from '../../Services/pickupService';
+import { useDispatch } from 'react-redux';
+import { showLoading, hideLoading } from '../../reducers/loaderSlice';
+import { showAlertMessage } from '../../app/alertMessageController';
 
 // Fix for default marker icons in React Leaflet
 const DefaultIcon = L.icon({
@@ -29,85 +32,95 @@ const DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 const ActivePickups = () => {
-    // Mock donation data for demonstration
-    const [donations, setDonations] = useState([
-        {
-            id: "DON-12345",
-            status: "Ready for Pickup",
-            donorName: "Hansana - Shanghai Terrace",
-            address: "251/1, Kaduwela Road, Battaramulla",
-            contactNumber: "+94771234567",
-            mealName: "Chicken Fried Rice",
-            quantity: "25 Meals",
-            expiry: "Mar 15, 2025",
-            location: {
-                lat: 6.902299275392892,
-                lng: 79.92001463072924,
-                address: "Shanghai Terrace, Battaramulla"
-            },
-            requestDate: "Mar 10, 2024"
-        },
-        {
-            id: "DON-12346",
-            status: "Ready for Pickup",
-            donorName: "Grand Monarch Hotel",
-            address: "189 Galle Road, Colombo 03",
-            contactNumber: "+94112345678",
-            mealName: "Vegetable Curry & Rice",
-            quantity: "15 Meals",
-            expiry: "Mar 14, 2024",
-            location: {
-                lat: 6.914422,
-                lng: 79.847163,
-                address: "Grand Monarch Hotel, Colombo"
-            },
-            requestDate: "Mar 9, 2024"
-        },
-        {
-            id: "DON-12347",
-            status: "In Transit",
-            donorName: "Chillax Cafe",
-            address: "42 Park Street, Colombo 02",
-            contactNumber: "+94776543210",
-            mealName: "Pasta & Sandwiches",
-            quantity: "10 Meals",
-            expiry: "Mar 13, 2024",
-            location: {
-                lat: 6.927079,
-                lng: 79.863244,
-                address: "Chillax Cafe, Colombo"
-            },
-            requestDate: "Mar 8, 2024"
-        }
-    ]);
-    
-    const [selectedDonation, setSelectedDonation] = useState(null);
+    const [pickups, setPickups] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [selectedPickup, setSelectedPickup] = useState(null);
     const [showList, setShowList] = useState(true);
+    const dispatch = useDispatch();
 
-    // Handle click on a donation from the list
-    const handleDonationClick = (donation) => {
-        setSelectedDonation(donation);
+    // Fetch active pickups from the API
+    useEffect(() => {
+        const fetchActivePickups = async () => {
+            try {
+                setIsLoading(true);
+                const response = await pickupService.getActivePickups();
+                if (response.success) {
+                    // Filter donations and keep only the "claimed" food items in each donation
+                    const filteredDonations = response.data.map(pickup => {
+                        // Create a new object with all the original donation properties
+                        const filteredPickup = { ...pickup };
+
+                        // Replace the foodItems array with only the "claimed" food items
+                        filteredPickup.foodItems = pickup.foodItems ?
+                            pickup.foodItems.filter(item => item.status === "claimed") :
+                            [];
+
+                        return filteredPickup;
+                    }).filter(pickup => pickup.foodItems.length > 0); // Optionally remove donations with no claimed items
+
+                    // The result will be an array of donations where each donation's foodItems array 
+                    // contains only the food items with status "claimed"
+                    setPickups(filteredDonations);
+                    console.log('pickups', filteredDonations);
+
+                }
+            } catch (error) {
+                console.error("Failed to fetch active pickups:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchActivePickups();
+
+    }, []);
+
+    // Handle click on a pickup from the list
+    const handlePickupClick = (pickup) => {
+        setSelectedPickup(pickup);
         setShowList(false);
     };
 
     // Handle going back to list view
     const handleBackToList = () => {
         setShowList(true);
-        setSelectedDonation(null);
+        setSelectedPickup(null);
     };
 
-    // Handle marking a donation as completed
-    const handleMarkAsCompleted = (donationId) => {
-        setDonations(donations.map(donation => 
-            donation.id === donationId 
-                ? {...donation, status: "Completed"} 
-                : donation
-        ));
-        setShowList(true);
+    // Handle marking a pickup as completed
+    const handleMarkAsCompleted = async (pickupId) => {
+        try {
+            dispatch(showLoading({ message: 'Completing pickup...' }));
+
+            // Determine if this is a donation or contribution pickup based on ID format
+            // This is a simplified approach - adjust based on your actual ID format
+            const isDonation = pickupId.startsWith('DON-');
+
+            let response;
+            if (isDonation) {
+                response = await pickupService.completeDonationPickup(pickupId);
+            } else {
+                response = await pickupService.completeContributionPickup(pickupId);
+            }
+
+            if (response.success) {
+                // Remove the completed pickup from the list
+                setPickups(pickups.filter(pickup => pickup.id !== pickupId));
+                dispatch(showAlertMessage({
+                    message: 'Pickup marked as completed successfully',
+                    type: "success",
+                }));
+                setShowList(true);
+            }
+        } catch (error) {
+            console.error("Failed to mark pickup as completed:", error);
+        } finally {
+            dispatch(hideLoading());
+        }
     };
 
     // Render list of active pickups
-    const renderDonationsList = () => {
+    const renderPickupsList = () => {
         return (
             <Box sx={{ width: '100%' }}>
                 <Box sx={{ mb: 4 }}>
@@ -130,127 +143,135 @@ const ActivePickups = () => {
                 </Box>
 
                 <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-                    {donations.filter(d => d.status !== "Completed").length === 0 ? (
+                    {isLoading ? (
+                        <Box sx={{ textAlign: 'center', py: 4 }}>
+                            <Typography variant="subtitle1" color="text.secondary">
+                                Loading active pickups...
+                            </Typography>
+                        </Box>
+                    ) : pickups.length === 0 ? (
                         <Box sx={{ textAlign: 'center', py: 4 }}>
                             <Typography variant="subtitle1" color="text.secondary">
                                 No active pickups at the moment
                             </Typography>
                         </Box>
                     ) : (
-                        donations.filter(d => d.status !== "Completed").map((donation, index) => (
-                            <Card 
-                                key={donation.id} 
-                                sx={{ 
-                                    mb: 2, 
-                                    cursor: 'pointer', 
+                        pickups.map((pickup) => (
+                            <Card
+                                key={pickup.id}
+                                sx={{
+                                    mb: 2,
+                                    cursor: 'pointer',
                                     transition: '0.3s',
-                                    '&:hover': { transform: 'translateY(-4px)', boxShadow: 3 } 
+                                    '&:hover': { transform: 'translateY(-4px)', boxShadow: 3 }
                                 }}
-                                onClick={() => handleDonationClick(donation)}
+                                onClick={() => handlePickupClick(pickup)}
                             >
                                 <CardContent>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                                         <Typography sx={{ fontWeight: 500 }}>
-                                            {donation.donorName}
+                                            {pickup.donorName}
                                         </Typography>
                                         <Box sx={{
-                                            bgcolor: donation.status === "In Transit" ? '#DBEAFE' : '#F0FFF4',
-                                            color: donation.status === "In Transit" ? '#537FEF' : '#059669',
+                                            bgcolor: pickup.status === "In Transit" ? '#DBEAFE' : '#F0FFF4',
+                                            color: pickup.status === "In Transit" ? '#537FEF' : '#059669',
                                             px: 1,
                                             py: 0.5,
                                             borderRadius: 1,
                                             fontSize: 12,
                                         }}>
-                                            {donation.status}
+                                            {pickup.status}
                                         </Box>
                                     </Box>
-                                    
+
                                     <Divider sx={{ my: 1 }} />
-                                    
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={6}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <RestaurantIcon fontSize="small" sx={{ opacity: 0.6 }} />
-                                                <Typography variant="body2">{donation.mealName}</Typography>
-                                            </Box>
+
+                                    {pickup.foodItems.map((item, index) => (
+                                        <Grid container key={index} spacing={2} mt={index > 0 ? 1 : 0}>
+                                            <Grid item xs={6}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <RestaurantIcon fontSize="small" sx={{ opacity: 0.6 }} />
+                                                    <Typography variant="body2">{item.mealName}</Typography>
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={6}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <BentoIcon fontSize="small" sx={{ opacity: 0.6 }} />
+                                                    <Typography variant="body2">{item.quantity} {item.unit === 'none' ? '' : item.unit} </Typography>
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={6}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <CalendarMonthIcon fontSize="small" sx={{ opacity: 0.6 }} />
+                                                    <Typography variant="body2">Expires: {item.expiryDate}</Typography>
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={6}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <AccessTimeIcon fontSize="small" sx={{ opacity: 0.6 }} />
+                                                    <Typography variant="body2">Requested: {pickup.requestDate}</Typography>
+                                                </Box>
+                                            </Grid>
                                         </Grid>
-                                        <Grid item xs={6}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <BentoIcon fontSize="small" sx={{ opacity: 0.6 }} />
-                                                <Typography variant="body2">{donation.quantity}</Typography>
-                                            </Box>
-                                        </Grid>
-                                        <Grid item xs={6}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <CalendarMonthIcon fontSize="small" sx={{ opacity: 0.6 }} />
-                                                <Typography variant="body2">Expires: {donation.expiry}</Typography>
-                                            </Box>
-                                        </Grid>
-                                        <Grid item xs={6}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <AccessTimeIcon fontSize="small" sx={{ opacity: 0.6 }} />
-                                                <Typography variant="body2">Requested: {donation.requestDate}</Typography>
-                                            </Box>
-                                        </Grid>
-                                    </Grid>
-                                    
+                                    ))}
+
                                     <Divider sx={{ my: 1 }} />
-                                    
+
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                         <LocationOnIcon fontSize="small" sx={{ opacity: 0.6 }} />
-                                        <Typography variant="body2" noWrap>{donation.address}</Typography>
+                                        <Typography variant="body2" noWrap>{pickup.address}</Typography>
                                     </Box>
                                 </CardContent>
                             </Card>
                         ))
                     )}
-                </List>
-            </Box>
+                </List >
+            </Box >
         )
     };
 
-    // Render donation detail view
-    const renderDonationDetail = () => {
-        if (!selectedDonation) return null;
-        
+    // Render pickup detail view
+    const renderPickupDetail = () => {
+        if (!selectedPickup) return null;
+
         return (
             <Box sx={{ width: '100%' }}>
-                <Button 
-                    startIcon={<ArrowBackIcon />} 
+                <Button
+                    startIcon={<ArrowBackIcon />}
                     onClick={handleBackToList}
                     sx={{ mb: 2 }}
                 >
                     Back to List
                 </Button>
-                
+
                 <Box sx={{
                     width: '100%',
                     borderRadius: 2,
                     display: 'flex',
                     px: { xs: 2, md: 4 },
                     py: { xs: 1, md: 3 },
-                    bgcolor: selectedDonation.status === "In Transit" ? '#DBEAFE' : '#F0FFF4',
+                    bgcolor: selectedPickup.status === "In Transit" ? '#DBEAFE' : '#F0FFF4',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                 }}>
                     <Typography sx={{
-                        color: selectedDonation.status === "In Transit" ? '#537FEF' : '#059669',
+                        color: selectedPickup.status === "In Transit" ? '#537FEF' : '#059669',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 1,
                         fontSize: { xs: 14, md: 16 },
                     }}>
                         <LocalShippingIcon />
-                        Status: {selectedDonation.status}
+                        Status: {selectedPickup.status}
                     </Typography>
                     <Typography sx={{
-                        color: selectedDonation.status === "In Transit" ? '#537FEF' : '#059669',
+                        color: selectedPickup.status === "In Transit" ? '#537FEF' : '#059669',
                         fontSize: { xs: 14, md: 16 },
                     }}>
-                        Donation ID: {selectedDonation.id}
+                        Pickup ID: {selectedPickup.id}
                     </Typography>
                 </Box>
-                
+
                 <Box sx={{
                     width: '100%',
                     height: { xs: 300, sm: 400 },
@@ -259,7 +280,7 @@ const ActivePickups = () => {
                     overflow: 'hidden',
                 }}>
                     <MapContainer
-                        center={[selectedDonation.location.lat, selectedDonation.location.lng]}
+                        center={[selectedPickup.location.lat, selectedPickup.location.lng]}
                         zoom={15}
                         style={{ height: '100%', width: '100%' }}
                     >
@@ -267,14 +288,14 @@ const ActivePickups = () => {
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         />
-                        <Marker position={[selectedDonation.location.lat, selectedDonation.location.lng]}>
+                        <Marker position={[selectedPickup.location.lat, selectedPickup.location.lng]}>
                             <Popup>
-                                {selectedDonation.location.address}
+                                {selectedPickup.location.address}
                             </Popup>
                         </Marker>
                     </MapContainer>
                 </Box>
-                
+
                 <Grid container spacing={2} mt={2}>
                     <Grid item xs={12} sm={6}>
                         <Box
@@ -293,42 +314,46 @@ const ActivePickups = () => {
                             <Typography>
                                 Donation Information
                             </Typography>
-                            <Box sx={{
-                                display: 'flex',
-                                gap: 1,
-                                alignItems: 'center',
-                            }}>
-                                <RestaurantIcon sx={{
-                                    opacity: 0.54
-                                }} />
-                                <Typography>
-                                    {selectedDonation.mealName}
-                                </Typography>
-                            </Box>
-                            <Box sx={{
-                                display: 'flex',
-                                gap: 1,
-                                alignItems: 'center',
-                            }}>
-                                <BentoIcon sx={{
-                                    opacity: 0.54
-                                }} />
-                                <Typography>
-                                    {selectedDonation.quantity}
-                                </Typography>
-                            </Box>
-                            <Box sx={{
-                                display: 'flex',
-                                gap: 1,
-                                alignItems: 'center',
-                            }}>
-                                <CalendarMonthIcon sx={{
-                                    opacity: 0.54
-                                }} />
-                                <Typography>
-                                    Expires: {selectedDonation.expiry}
-                                </Typography>
-                            </Box>
+                            {selectedPickup.foodItems.map((item, index) => (
+                                <>
+                                    <Box key={index} sx={{
+                                        display: 'flex',
+                                        gap: 1,
+                                        alignItems: 'center',
+                                    }}>
+                                        <RestaurantIcon sx={{
+                                            opacity: 0.54
+                                        }} />
+                                        <Typography>
+                                            {item.mealName}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{
+                                        display: 'flex',
+                                        gap: 1,
+                                        alignItems: 'center',
+                                    }}>
+                                        <BentoIcon sx={{
+                                            opacity: 0.54
+                                        }} />
+                                        <Typography>
+                                            {item.quantity}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{
+                                        display: 'flex',
+                                        gap: 1,
+                                        alignItems: 'center',
+                                    }}>
+                                        <CalendarMonthIcon sx={{
+                                            opacity: 0.54
+                                        }} />
+                                        <Typography>
+                                            Expires: {item.expiryDate}
+                                        </Typography>
+                                    </Box>
+                                </>
+                            ))}
                         </Box>
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -357,7 +382,7 @@ const ActivePickups = () => {
                                     opacity: 0.54
                                 }} />
                                 <Typography>
-                                    {selectedDonation.donorName}
+                                    {selectedPickup.donorName}
                                 </Typography>
                             </Box>
                             <Box sx={{
@@ -369,12 +394,12 @@ const ActivePickups = () => {
                                     opacity: 0.54
                                 }} />
                                 <Typography>
-                                    {selectedDonation.address}
+                                    {selectedPickup.address}
                                 </Typography>
                             </Box>
                             <Button
                                 onClick={() => {
-                                    const googleMapsUrl = `https://www.google.com/maps?q=${selectedDonation.location.lat},${selectedDonation.location.lng}`;
+                                    const googleMapsUrl = `https://www.google.com/maps?q=${selectedPickup.location.lat},${selectedPickup.location.lng}`;
                                     window.open(googleMapsUrl, '_blank');
                                 }}
                                 sx={{
@@ -397,7 +422,7 @@ const ActivePickups = () => {
                         </Box>
                     </Grid>
                 </Grid>
-                
+
                 <Grid container spacing={2} mt={2}>
                     <Grid item xs={12} sm={6}>
                         <Button
@@ -409,7 +434,7 @@ const ActivePickups = () => {
                             }}
                             onClick={() => {
                                 // In a real app, this would open a dialer or messaging system
-                                alert(`Contact donor at: ${selectedDonation.contactNumber}`);
+                                alert(`Contact donor at: ${selectedPickup.contactNumber}`);
                             }}
                         >
                             <Typography sx={{
@@ -420,7 +445,7 @@ const ActivePickups = () => {
                                 alignItems: 'center',
                                 gap: 1
                             }}>
-                                <CallIcon sx={{color:'#5A5A70'}} />
+                                <CallIcon sx={{ color: '#5A5A70' }} />
                                 Contact Donor
                             </Typography>
                         </Button>
@@ -433,7 +458,7 @@ const ActivePickups = () => {
                                 width: '100%',
                                 height: 50,
                             }}
-                            onClick={() => handleMarkAsCompleted(selectedDonation.id)}
+                            onClick={() => handleMarkAsCompleted(selectedPickup.id)}
                         >
                             <Typography sx={{
                                 textTransform: 'none',
@@ -455,9 +480,9 @@ const ActivePickups = () => {
 
     return (
         <>
-            {showList ? renderDonationsList() : renderDonationDetail()}
+            {showList ? renderPickupsList() : renderPickupDetail()}
         </>
     )
 }
 
-export default ActivePickups
+export default ActivePickups;

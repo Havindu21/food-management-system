@@ -165,7 +165,7 @@ const DonateFood = () => {
 
                     // Reset form or redirect
                     setTimeout(() => {
-                        navigate('/profile/donation-history');
+                        navigate('/profile/active-donations');
                     }, 1500);
 
                 } else {
