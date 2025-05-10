@@ -117,11 +117,11 @@ const ActivePickups = () => {
                 setShowList(true);
             }
         } catch (error) {
-            console.error("Failed to mark pickup as completed:", error);
-            dispatch(showAlertMessage({
-                message: 'Failed to mark pickup as completed',
-                type: "error",
-            }));
+            // console.error("Failed to mark pickup as completed:", error);
+            // dispatch(showAlertMessage({
+            //     message: 'Failed to mark pickup as completed',
+            //     type: "error",
+            // }));
         } finally {
             dispatch(hideLoading());
         }
