@@ -1,5 +1,5 @@
 import { Box, Grid2, Typography } from '@mui/material'
-import React from 'react'
+import { useEffect, useState } from 'react'
 import DashboardTile from '../../Components/DashboardTile'
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import SpaIcon from '@mui/icons-material/Spa';
@@ -16,131 +16,214 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import { useSelector } from 'react-redux';
+import dashboardService from '../../Services/dashboardService';
 
 const Dashboard = () => {
     const { userType: userRole } = useSelector((state) => state.user.userData);
-    // Define the tiles for each user role
-    const tiles = userRole === 'donor' ? [
-        {
-            title: 'Total Meals Donated',
-            count: '500',
-            image: RestaurantIcon,
-            trend: 12
-        },
-        {
-            title: 'CO2 Emissions Saved',
-            count: '850 kg',
-            image: SpaIcon,
-            trend: 8
-        },
-        {
-            title: 'Total Meals Donated',
-            count: '4.5/5.0',
-            image: StarIcon,
-            rate: 4.5,
-            trend: 5
-        },
-    ] : userRole === 'recipient' ? [
-        {
-            title: 'Available Donations',
-            count: '3',
-            image: VolunteerActivismIcon,
-            trend: 20
-        },
-        {
-            title: 'Successful Pickups',
-            count: '156',
-            image: LocalShippingIcon,
-            trend: 15
-        },
-        {
-            title: 'Total Meals Saved',
-            count: '500 meals',
-            image: FoodBankIcon,
-            trend: 10
-        },
-    ] : [
-        // Row 1: User/Stakeholder metrics
-        {
-            title: 'Total Donors',
-            count: '125',
-            image: PeopleAltIcon,
-            trend: 8,
-            trendStyle: 'modern'
-        },
-        {
-            title: 'Total Recipients',
-            count: '42',
-            image: AccessibilityNewIcon,
-            trend: 15,
-            trendStyle: 'modern'
-        },
-        {
-            title: 'Total Participants',
-            count: '167',
-            image: GroupsIcon,
-            trend: 12,
-            trendStyle: 'modern'
-        },
-        
-        // Row 2: Current Activity metrics
-        {
-            title: 'Available Food Donations',
-            count: '18',
-            image: InventoryIcon,
-            trend: 25,
-            trendStyle: 'modern'
-        },
-        {
-            title: 'Available Food Requests',
-            count: '7',
-            image: ListAltIcon,
-            trend: 14,
-            trendStyle: 'modern'
-        },
-        {
-            title: 'Active Pickups',
-            count: '5',
-            image: ReceiptLongIcon,
-            trend: 10,
-            trendStyle: 'modern'
-        },
-        
-        // Row 3: Impact metrics
-        {
-            title: 'CO2 Emissions Saved',
-            count: '4,250 kg',
-            image: SpaIcon,
-            trend: 9,
-            trendStyle: 'modern'
-        },
-        {
-            title: 'Total Meals Saved',
-            count: '2,850',
-            image: RestaurantMenuIcon,
-            trend: 12,
-            trendStyle: 'modern'
-        },
-        {
-            title: 'Successful Pickups',
-            count: '342',
-            image: LocalShippingIcon,
-            trend: 17,
-            trendStyle: 'modern'
-        },
-    ];
+    const [dashboardData, setDashboardData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                setLoading(true);
+                let response;
+                
+                switch (userRole) {
+                    case 'admin':
+                        response = await dashboardService.getAdminDashboard();
+                        break;
+                    case 'donor':
+                        response = await dashboardService.getDonorDashboard();
+                        break;
+                    case 'recipient':
+                        response = await dashboardService.getRecipientDashboard();
+                        break;
+                    default:
+                        // No valid user role
+                        setError('Invalid user role');
+                        return;
+                }
+                
+                setDashboardData(response.data);
+            } catch (err) {
+                console.error('Error fetching dashboard data:', err);
+                setError('Could not load dashboard data');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, [userRole]);
+
+    // Define the tiles with icons for each user role
+    const getTilesForUserRole = () => {
+        if (!dashboardData) {
+            // Return empty array if data hasn't loaded yet
+            return [];
+        }
+
+        if (userRole === 'donor') {
+            const { metrics } = dashboardData;
+            return [
+                {
+                    title: 'Total Meals Donated',
+                    count: metrics.totalMealsDonated.count,
+                    image: RestaurantIcon,
+                    trend: metrics.totalMealsDonated.trend
+                },
+                {
+                    title: 'CO2 Emissions Saved',
+                    count: metrics.co2EmissionsSaved.count,
+                    image: SpaIcon,
+                    trend: metrics.co2EmissionsSaved.trend
+                },
+                {
+                    title: 'Donor Rating',
+                    count: metrics.rating.count,
+                    image: StarIcon,
+                    rate: metrics.rating.rate,
+                    trend: metrics.rating.trend
+                },
+            ];
+        } else if (userRole === 'recipient') {
+            const { metrics } = dashboardData;
+            return [
+                {
+                    title: 'Available Donations',
+                    count: metrics.availableDonations.count,
+                    image: VolunteerActivismIcon,
+                    trend: metrics.availableDonations.trend
+                },
+                {
+                    title: 'Successful Pickups',
+                    count: metrics.successfulPickups.count,
+                    image: LocalShippingIcon,
+                    trend: metrics.successfulPickups.trend
+                },
+                {
+                    title: 'Total Meals Saved',
+                    count: metrics.totalMealsSaved.count,
+                    image: FoodBankIcon,
+                    trend: metrics.totalMealsSaved.trend
+                },
+            ];
+        } else { // admin
+            const data = dashboardData;
+            return [
+                // Row 1: User/Stakeholder metrics
+                {
+                    title: 'Total Donors',
+                    count: data.donors.count,
+                    image: PeopleAltIcon,
+                    trend: data.donors.trend,
+                    trendStyle: 'modern'
+                },
+                {
+                    title: 'Total Recipients',
+                    count: data.recipients.count,
+                    image: AccessibilityNewIcon,
+                    trend: data.recipients.trend,
+                    trendStyle: 'modern'
+                },
+                {
+                    title: 'Total Participants',
+                    count: data.participants.count,
+                    image: GroupsIcon,
+                    trend: data.participants.trend,
+                    trendStyle: 'modern'
+                },
+                
+                // Row 2: Current Activity metrics
+                {
+                    title: 'Available Food Donations',
+                    count: data.availableDonations.count,
+                    image: InventoryIcon,
+                    trend: data.availableDonations.trend,
+                    trendStyle: 'modern'
+                },
+                {
+                    title: 'Available Food Requests',
+                    count: data.availableRequests.count,
+                    image: ListAltIcon,
+                    trend: data.availableRequests.trend,
+                    trendStyle: 'modern'
+                },
+                {
+                    title: 'Active Pickups',
+                    count: data.activePickups.count,
+                    image: ReceiptLongIcon,
+                    trend: data.activePickups.trend,
+                    trendStyle: 'modern'
+                },
+                
+                // Row 3: Impact metrics
+                {
+                    title: 'CO2 Emissions Saved',
+                    count: data.co2Saved.count,
+                    image: SpaIcon,
+                    trend: data.co2Saved.trend,
+                    trendStyle: 'modern'
+                },
+                {
+                    title: 'Total Meals Saved',
+                    count: data.mealsSaved.count,
+                    image: RestaurantMenuIcon,
+                    trend: data.mealsSaved.trend,
+                    trendStyle: 'modern'
+                },
+                {
+                    title: 'Successful Pickups',
+                    count: data.successfulPickups.count,
+                    image: LocalShippingIcon,
+                    trend: data.successfulPickups.trend,
+                    trendStyle: 'modern'
+                },
+            ];
+        }
+    };
     
-    const tableHeaders = userRole === 'donor' ? ["Date", "Items", "Quantity", "Status"] : userRole === 'recipient' ? ['Item', 'Quantity', 'Expiry Date', 'Donor', 'Action'] : [];
-    const tableData = userRole === 'donor' ? [
-        { Date: "2025-03-15", Items: "Rice and Curry (Chicken)", Quantity: "30 meals", Status: "Completed" },
-        { Date: "2025-03-18", Items: "Chicken Fried Rice", Quantity: "25 meals", Status: "Completed" },
-        { Date: "2025-03-19", Items: "White Rice", Quantity: "20kg", Status: "Completed" },
-        { Date: "2025-03-20", Items: "Lentils", Quantity: "20kg", Status: "Completed" },
-    ] : userRole === 'recipient' ? [
-        { Item: "Fresh Bread", Quantity: "50 Loaves", 'Expiry Date': 'Today', Donor: "Hansana Sandipa", Action: 'Request Pickup' },
-        { Item: "Mixed Vegetables", Quantity: "200 kg", 'Expiry Date': '3 Days', Donor: "Fresh Market", Action: 'Request Pickup' },
-        { Item: "Chicken Rice", Quantity: "50 meals", 'Expiry Date': 'Tomorrow', Donor: "Hansana Sandipa", Action: 'Request Pickup' },
-    ] : [];
+    // Get table data based on user role
+    const getTableData = () => {
+        if (!dashboardData) {
+            return { headers: [], data: [] };
+        }
+        
+        if (userRole === 'donor') {
+            return {
+                headers: ["Date", "Items", "Quantity", "Status"],
+                data: dashboardData.donationHistory || []
+            };
+        } else if (userRole === 'recipient') {
+            return {
+                headers: ['Item', 'Quantity', 'Expiry Date', 'Donor'],
+                data: dashboardData.availableDonations || []
+            };
+        }
+        
+        return { headers: [], data: [] };
+    };
+    
+    const tiles = !loading && dashboardData ? getTilesForUserRole() : [];
+    const { headers: tableHeaders, data: tableData } = !loading && dashboardData ? getTableData() : { headers: [], data: [] };
+
+    if (loading) {
+        return (
+            <Box sx={{ width: '100%', py: 4, textAlign: 'center' }}>
+                <Typography>Loading dashboard data...</Typography>
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box sx={{ width: '100%', py: 4, textAlign: 'center' }}>
+                <Typography color="error">{error}</Typography>
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -155,7 +238,7 @@ const Dashboard = () => {
                 fontSize: { xs: 14, md: 16 },
                 color: '#686D76',
             }}>
-                Here's the impact overview of the platform
+                Here&apos;s the impact overview of the platform
             </Typography>
             <Grid2 container spacing={4} sx={{
                 mt: 4,
@@ -179,7 +262,7 @@ const Dashboard = () => {
                     AvailableDonations
                 </Typography>
                 <Box sx={{ mt: 4, pb: { xs: 4, md: 0 }, display: userRole === 'admin' ? 'none' : 'block' }}>
-                    <BasicTable headers={tableHeaders} data={tableData} />
+                    {tableData.length > 0 && <BasicTable headers={tableHeaders} data={tableData} />}
                 </Box>
             </Box>
         </Box>
