@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Divider, Card, CardContent, Chip, Grid,
-    Avatar, Button, Tab, Tabs, CircularProgress, Stack, Tooltip
+    Avatar, Button, Tab, Tabs, CircularProgress, Stack, Tooltip, Alert
 } from '@mui/material';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -14,79 +14,37 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
+import donationService from '../../Services/donationService';
 
 const ActiveDonations = () => {
     const [tabValue, setTabValue] = useState(0);
+    const [myDonations, setMyDonations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Mock data - in a real app this would come from an API
-    const myDonations = [
-        {
-            id: 1,
-            type: 'donation',
-            title: 'Lunch Meal Pack',
-            foodItems: [
-                { name: 'Rice', quantity: '2kg' },
-                { name: 'Chicken Curry', quantity: '1kg' },
-                { name: 'Vegetable Curry', quantity: '500g' }
-            ],
-            recipient: 'Community Center',
-            recipientPhone: '+94771234567',
-            location: 'Colombo 05, Sri Lanka',
-            donationDate: '2023-10-25',
-            expiryDate: '2023-10-26',
-            expiryTime: '14:00',
-            status: 'confirmed',
-            pickupSlot: '12:00 - 13:00'
-        },
-        {
-            id: 2,
-            type: 'donation',
-            title: 'Breakfast Items',
-            foodItems: [
-                { name: 'Bread', quantity: '10 loaves' },
-                { name: 'Eggs', quantity: '20 pieces' },
-                { name: 'Milk', quantity: '5 liters' }
-            ],
-            recipient: 'Happy Kids Foundation',
-            recipientPhone: '+94777654321',
-            location: 'Kandy, Sri Lanka',
-            donationDate: '2023-10-26',
-            expiryDate: '2023-10-27',
-            expiryTime: '08:00',
-            status: 'pending',
-            pickupSlot: 'Not set'
-        },
-        {
-            id: 3,
-            type: 'contribution',
-            title: 'Weekly Meals for Community Center',
-            foodItems: [
-                { name: 'Rice', quantity: '5kg', requestedQuantity: '20kg' }
-            ],
-            requester: 'Community Welfare Center',
-            requesterPhone: '+94771234567',
-            location: 'Colombo 07, Sri Lanka',
-            contributionDate: '2023-10-23',
-            status: 'approved',
-            pickupDate: '2023-10-28',
-            pickupSlot: '10:00 - 11:00'
-        },
-        {
-            id: 4,
-            type: 'contribution',
-            title: 'School Lunch Program',
-            foodItems: [
-                { name: 'Sandwiches', quantity: '30 pcs', requestedQuantity: '100 pcs' }
-            ],
-            requester: 'Happy Kids Foundation',
-            requesterPhone: '+94777654321',
-            location: 'Galle, Sri Lanka',
-            contributionDate: '2023-10-24',
-            status: 'not picked up',
-            pickupDate: '2023-10-27',
-            pickupSlot: '11:30 - 12:30'
-        }
-    ];
+    useEffect(() => {
+        const fetchActiveItems = async () => {
+            try {
+                setLoading(true);
+                const response = await donationService.getUserActiveItems();
+                if (response.success) {
+                    // Combine donations and contributions into one array
+                    const donations = response.data.donations || [];
+                    const contributions = response.data.contributions || [];
+                    setMyDonations([...donations, ...contributions]);
+                } else {
+                    throw new Error('Failed to fetch active items');
+                }
+            } catch (err) {
+                console.error('Error fetching active items:', err);
+                setError('Failed to load your active donations and contributions. Please try again later.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchActiveItems();
+    }, []);
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
@@ -235,7 +193,7 @@ const ActiveDonations = () => {
 
                     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mb: 3 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <LocationOnIcon sx={{ color: '#059669', mr: 1 }} fontSize="small" />
+                            {donation.location && <LocationOnIcon sx={{ color: '#059669', mr: 1 }} fontSize="small" />}
                             <Typography variant="body2">
                                 {donation.location}
                             </Typography>
@@ -304,46 +262,58 @@ const ActiveDonations = () => {
                 </Tabs>
             </Box>
 
-            {tabValue === 0 && (
-                <Box>
-                    {myDonations.length === 0 ? (
-                        <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#f9fafb', borderRadius: 2 }}>
-                            <Typography variant="h6" color="textSecondary">
-                                No active donations found.
-                            </Typography>
-                        </Box>
-                    ) : (
-                        myDonations.map(donation => renderDonationCard(donation))
-                    )}
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
+                    <CircularProgress color="primary" />
                 </Box>
-            )}
+            ) : error ? (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                    {error}
+                </Alert>
+            ) : (
+                <>
+                    {tabValue === 0 && (
+                        <Box>
+                            {myDonations.length === 0 ? (
+                                <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#f9fafb', borderRadius: 2 }}>
+                                    <Typography variant="h6" color="textSecondary">
+                                        No active donations found.
+                                    </Typography>
+                                </Box>
+                            ) : (
+                                myDonations.map(donation => renderDonationCard(donation))
+                            )}
+                        </Box>
+                    )}
 
-            {tabValue === 1 && (
-                <Box>
-                    {myDonations.filter(d => d.type === 'donation').length === 0 ? (
-                        <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#f9fafb', borderRadius: 2 }}>
-                            <Typography variant="h6" color="textSecondary">
-                                You don't have any active donations.
-                            </Typography>
+                    {tabValue === 1 && (
+                        <Box>
+                            {myDonations.filter(d => d.type === 'donation').length === 0 ? (
+                                <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#f9fafb', borderRadius: 2 }}>
+                                    <Typography variant="h6" color="textSecondary">
+                                        You don't have any active donations.
+                                    </Typography>
+                                </Box>
+                            ) : (
+                                myDonations.filter(d => d.type === 'donation').map(donation => renderDonationCard(donation))
+                            )}
                         </Box>
-                    ) : (
-                        myDonations.filter(d => d.type === 'donation').map(donation => renderDonationCard(donation))
                     )}
-                </Box>
-            )}
 
-            {tabValue === 2 && (
-                <Box>
-                    {myDonations.filter(d => d.type === 'contribution').length === 0 ? (
-                        <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#f9fafb', borderRadius: 2 }}>
-                            <Typography variant="h6" color="textSecondary">
-                                You don't have any active contributions.
-                            </Typography>
+                    {tabValue === 2 && (
+                        <Box>
+                            {myDonations.filter(d => d.type === 'contribution').length === 0 ? (
+                                <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#f9fafb', borderRadius: 2 }}>
+                                    <Typography variant="h6" color="textSecondary">
+                                        You don't have any active contributions.
+                                    </Typography>
+                                </Box>
+                            ) : (
+                                myDonations.filter(d => d.type === 'contribution').map(donation => renderDonationCard(donation))
+                            )}
                         </Box>
-                    ) : (
-                        myDonations.filter(d => d.type === 'contribution').map(donation => renderDonationCard(donation))
                     )}
-                </Box>
+                </>
             )}
         </Box>
     );

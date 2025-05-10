@@ -46,6 +46,17 @@ const donationService = {
     }
   },
   
+  // Get user's active donations and contributions
+  getUserActiveItems: async () => {
+    try {
+      const response = await apiClient.get('/users/active-items');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching active items:', error);
+      throw error;
+    }
+  },
+  
   // Additional donation service methods can be added here
 };
 
