@@ -91,16 +91,20 @@ const ActivePickups = () => {
     const handleMarkAsCompleted = async (pickupId) => {
         try {
             dispatch(showLoading({ message: 'Completing pickup...' }));
-
-            // Determine if this is a donation or contribution pickup based on ID format
-            // This is a simplified approach - adjust based on your actual ID format
-            const isDonation = pickupId.startsWith('DON-');
+            
+            // Get the selected pickup object to determine type
+            const pickup = pickups.find(p => p.id === pickupId);
+            if (!pickup) {
+                throw new Error("Pickup not found");
+            }
 
             let response;
-            if (isDonation) {
-                response = await pickupService.completeDonationPickup(pickupId);
-            } else {
+            // Check if this is a donation or contribution based on pickup type property
+            // If your objects have a specific type property, use that instead
+            if (pickup.type === 'donation' || pickupId.startsWith('DON-')) {
                 response = await pickupService.completeContributionPickup(pickupId);
+            } else {
+                response = await pickupService.completeDonationPickup(pickupId);
             }
 
             if (response.success) {
@@ -114,6 +118,10 @@ const ActivePickups = () => {
             }
         } catch (error) {
             console.error("Failed to mark pickup as completed:", error);
+            dispatch(showAlertMessage({
+                message: 'Failed to mark pickup as completed',
+                type: "error",
+            }));
         } finally {
             dispatch(hideLoading());
         }
