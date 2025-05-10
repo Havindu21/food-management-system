@@ -101,10 +101,10 @@ const ActivePickups = () => {
             let response;
             // Check if this is a donation or contribution based on pickup type property
             // If your objects have a specific type property, use that instead
-            if (pickup.type === 'donation' || pickupId.startsWith('DON-')) {
-                response = await pickupService.completeContributionPickup(pickupId);
-            } else {
+            if (pickup.type === 'donation' ) {
                 response = await pickupService.completeDonationPickup(pickupId);
+            } else {
+                response = await pickupService.completeContributionPickup(pickupId);
             }
 
             if (response.success) {
@@ -372,7 +372,7 @@ const ActivePickups = () => {
                             <Typography>
                                 Donation Information
                             </Typography>
-                            {selectedPickup.foodItems.map((item, index) => (
+                            {selectedPickup.type === 'donation' && selectedPickup.foodItems.map((item, index) => (
                                 <>
                                     <Box key={index} sx={{
                                         display: 'flex',
@@ -412,6 +412,46 @@ const ActivePickups = () => {
                                     </Box>
                                 </>
                             ))}
+                            {selectedPickup.type === 'contribution' &&  (
+                                <>
+                                    <Box sx={{
+                                        display: 'flex',
+                                        gap: 1,
+                                        alignItems: 'center',
+                                    }}>
+                                        <RestaurantIcon sx={{
+                                            opacity: 0.54
+                                        }} />
+                                        <Typography>
+                                            {selectedPickup.mealName}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{
+                                        display: 'flex',
+                                        gap: 1,
+                                        alignItems: 'center',
+                                    }}>
+                                        <BentoIcon sx={{
+                                            opacity: 0.54
+                                        }} />
+                                        <Typography>
+                                            {selectedPickup.quantity}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{
+                                        display: 'flex',
+                                        gap: 1,
+                                        alignItems: 'center',
+                                    }}>
+                                        <CalendarMonthIcon sx={{
+                                            opacity: 0.54
+                                        }} />
+                                        <Typography>
+                                            Expires: {selectedPickup.expiry}
+                                        </Typography>
+                                    </Box>
+                                </>
+                            )}
                         </Box>
                     </Grid>
                     <Grid item xs={12} sm={6}>
