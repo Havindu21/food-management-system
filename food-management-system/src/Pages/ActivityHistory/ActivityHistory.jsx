@@ -24,7 +24,7 @@ const DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const PickupHistory = () => {
+const History = () => {
     // Mock data for past pickups
     const [pastPickups, setPastPickups] = useState([
         {
@@ -130,7 +130,7 @@ const PickupHistory = () => {
                         color: '#059669',
                         mb: 1,
                     }}>
-                        Pickup History
+                        History
                     </Typography>
                     <Typography sx={{
                         fontSize: { xs: 14, md: 16 },
@@ -507,4 +507,4 @@ const PickupHistory = () => {
     )
 }
 
-export default PickupHistory
+export default History

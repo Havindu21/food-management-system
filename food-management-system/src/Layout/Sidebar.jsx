@@ -75,7 +75,7 @@ export default function Sidebar() {
         { label: 'Available Food', icon: <FastfoodIcon />, path: 'available-donations' },
         { label: 'Request Food', icon: <RestaurantMenuIcon />, path: 'request-donations' },
         { label: 'Active Pickups', icon: <LocalShippingIcon />, path: 'active-pickups' },
-        { label: 'Pickup History', icon: <HistoryIcon />, path: 'pickup-history' },
+        { label: 'Activity History', icon: <HistoryIcon />, path: 'activity-history' },
         { label: 'Settings', icon: <SettingsIcon />, path: 'recepient-settings' }
     ] : userRole === 'admin' ? [
         { label: 'Dashboard', icon: <DashboardIcon />, path: 'dashboard' },

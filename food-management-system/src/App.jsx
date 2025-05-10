@@ -13,8 +13,8 @@ import JoinUs from "./Pages/JoinUs/JoinUs";
 import RegistrationLayout from "./Layout/RegistrationLayout";
 import AvailableDonations from "./Pages/AvailableDonations/AvailableDonations";
 import RequestDonations from "./Pages/RequestDonations/RequestDonations";
+import ActivityHistory from "./Pages/ActivityHistory/ActivityHistory";
 import ActivePickups from "./Pages/ActivePickups/ActivePickups";
-import PickupHistory from "./Pages/PickupHIstory/PickupHistory";
 import RecepientSettings from "./Pages/RecepientSettings/RecepientSettings";
 import Registration from "./Pages/JoinUs/Registration";
 import DonateFood from "./Pages/Donations/DonateFood";
@@ -74,7 +74,7 @@ const router = createBrowserRouter([
             { path: "available-donations", element: <AvailableDonations /> },
             { path: "request-donations", element: <RequestDonations /> },
             { path: "active-pickups", element: <ActivePickups /> },
-            { path: "pickup-history", element: <PickupHistory /> },
+            { path: "activity-history", element: <ActivityHistory /> },
             { path: "recepient-settings", element: <RecepientSettings /> },
             { path: "recipient-approvals", element: <RecipientsApproval /> },
             { path: "user-management", element: <UserManagement /> },
