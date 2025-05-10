@@ -164,7 +164,7 @@ const FoodRequests = () => {
                     );
                     
                     if (response && response.success) {
-                        setSnackbarMessage(`Thank you for contributing ${contributionAmount} of ${selectedFoodItem.mealName}!`);
+                        setSnackbarMessage(`We are deeply grateful for your contribution of ${contributionAmount} ${selectedFoodItem.mealName}! Your generosity will make a real difference once approved by the recipient.`);
                         
                         // Update the local state to reflect the contribution
                         updateLocalRequestData(selectedRequest.id, selectedFoodItem.id, contributionAmount);
@@ -188,7 +188,7 @@ const FoodRequests = () => {
                     );
                     
                     if (response && response.success) {
-                        setSnackbarMessage("Thank you for contributing to the entire request!");
+                        setSnackbarMessage("Thank you so much for your generous contribution to this request! We'll notify you once the recipient approves your donation.");
                         
                         // Refresh the requests data to reflect the contributions
                         fetchRequests();
