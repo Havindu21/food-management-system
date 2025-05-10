@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     Box, Dialog, DialogContent, IconButton, TextField, Autocomplete, InputAdornment,
+    CircularProgress,
 } from '@mui/material';
 import RoomIcon from '@mui/icons-material/Room';
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
@@ -14,10 +15,14 @@ const customIcon = new L.Icon({
 
 const LocationMarker = ({ onSelect }) => {
     const [position, setPosition] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    
     useMapEvents({
         click(e) {
             const { lat, lng } = e.latlng;
             setPosition([lat, lng]);
+            setIsLoading(true);
+            
             fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
                 .then(res => res.json())
                 .then(data => {
@@ -26,10 +31,39 @@ const LocationMarker = ({ onSelect }) => {
                         latitude: lat,
                         longitude: lng,
                     });
+                    setIsLoading(false);
+                })
+                .catch(error => {
+                    console.error("Error fetching location:", error);
+                    setIsLoading(false);
                 });
         },
     });
-    return position ? <Marker position={position} icon={customIcon} /> : null;
+    
+    return (
+        <>
+            {position && <Marker position={position} icon={customIcon} />}
+            {isLoading && position && (
+                <Box 
+                    sx={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        zIndex: 1000,
+                        backgroundColor: 'white',
+                        padding: 1,
+                        borderRadius: 1,
+                        boxShadow: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                    }}
+                >
+                    <CircularProgress size={20} sx={{ mr: 1 }} />
+                    Fetching location...
+                </Box>
+            )}
+        </>
+    );
 };
 
 const MapMover = ({ coords }) => {
@@ -45,12 +79,24 @@ const MapSelector = ({ value, onChange }) => {
     const [cityInput, setCityInput] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [mapCenter, setMapCenter] = useState({ lat: 7.8731, lon: 80.7718 });
+    const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
         if (cityInput.length > 2) {
+            setIsSearching(true);
             fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${cityInput}&limit=5`)
                 .then(res => res.json())
-                .then(setSearchResults);
+                .then(data => {
+                    setSearchResults(data);
+                    setTimeout(() => {
+                    setIsSearching(false);
+                    }
+                    , 5000);
+                })
+                .catch(error => {
+                    console.error("Error searching locations:", error);
+                    setIsSearching(false);
+                });
         }
     }, [cityInput]);
 
@@ -93,12 +139,27 @@ const MapSelector = ({ value, onChange }) => {
                         getOptionLabel={(option) => option.display_name}
                         onInputChange={(e, val) => setCityInput(val)}
                         onChange={(e, val) => val && handleSelect(val)}
+                        loading={isSearching}
                         renderInput={(params) => (
-                            <TextField {...params} label="Search your town/city" fullWidth sx={{ mb: 2 }} />
+                            <TextField 
+                                {...params} 
+                                label="Search your town/city" 
+                                fullWidth 
+                                sx={{ mb: 2 }}
+                                InputProps={{
+                                    ...params.InputProps,
+                                    endAdornment: (
+                                        <>
+                                            {isSearching ? <CircularProgress color="inherit" size={20} /> : null}
+                                            {params.InputProps.endAdornment}
+                                        </>
+                                    ),
+                                }}
+                            />
                         )}
                     />
 
-                    <MapContainer center={[mapCenter.lat, mapCenter.lon]} zoom={13} style={{ height: '400px' }}>
+                    <MapContainer center={[mapCenter.lat, mapCenter.lon]} zoom={13} style={{ height: '400px', position: 'relative' }}>
                         <TileLayer
                             attribution='&copy; OpenStreetMap contributors'
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
