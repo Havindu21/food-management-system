@@ -14,6 +14,7 @@ import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import { showLoadingAnimation, hideLoadingAnimation } from '../../app/loadingAnimationController';
 import { showAlertMessage } from '../../app/alertMessageController';
 import requestService from '../../Services/requestService';
+import contributionService from '../../Services/contributionService';
 
 const FoodRequests = () => {
     // State variables
@@ -27,6 +28,9 @@ const FoodRequests = () => {
     const [selectedFoodItem, setSelectedFoodItem] = useState(null);
     const [contributionAmount, setContributionAmount] = useState("");
     const [contributionError, setContributionError] = useState("");
+    const [contactNumber, setContactNumber] = useState("");
+    const [contactNumberError, setContactNumberError] = useState("");
+    const [message, setMessage] = useState("");
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
 
@@ -94,6 +98,9 @@ const FoodRequests = () => {
         setSelectedFoodItem(foodItem);
         setContributionAmount("");
         setContributionError("");
+        setContactNumber("");
+        setContactNumberError("");
+        setMessage("");
         setOpenDialog(true);
     };
 
@@ -103,6 +110,9 @@ const FoodRequests = () => {
         setSelectedFoodItem(null);
         setContributionAmount("");
         setContributionError("");
+        setContactNumber("");
+        setContactNumberError("");
+        setMessage("");
         setOpenDialog(true);
     };
 
@@ -111,55 +121,80 @@ const FoodRequests = () => {
         setOpenDialog(false);
     };
 
-    // Validate contribution amount
-    const validateContribution = () => {
+    // Validate form inputs
+    const validateForm = () => {
+        let isValid = true;
+        
         if (!contributionAmount.trim()) {
             setContributionError("Please enter contribution amount");
-            return false;
+            isValid = false;
+        } else {
+            setContributionError("");
         }
-        return true;
+        
+        if (!contactNumber.trim()) {
+            setContactNumberError("Please enter your contact number");
+            isValid = false;
+        } else if (!/^\d{9,15}$/.test(contactNumber.replace(/\D/g, ''))) {
+            setContactNumberError("Please enter a valid phone number");
+            isValid = false;
+        } else {
+            setContactNumberError("");
+        }
+        
+        return isValid;
     };
 
     // Handle the contribution submission
     const handleSubmitContribution = async () => {
-        if (validateContribution()) {
+        if (validateForm()) {
             showLoadingAnimation({ message: "Processing your contribution..." });
             
             try {
-                // In a real implementation, we'd call an API to record the contribution
-                // For now, we'll just update the UI
-                setSnackbarMessage(selectedFoodItem 
-                    ? `Thank you for contributing ${contributionAmount} of ${selectedFoodItem.mealName}!` 
-                    : "Thank you for contributing to the entire request!");
-                
-                // Update the local state to reflect the contribution
                 if (selectedFoodItem) {
                     // Contributing to a specific food item
-                    const updatedRequests = requests.map(request => {
-                        if (request.id === selectedRequest.id) {
-                            const updatedFoodItems = request.foodItems.map(item => {
-                                if (item.id === selectedFoodItem.id) {
-                                    return {
-                                        ...item,
-                                        contributedAmount: contributionAmount
-                                    };
-                                }
-                                return item;
-                            });
-                            
-                            return {
-                                ...request,
-                                foodItems: updatedFoodItems
-                            };
-                        }
-                        return request;
-                    });
+                    const response = await contributionService.contributeToSingleItem(
+                        selectedRequest.id,
+                        selectedFoodItem.id,
+                        selectedFoodItem.mealName,
+                        contributionAmount.split(' ')[0], // Extract numeric value
+                        selectedFoodItem.unit,
+                        contactNumber,
+                        message
+                    );
                     
-                    setRequests(updatedRequests);
+                    if (response && response.success) {
+                        setSnackbarMessage(`Thank you for contributing ${contributionAmount} of ${selectedFoodItem.mealName}!`);
+                        
+                        // Update the local state to reflect the contribution
+                        updateLocalRequestData(selectedRequest.id, selectedFoodItem.id, contributionAmount);
+                    } else {
+                        throw new Error("Failed to submit contribution");
+                    }
                 } else {
-                    // Mark as contributing to the entire request
-                    console.log("Contributing to entire request:", selectedRequest.id, contributionAmount);
-                    // In a real implementation, we would call an API to update all food items
+                    // Contributing to the entire request
+                    const contributedItems = selectedRequest.foodItems.map(item => ({
+                        requestItem: item.id,
+                        mealName: item.mealName,
+                        quantityOffered: contributionAmount.split(' ')[0], // Extract numeric value
+                        unit: item.unit
+                    }));
+                    
+                    const response = await contributionService.contributeToEntireRequest(
+                        selectedRequest.id,
+                        contributedItems,
+                        contactNumber,
+                        message
+                    );
+                    
+                    if (response && response.success) {
+                        setSnackbarMessage("Thank you for contributing to the entire request!");
+                        
+                        // Refresh the requests data to reflect the contributions
+                        fetchRequests();
+                    } else {
+                        throw new Error("Failed to submit contributions");
+                    }
                 }
                 
                 setSnackbarOpen(true);
@@ -167,13 +202,50 @@ const FoodRequests = () => {
             } catch (error) {
                 console.error("Error submitting contribution:", error);
                 showAlertMessage({
-                    message: "Failed to process your contribution. Please try again.",
+                    message: error.response?.data?.message || "Failed to process your contribution. Please try again.",
                     type: "error"
                 });
             } finally {
                 hideLoadingAnimation();
             }
         }
+    };
+    
+    // Update the local state to reflect a new contribution
+    const updateLocalRequestData = (requestId, foodItemId, newContribution) => {
+        const updatedRequests = requests.map(request => {
+            if (request.id === requestId) {
+                const updatedFoodItems = request.foodItems.map(item => {
+                    if (item.id === foodItemId) {
+                        // Parse current contributed amount
+                        let currentAmount = item.contributedAmount.split(' ')[0] || '0';
+                        let newAmount = newContribution.split(' ')[0] || '0';
+                        
+                        // Convert to numbers for addition
+                        currentAmount = parseFloat(currentAmount) || 0;
+                        newAmount = parseFloat(newAmount) || 0;
+                        
+                        // Calculate new total and format with unit
+                        const total = currentAmount + newAmount;
+                        const unit = item.unit !== 'none' ? item.unit : '';
+                        
+                        return {
+                            ...item,
+                            contributedAmount: `${total} ${unit}`.trim()
+                        };
+                    }
+                    return item;
+                });
+                
+                return {
+                    ...request,
+                    foodItems: updatedFoodItems
+                };
+            }
+            return request;
+        });
+        
+        setRequests(updatedRequests);
     };
 
     // Calculate progress for each food item
@@ -441,6 +513,28 @@ const FoodRequests = () => {
                                 onChange={(e) => setContributionAmount(e.target.value)}
                                 error={!!contributionError}
                                 helperText={contributionError}
+                                sx={{ mb: 2 }}
+                            />
+                            
+                            <TextField
+                                fullWidth
+                                label="Your contact number"
+                                variant="outlined"
+                                value={contactNumber}
+                                onChange={(e) => setContactNumber(e.target.value)}
+                                error={!!contactNumberError}
+                                helperText={contactNumberError}
+                                sx={{ mb: 2 }}
+                            />
+                            
+                            <TextField
+                                fullWidth
+                                label="Message (optional)"
+                                variant="outlined"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                multiline
+                                rows={2}
                                 sx={{ mb: 2 }}
                             />
                             
