@@ -90,6 +90,28 @@ const donationService = {
     }
   },
   
+  // Get donation history (completed or expired donations)
+  getDonationHistory: async () => {
+    try {
+      const response = await apiClient.get('/donations/history');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching donation history:', error);
+      throw error;
+    }
+  },
+  
+  // Get contribution history (completed or rejected contributions)
+  getContributionHistory: async () => {
+    try {
+      const response = await apiClient.get('/contributions/history');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching contribution history:', error);
+      throw error;
+    }
+  },
+  
   // Additional donation service methods can be added here
 };
 

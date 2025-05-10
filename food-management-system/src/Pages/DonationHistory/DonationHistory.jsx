@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Divider, Card, CardContent, Chip, 
-  Grid, Avatar, Button, Stack, Tooltip, IconButton
+  Grid, Avatar, Button, Stack, Tooltip, IconButton,
+  CircularProgress
 } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -14,89 +15,75 @@ import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import InfoIcon from '@mui/icons-material/Info';
+import donationService from '../../Services/donationService';
 
 const DonationHistory = () => {
-  // Mock data for donation history
-  const donationHistory = [
-    {
-      id: 1,
-      type: 'donation',
-      title: 'Lunch Meal Packs',
-      date: '2023-10-15',
-      recipient: 'Api Foundation',
-      location: 'Shantha Villa, 588 10th Mile Post Rd, Malabe',
-      status: 'completed',
-      foodItems: [
-        { name: 'Rice', quantity: '10kg' },
-        { name: 'Chicken Curry', quantity: '5kg' },
-        { name: 'Vegetable Curry', quantity: '3kg' }
-      ],
-      pickupDate: '2023-10-16',
-      pickupTime: '11:30 - 12:30'
-    },
-    {
-      id: 2,
-      type: 'contribution',
-      title: 'Weekly Meals for Community Center',
-      date: '2023-10-10',
-      recipient: 'Caritas Sri Lanka',
-      location: '133 Kynsey Road, Colombo 08',
-      status: 'expired',
-      foodItems: [
-        { name: 'Rice', quantity: '5kg', requestedQuantity: '20kg' }
-      ],
-      pickupDate: '2023-10-12',
-      pickupTime: '09:00 - 10:00',
-      reason: 'Food not picked up within the scheduled time'
-    },
-    {
-      id: 3,
-      type: 'contribution',
-      title: 'School Lunch Program',
-      date: '2023-09-28',
-      recipient: 'Happy Kids Foundation',
-      location: '45 Main Street, Kandy',
-      status: 'completed',
-      foodItems: [
-        { name: 'Bread', quantity: '20 loaves', requestedQuantity: '100 loaves' },
-        { name: 'Jam', quantity: '10 jars', requestedQuantity: '30 jars' }
-      ],
-      pickupDate: '2023-09-30',
-      pickupTime: '08:30 - 09:30'
-    },
-    {
-      id: 4,
-      type: 'donation',
-      title: 'Fresh Vegetables',
-      date: '2023-09-15',
-      recipient: 'Local Soup Kitchen',
-      location: '22 Temple Road, Galle',
-      status: 'completed',
-      foodItems: [
-        { name: 'Carrots', quantity: '5kg' },
-        { name: 'Potatoes', quantity: '10kg' },
-        { name: 'Beans', quantity: '3kg' },
-        { name: 'Cabbage', quantity: '4kg' }
-      ],
-      pickupDate: '2023-09-17',
-      pickupTime: '13:00 - 14:00'
-    },
-    {
-      id: 5,
-      type: 'donation',
-      title: 'Canned Food Items',
-      date: '2023-09-05',
-      recipient: 'Elderly Care Home',
-      location: '78 Lake Drive, Negombo',
-      status: 'cancelled',
-      foodItems: [
-        { name: 'Canned Beans', quantity: '24 cans' },
-        { name: 'Canned Fish', quantity: '36 cans' },
-        { name: 'Canned Fruits', quantity: '18 cans' }
-      ],
-      reason: 'Donor canceled due to quality concerns'
-    }
-  ];
+  const [donationHistory, setDonationHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch donation and contribution history when component mounts
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        setLoading(true);
+        // Fetch both donation and contribution histories
+        const [donationResponse, contributionResponse] = await Promise.all([
+          donationService.getDonationHistory(),
+          donationService.getContributionHistory()
+        ]);
+
+        // Format donation data for display
+        const formattedDonations = donationResponse.data.map(donation => ({
+          id: donation.id,
+          type: 'donation',
+          title: donation.foodItems[0]?.name || 'Food Donation', // Use first food item name as title
+          date: donation.donatedAt,
+          recipient: donation.recipient ? donation.recipient.name : 'Unknown',
+          location: donation.location,
+          status: donation.status,
+          foodItems: donation.foodItems.map(item => ({
+            name: item.name,
+            quantity: item.quantity
+          })),
+          pickupDate: donation.completedAt,
+          pickupTime: '(Time not specified)'
+        }));
+
+        // Format contribution data for display
+        const formattedContributions = contributionResponse.data.map(contribution => ({
+          id: contribution.id,
+          type: 'contribution',
+          title: contribution.title,
+          date: contribution.contributedAt,
+          recipient: contribution.recipient ? contribution.recipient.name : 'Unknown',
+          location: 'Location not specified',
+          status: contribution.status,
+          foodItems: contribution.foodItems.map(item => ({
+            name: item.name,
+            quantity: item.quantityOffered,
+            requestedQuantity: item.quantityRequested
+          })),
+          pickupDate: contribution.completedAt,
+          pickupTime: '(Time not specified)',
+          reason: contribution.message
+        }));
+
+        // Combine both histories and sort by date (newest first)
+        const combinedHistory = [...formattedDonations, ...formattedContributions]
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        setDonationHistory(combinedHistory);
+      } catch (err) {
+        console.error('Error fetching history:', err);
+        setError('Failed to load donation history. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, []);
 
   // Function to render status chip with appropriate color
   const renderStatusChip = (status) => {
@@ -298,7 +285,15 @@ const DonationHistory = () => {
       </Box>
 
       <Box>
-        {donationHistory.length === 0 ? (
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+            <CircularProgress color="primary" />
+          </Box>
+        ) : error ? (
+          <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#fef2f2', borderRadius: 2, color: '#dc2626' }}>
+            <Typography variant="h6">{error}</Typography>
+          </Box>
+        ) : donationHistory.length === 0 ? (
           <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#f9fafb', borderRadius: 2 }}>
             <Typography variant="h6" color="textSecondary">
               No donation history found.
