@@ -321,7 +321,7 @@ const Projects = () => {
                         </Typography>
                     </Box>
 
-                    {!isMobile && isAuthenticated && (
+                    {!isMobile && (
                         <Button
                             variant="outlined"
                             endIcon={<ArrowForwardIcon />}
@@ -340,7 +340,7 @@ const Projects = () => {
                             }}
                             onClick={handleViewAll}
                         >
-                            View All Projects
+                            {isAuthenticated ? 'View All Projects' : 'Join Us'}
                         </Button>
                     )}
                 </Box>
@@ -447,7 +447,7 @@ const Projects = () => {
                     </Slider>
                 </Box>
 
-                {isMobile && isAuthenticated && (
+                {isMobile && (
                     <Box sx={{ mt: 4, textAlign: 'center' }}>
                         <Button
                             variant="outlined"
@@ -467,7 +467,7 @@ const Projects = () => {
                             }}
                             onClick={handleViewAll}
                         >
-                            View All Projects
+                            {isAuthenticated ? 'View All Projects' : 'Join Us'}
                         </Button>
                     </Box>
                 )}

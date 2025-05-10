@@ -76,12 +76,13 @@ export default function Sidebar() {
         { label: 'Request Food', icon: <RestaurantMenuIcon />, path: 'request-donations' },
         { label: 'Active Pickups', icon: <LocalShippingIcon />, path: 'active-pickups' },
         { label: 'Activity History', icon: <HistoryIcon />, path: 'activity-history' },
-        { label: 'Settings', icon: <SettingsIcon />, path: 'recepient-settings' }
+        { label: 'My Profile', icon: <AccountCircleIcon />, path: 'my-profile' }
     ] : userRole === 'admin' ? [
         { label: 'Dashboard', icon: <DashboardIcon />, path: 'dashboard' },
         { label: 'Recipients Approval', icon: <AddTaskIcon />, path: 'recipient-approvals' },
         { label: 'User Management', icon: <SupervisedUserCircleIcon />, path: 'user-management' },
         { label: 'Analytics', icon: <AnalyticsIcon />, path: 'analytics' },
+        { label: 'My Profile', icon: <AccountCircleIcon />, path: 'my-profile' }
     ] : [];
 
     const LogoutButton = (
