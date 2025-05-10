@@ -3,7 +3,7 @@ import {
     Box, TextField, MenuItem, Select, Typography, Grid, Card, 
     CardContent, Avatar, Chip, Button, Dialog, DialogActions, 
     DialogContent, DialogTitle, Alert, Divider, IconButton, Snackbar,
-    Tabs, Tab, Paper
+    Tabs, Tab, Paper, List, ListItem, ListItemIcon, ListItemText
 } from '@mui/material';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -19,9 +19,12 @@ import SortIcon from '@mui/icons-material/Sort';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import EmailIcon from '@mui/icons-material/Email';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { showLoadingAnimation, hideLoadingAnimation } from '../../app/loadingAnimationController';
 import { showAlertMessage } from '../../app/alertMessageController';
 import donationService from '../../Services/donationService';
+import contributionService from '../../Services/contributionService';
 
 // TabPanel component to handle tab content
 function TabPanel(props) {
@@ -64,7 +67,9 @@ const AvailableDonations = () => {
     const [selectedContribution, setSelectedContribution] = useState(null);
     
     // State for my contributions and available donations
-    const [myContributions, setMyContributions] = useState(contributionsToMyRequests);
+    const [myContributions, setMyContributions] = useState([]);
+    const [contributionsLoading, setContributionsLoading] = useState(true);
+    const [contributionsError, setContributionsError] = useState(null);
     const [availableDonations, setAvailableDonations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -72,7 +77,72 @@ const AvailableDonations = () => {
     // Fetch donations from API when component mounts
     useEffect(() => {
         fetchDonations();
+        if (activeTab === 1) {
+            fetchMyContributions();
+        }
     }, []);
+
+    // Fetch contributions when tab changes to contributions tab
+    useEffect(() => {
+        if (activeTab === 1) {
+            fetchMyContributions();
+        }
+    }, [activeTab]);
+
+    // Function to fetch my contributions from API
+    const fetchMyContributions = async () => {
+        setContributionsLoading(true);
+        try {
+            const response = await contributionService.getRecipientContributions();
+            if (response && response.success) {
+                const formattedContributions = formatContributionsData(response.data);
+                setMyContributions(formattedContributions);
+            } else {
+                throw new Error("Failed to fetch contributions data");
+            }
+        } catch (error) {
+            console.error("Error fetching contributions:", error);
+            setContributionsError(error.message);
+            showAlertMessage({
+                message: error.response?.data?.message || "Failed to load contributions. Please try again.",
+                type: "error"
+            });
+        } finally {
+            setContributionsLoading(false);
+        }
+    };
+
+    // Function to format contributions data from API to match our component structure
+    const formatContributionsData = (contributions) => {
+        return contributions.map(contribution => {
+            // Format the date
+            const contributionDate = new Date(contribution.createdAt);
+            
+            // Format all contributed items
+            const contributedItems = contribution.contributedItems.map(item => ({
+                mealName: item.mealName,
+                amount: `${item.quantityOffered} ${item.unit !== 'none' ? item.unit : 'units'}`
+            }));
+            
+            // Get the first contributed item for card display
+            const firstItem = contribution.contributedItems[0];
+            
+            return {
+                id: contribution._id, // Use _id instead of id
+                requestId: contribution.foodRequest._id,
+                requestTitle: contribution.foodRequest.title,
+                foodItemName: firstItem.mealName,
+                contributionAmount: `${firstItem.quantityOffered} ${firstItem.unit !== 'none' ? firstItem.unit : 'units'}`,
+                allContributedItems: contributedItems,
+                donorName: contribution.donor.name,
+                donorContact: contribution.donor.phone || contribution.contactNumber || 'Not provided',
+                donorEmail: contribution.donor.email,
+                dateContributed: contributionDate.toISOString().split('T')[0],
+                status: contribution.status,
+                notes: contribution.message || ''
+            };
+        });
+    };
 
     // Function to fetch donations from API using the donationService
     const fetchDonations = async () => {
@@ -184,19 +254,12 @@ const AvailableDonations = () => {
 
     // Handle submitting a request
     const handleRequestSubmit = async () => {
-        // if (!requestQuantity.trim()) {
-        //     setRequestError('Please specify the quantity you need');
-        //     return;
-        // }
-
         showLoadingAnimation({ message: "Sending donation request..." });
         
         try {
             await donationService.requestDonation({
                 donationId: selectedDonation.id,
                 foodItemId: selectedDonation.foodItemId, // Add foodItemId to the request
-                // quantity: requestQuantity,
-                // notes: requestNotes
             });
             
             setSnackbarMessage(`Request for ${selectedDonation.title} has been sent to ${selectedDonation.name}`);
@@ -219,6 +282,86 @@ const AvailableDonations = () => {
             });
         } finally {
             hideLoadingAnimation();
+        }
+    };
+
+    // Handle opening confirm contribution dialog
+    const handleConfirmOpen = (contribution) => {
+        setSelectedContribution(contribution);
+        setOpenConfirmDialog(true);
+    };
+
+    // Handle opening ignore contribution dialog
+    const handleIgnoreOpen = (contribution) => {
+        setSelectedContribution(contribution);
+        setOpenIgnoreDialog(true);
+    };
+
+    // Handle confirming a contribution
+    const handleConfirmContribution = async () => {
+        showLoadingAnimation({ message: "Accepting contribution..." });
+        
+        try {
+            const response = await contributionService.acceptContribution(selectedContribution.id);
+            
+            if (response && response.success) {
+                // Update the contributions list with the accepted contribution
+                const updatedContributions = myContributions.map(contribution => {
+                    if (contribution.id === selectedContribution.id) {
+                        return { ...contribution, status: 'accepted' };
+                    }
+                    return contribution;
+                });
+                
+                setMyContributions(updatedContributions);
+                setSnackbarMessage(`Contribution from ${selectedContribution.donorName} has been accepted!`);
+                setSnackbarOpen(true);
+            } else {
+                throw new Error("Failed to accept contribution");
+            }
+        } catch (error) {
+            console.error("Error accepting contribution:", error);
+            showAlertMessage({
+                message: error.response?.data?.message || "Failed to accept contribution. Please try again.",
+                type: "error"
+            });
+        } finally {
+            hideLoadingAnimation();
+            setOpenConfirmDialog(false);
+        }
+    };
+
+    // Handle ignoring/rejecting a contribution
+    const handleIgnoreContribution = async () => {
+        showLoadingAnimation({ message: "Rejecting contribution..." });
+        
+        try {
+            const response = await contributionService.rejectContribution(selectedContribution.id);
+            
+            if (response && response.success) {
+                // Update the contributions list with the rejected contribution
+                const updatedContributions = myContributions.map(contribution => {
+                    if (contribution.id === selectedContribution.id) {
+                        return { ...contribution, status: 'rejected' };
+                    }
+                    return contribution;
+                });
+                
+                setMyContributions(updatedContributions);
+                setSnackbarMessage(`Contribution from ${selectedContribution.donorName} has been rejected`);
+                setSnackbarOpen(true);
+            } else {
+                throw new Error("Failed to reject contribution");
+            }
+        } catch (error) {
+            console.error("Error rejecting contribution:", error);
+            showAlertMessage({
+                message: error.response?.data?.message || "Failed to reject contribution. Please try again.",
+                type: "error"
+            });
+        } finally {
+            hideLoadingAnimation();
+            setOpenIgnoreDialog(false);
         }
     };
 
@@ -271,46 +414,253 @@ const AvailableDonations = () => {
         return null;
     };
 
-    // Handle opening confirm contribution dialog
-    const handleConfirmOpen = (contribution) => {
-        setSelectedContribution(contribution);
-        setOpenConfirmDialog(true);
+    // Render contribution card
+    const renderContributionCard = (contribution) => {
+        return (
+            <Card sx={{ 
+                height: '100%', 
+                display: 'flex', 
+                flexDirection: 'column',
+                borderRadius: 2,
+                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 10px 15px rgba(0,0,0,0.1)',
+                },
+                position: 'relative',
+                overflow: 'hidden',
+                borderTop: `4px solid ${
+                    contribution.status === 'accepted' ? '#10B981' : 
+                    contribution.status === 'rejected' ? '#6B7280' : 
+                    '#3B82F6'
+                }`,
+            }}>
+                <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'flex-start' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <Avatar sx={{ bgcolor: '#3B82F6', mr: 2 }}>
+                                <RestaurantMenuIcon />
+                            </Avatar>
+                            <Box>
+                                <Typography variant="h6" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
+                                    Contribution
+                                </Typography>
+                                <Chip 
+                                    label={contribution.requestTitle} 
+                                    size="small"
+                                    sx={{ 
+                                        bgcolor: '#EFF6FF', 
+                                        color: '#3B82F6',
+                                        mt: 0.5,
+                                        fontWeight: 500,
+                                        fontSize: '0.75rem'
+                                    }}
+                                />
+                            </Box>
+                        </Box>
+                        {contribution.status === 'pending' ? (
+                            <Chip 
+                                label="PENDING" 
+                                size="small"
+                                sx={{ 
+                                    bgcolor: '#EFF6FF',
+                                    color: '#3B82F6',
+                                    fontWeight: 'bold',
+                                    borderRadius: '4px'
+                                }}
+                            />
+                        ) : contribution.status === 'accepted' ? (
+                            <Chip 
+                                label="ACCEPTED" 
+                                size="small"
+                                sx={{ 
+                                    bgcolor: '#D1FAE5',
+                                    color: '#10B981',
+                                    fontWeight: 'bold',
+                                    borderRadius: '4px'
+                                }}
+                            />
+                        ) : (
+                            <Chip 
+                                label="REJECTED" 
+                                size="small"
+                                sx={{ 
+                                    bgcolor: '#F3F4F6',
+                                    color: '#6B7280',
+                                    fontWeight: 'bold',
+                                    borderRadius: '4px'
+                                }}
+                            />
+                        )}
+                    </Box>
+
+                    <Divider sx={{ my: 1.5 }} />
+
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                            Contributed Items:
+                        </Typography>
+                        <List dense disablePadding sx={{ mb: 2 }}>
+                            {contribution.allContributedItems.map((item, index) => (
+                                <ListItem key={index} disablePadding sx={{ py: 0.5 }}>
+                                    <ListItemIcon sx={{ minWidth: 30 }}>
+                                        <ArrowRightIcon sx={{ color: '#3B82F6', fontSize: '1rem' }} />
+                                    </ListItemIcon>
+                                    <ListItemText 
+                                        primary={`${item.mealName}: ${item.amount}`}
+                                        primaryTypographyProps={{ variant: 'body2' }}
+                                    />
+                                </ListItem>
+                            ))}
+                        </List>
+                        
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <PersonIcon sx={{ color: '#3B82F6', mr: 1, fontSize: '1rem' }} />
+                            <Typography variant="body2">
+                                Donor: {contribution.donorName}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <PhoneIcon sx={{ color: '#3B82F6', mr: 1, fontSize: '1rem' }} />
+                            <Typography variant="body2">
+                                Contact: {contribution.donorContact}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <EmailIcon sx={{ color: '#3B82F6', mr: 1, fontSize: '1rem' }} />
+                            <Typography variant="body2">
+                                Email: {contribution.donorEmail}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <CalendarTodayIcon sx={{ color: '#3B82F6', mr: 1, fontSize: '1rem' }} />
+                            <Typography variant="body2">
+                                Date: {formatDate(contribution.dateContributed)}
+                            </Typography>
+                        </Box>
+                        {contribution.notes && (
+                            <Box sx={{ mt: 1, p: 1, bgcolor: '#F9FAFB', borderRadius: 1 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    Note: {contribution.notes}
+                                </Typography>
+                            </Box>
+                        )}
+                    </Box>
+
+                    <Box sx={{ mt: 'auto', pt: 2 }}>
+                        {contribution.status === 'pending' && (
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Button
+                                    fullWidth
+                                    variant="contained"
+                                    startIcon={<CheckCircleIcon />}
+                                    onClick={() => handleConfirmOpen(contribution)}
+                                    sx={{
+                                        bgcolor: '#10B981',
+                                        '&:hover': {
+                                            bgcolor: '#059669',
+                                        },
+                                        py: 1,
+                                        fontWeight: 500
+                                    }}
+                                >
+                                    Accept
+                                </Button>
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    startIcon={<CancelIcon />}
+                                    onClick={() => handleIgnoreOpen(contribution)}
+                                    sx={{
+                                        borderColor: '#6B7280',
+                                        color: '#6B7280',
+                                        py: 1,
+                                        fontWeight: 500
+                                    }}
+                                >
+                                    Reject
+                                </Button>
+                            </Box>
+                        )}
+                        {contribution.status === 'accepted' && (
+                            <Box sx={{ textAlign: 'center' }}>
+                                <Typography sx={{ color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <CheckCircleIcon sx={{ mr: 1 }} /> Contribution accepted
+                                </Typography>
+                            </Box>
+                        )}
+                        {contribution.status === 'rejected' && (
+                            <Box sx={{ textAlign: 'center' }}>
+                                <Typography sx={{ color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <CancelIcon sx={{ mr: 1 }} /> Contribution rejected
+                                </Typography>
+                            </Box>
+                        )}
+                    </Box>
+                </CardContent>
+            </Card>
+        );
     };
 
-    // Handle opening ignore contribution dialog
-    const handleIgnoreOpen = (contribution) => {
-        setSelectedContribution(contribution);
-        setOpenIgnoreDialog(true);
-    };
-
-    // Handle confirming a contribution
-    const handleConfirmContribution = () => {
-        const updatedContributions = myContributions.map(contribution => {
-            if (contribution.id === selectedContribution.id) {
-                return { ...contribution, status: 'confirmed' };
-            }
-            return contribution;
-        });
+    // Render contributions tab
+    const renderContributionsTab = () => {
+        if (contributionsLoading) {
+            return (
+                <Box sx={{ 
+                    p: 4, 
+                    textAlign: 'center', 
+                    bgcolor: '#f9fafb', 
+                    borderRadius: 2,
+                    mt: 2
+                }}>
+                    <Typography variant="h6" color="textSecondary">
+                        Loading your contributions...
+                    </Typography>
+                </Box>
+            );
+        }
         
-        setMyContributions(updatedContributions);
-        setSnackbarMessage(`Contribution from ${selectedContribution.donorName} has been confirmed!`);
-        setSnackbarOpen(true);
-        setOpenConfirmDialog(false);
-    };
-
-    // Handle ignoring a contribution
-    const handleIgnoreContribution = () => {
-        const updatedContributions = myContributions.map(contribution => {
-            if (contribution.id === selectedContribution.id) {
-                return { ...contribution, status: 'ignored' };
-            }
-            return contribution;
-        });
+        if (contributionsError) {
+            return (
+                <Box sx={{ 
+                    p: 4, 
+                    textAlign: 'center', 
+                    bgcolor: '#f9fafb', 
+                    borderRadius: 2,
+                    mt: 2
+                }}>
+                    <Typography variant="h6" color="error">
+                        Error loading contributions. Please try refreshing the page.
+                    </Typography>
+                </Box>
+            );
+        }
         
-        setMyContributions(updatedContributions);
-        setSnackbarMessage(`Contribution from ${selectedContribution.donorName} has been ignored`);
-        setSnackbarOpen(true);
-        setOpenIgnoreDialog(false);
+        if (myContributions.length === 0) {
+            return (
+                <Box sx={{ 
+                    p: 4, 
+                    textAlign: 'center', 
+                    bgcolor: '#f9fafb', 
+                    borderRadius: 2,
+                    mt: 2
+                }}>
+                    <Typography variant="h6" color="textSecondary">
+                        No contributions to your requests yet.
+                    </Typography>
+                </Box>
+            );
+        }
+        
+        return (
+            <Grid container spacing={3}>
+                {myContributions.map((contribution) => (
+                    <Grid item key={contribution.id} xs={12} md={6} lg={4}>
+                        {renderContributionCard(contribution)}
+                    </Grid>
+                ))}
+            </Grid>
+        );
     };
 
     return (
@@ -612,184 +962,7 @@ const AvailableDonations = () => {
             
             {/* Tab Content - My Request Contributions */}
             <TabPanel value={activeTab} index={1}>
-                {myContributions.length === 0 ? (
-                    <Box sx={{ 
-                        p: 4, 
-                        textAlign: 'center', 
-                        bgcolor: '#f9fafb', 
-                        borderRadius: 2,
-                        mt: 2
-                    }}>
-                        <Typography variant="h6" color="textSecondary">
-                            No contributions to your requests yet.
-                        </Typography>
-                    </Box>
-                ) : (
-                    <Grid container spacing={3}>
-                        {myContributions.map((contribution) => (
-                            <Grid item key={contribution.id} xs={12} md={6} lg={4}>
-                                <Card sx={{ 
-                                    height: '100%', 
-                                    display: 'flex', 
-                                    flexDirection: 'column',
-                                    borderRadius: 2,
-                                    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                                    '&:hover': {
-                                        transform: 'translateY(-4px)',
-                                        boxShadow: '0 10px 15px rgba(0,0,0,0.1)',
-                                    },
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    borderTop: `4px solid ${
-                                        contribution.status === 'confirmed' ? '#10B981' : 
-                                        contribution.status === 'ignored' ? '#6B7280' : 
-                                        '#3B82F6'
-                                    }`,
-                                }}>
-                                    <CardContent sx={{ p: 3, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, alignItems: 'flex-start' }}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                                <Avatar sx={{ bgcolor: '#3B82F6', mr: 2 }}>
-                                                    <RestaurantMenuIcon />
-                                                </Avatar>
-                                                <Box>
-                                                    <Typography variant="h6" sx={{ fontWeight: 600, lineHeight: 1.2 }}>
-                                                        {contribution.foodItemName}
-                                                    </Typography>
-                                                    <Chip 
-                                                        label={contribution.requestTitle} 
-                                                        size="small"
-                                                        sx={{ 
-                                                            bgcolor: '#EFF6FF', 
-                                                            color: '#3B82F6',
-                                                            mt: 0.5,
-                                                            fontWeight: 500,
-                                                            fontSize: '0.75rem'
-                                                        }}
-                                                    />
-                                                </Box>
-                                            </Box>
-                                            {contribution.status === 'pending' ? (
-                                                <Chip 
-                                                    label="PENDING" 
-                                                    size="small"
-                                                    sx={{ 
-                                                        bgcolor: '#EFF6FF',
-                                                        color: '#3B82F6',
-                                                        fontWeight: 'bold',
-                                                        borderRadius: '4px'
-                                                    }}
-                                                />
-                                            ) : contribution.status === 'confirmed' ? (
-                                                <Chip 
-                                                    label="CONFIRMED" 
-                                                    size="small"
-                                                    sx={{ 
-                                                        bgcolor: '#D1FAE5',
-                                                        color: '#10B981',
-                                                        fontWeight: 'bold',
-                                                        borderRadius: '4px'
-                                                    }}
-                                                />
-                                            ) : (
-                                                <Chip 
-                                                    label="IGNORED" 
-                                                    size="small"
-                                                    sx={{ 
-                                                        bgcolor: '#F3F4F6',
-                                                        color: '#6B7280',
-                                                        fontWeight: 'bold',
-                                                        borderRadius: '4px'
-                                                    }}
-                                                />
-                                            )}
-                                        </Box>
-
-                                        <Divider sx={{ my: 1.5 }} />
-
-                                        <Box sx={{ mb: 2 }}>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                                <RestaurantIcon sx={{ color: '#3B82F6', mr: 1, fontSize: '1rem' }} />
-                                                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                                    Contribution: {contribution.contributionAmount}
-                                                </Typography>
-                                            </Box>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                                <PersonIcon sx={{ color: '#3B82F6', mr: 1, fontSize: '1rem' }} />
-                                                <Typography variant="body2">
-                                                    Donor: {contribution.donorName}
-                                                </Typography>
-                                            </Box>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                                <PhoneIcon sx={{ color: '#3B82F6', mr: 1, fontSize: '1rem' }} />
-                                                <Typography variant="body2">
-                                                    Contact: {contribution.donorContact}
-                                                </Typography>
-                                            </Box>
-                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                <CalendarTodayIcon sx={{ color: '#3B82F6', mr: 1, fontSize: '1rem' }} />
-                                                <Typography variant="body2">
-                                                    Date: {formatDate(contribution.dateContributed)}
-                                                </Typography>
-                                            </Box>
-                                        </Box>
-
-                                        <Box sx={{ mt: 'auto', pt: 2 }}>
-                                            {contribution.status === 'pending' && (
-                                                <Box sx={{ display: 'flex', gap: 2 }}>
-                                                    <Button
-                                                        fullWidth
-                                                        variant="contained"
-                                                        startIcon={<CheckCircleIcon />}
-                                                        onClick={() => handleConfirmOpen(contribution)}
-                                                        sx={{
-                                                            bgcolor: '#10B981',
-                                                            '&:hover': {
-                                                                bgcolor: '#059669',
-                                                            },
-                                                            py: 1,
-                                                            fontWeight: 500
-                                                        }}
-                                                    >
-                                                        Confirm
-                                                    </Button>
-                                                    <Button
-                                                        fullWidth
-                                                        variant="outlined"
-                                                        startIcon={<CancelIcon />}
-                                                        onClick={() => handleIgnoreOpen(contribution)}
-                                                        sx={{
-                                                            borderColor: '#6B7280',
-                                                            color: '#6B7280',
-                                                            py: 1,
-                                                            fontWeight: 500
-                                                        }}
-                                                    >
-                                                        Ignore
-                                                    </Button>
-                                                </Box>
-                                            )}
-                                            {contribution.status === 'confirmed' && (
-                                                <Box sx={{ textAlign: 'center' }}>
-                                                    <Typography sx={{ color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                        <CheckCircleIcon sx={{ mr: 1 }} /> Contribution confirmed
-                                                    </Typography>
-                                                </Box>
-                                            )}
-                                            {contribution.status === 'ignored' && (
-                                                <Box sx={{ textAlign: 'center' }}>
-                                                    <Typography sx={{ color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                        <CancelIcon sx={{ mr: 1 }} /> Contribution ignored
-                                                    </Typography>
-                                                </Box>
-                                            )}
-                                        </Box>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        ))}
-                    </Grid>
-                )}
+                {renderContributionsTab()}
             </TabPanel>
 
             {/* Request Dialog */}
@@ -825,33 +998,6 @@ const AvailableDonations = () => {
                                 </Box>
                             </Box>
                             
-                            {/* <TextField
-                                autoFocus
-                                margin="dense"
-                                label="How much do you need?"
-                                fullWidth
-                                variant="outlined"
-                                value={requestQuantity}
-                                onChange={(e) => setRequestQuantity(e.target.value)}
-                                error={!!requestError}
-                                helperText={requestError}
-                                placeholder={`Example: 2kg, 3 meals, etc. (Available: ${selectedDonation.quantity})`}
-                                sx={{ mb: 2 }}
-                            />
-                            
-                            <TextField
-                                margin="dense"
-                                label="Additional Notes (Optional)"
-                                fullWidth
-                                variant="outlined"
-                                multiline
-                                rows={3}
-                                value={requestNotes}
-                                onChange={(e) => setRequestNotes(e.target.value)}
-                                placeholder="Add any specific requirements or arrangements for pickup"
-                                sx={{ mb: 2 }}
-                            /> */}
-                            
                             <Alert severity="info" sx={{ mb: 2 }}>
                                 Your request will be sent to the donor. They will review your request and contact you with pickup details.
                             </Alert>
@@ -880,16 +1026,16 @@ const AvailableDonations = () => {
             {/* Confirm Contribution Dialog */}
             <Dialog open={openConfirmDialog} onClose={() => setOpenConfirmDialog(false)} maxWidth="xs" fullWidth>
                 <DialogTitle sx={{ bgcolor: '#F0FFF4', color: '#047857', fontWeight: 600 }}>
-                    Confirm Contribution
+                    Accept Contribution
                 </DialogTitle>
                 <DialogContent sx={{ pt: 3, pb: 1, px: 3 }}>
                     {selectedContribution && (
                         <>
                             <Typography variant="body1" sx={{ mb: 2 }}>
-                                Are you sure you want to confirm this contribution of <strong>{selectedContribution.contributionAmount}</strong> for <strong>{selectedContribution.foodItemName}</strong> from <strong>{selectedContribution.donorName}</strong>?
+                                Are you sure you want to accept this contribution of <strong>{selectedContribution.contributionAmount}</strong> for <strong>{selectedContribution.foodItemName}</strong> from <strong>{selectedContribution.donorName}</strong>?
                             </Typography>
                             <Typography variant="body2" sx={{ mb: 2, color: '#4B5563' }}>
-                                By confirming, you'll be able to coordinate with the donor for the handover.
+                                By accepting, you'll be able to coordinate with the donor for the handover.
                             </Typography>
                         </>
                     )}
@@ -909,7 +1055,7 @@ const AvailableDonations = () => {
                             }
                         }}
                     >
-                        Confirm
+                        Accept
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -917,13 +1063,13 @@ const AvailableDonations = () => {
             {/* Ignore Contribution Dialog */}
             <Dialog open={openIgnoreDialog} onClose={() => setOpenIgnoreDialog(false)} maxWidth="xs" fullWidth>
                 <DialogTitle sx={{ bgcolor: '#F9FAFB', color: '#4B5563', fontWeight: 600 }}>
-                    Ignore Contribution
+                    Reject Contribution
                 </DialogTitle>
                 <DialogContent sx={{ pt: 3, pb: 1, px: 3 }}>
                     {selectedContribution && (
                         <>
                             <Typography variant="body1" sx={{ mb: 2 }}>
-                                Are you sure you want to ignore this contribution of <strong>{selectedContribution.contributionAmount}</strong> from <strong>{selectedContribution.donorName}</strong>?
+                                Are you sure you want to reject this contribution of <strong>{selectedContribution.contributionAmount}</strong> from <strong>{selectedContribution.donorName}</strong>?
                             </Typography>
                             <Typography variant="body2" sx={{ mb: 2, color: '#4B5563' }}>
                                 This action will remove this contribution from your active list.
@@ -944,7 +1090,7 @@ const AvailableDonations = () => {
                             color: '#6B7280',
                         }}
                     >
-                        Ignore
+                        Reject
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -964,67 +1110,3 @@ const AvailableDonations = () => {
 };
 
 export default AvailableDonations;
-
-// Mock data for contributions to user's requests
-const contributionsToMyRequests = [
-    {
-        id: 1,
-        requestId: 101,
-        requestTitle: 'Weekly Meals for Community Center',
-        foodItemName: 'Rice',
-        contributionAmount: '10 kg',
-        donorName: 'Nimal Food Supply',
-        donorContact: '+94771234567',
-        dateContributed: '2025-03-05',
-        status: 'pending', // can be 'pending', 'confirmed', or 'ignored'
-        notes: 'Can deliver to your location on Wednesday afternoon'
-    },
-    {
-        id: 2,
-        requestId: 101,
-        requestTitle: 'Weekly Meals for Community Center',
-        foodItemName: 'Vegetable Curry',
-        contributionAmount: '8 portions',
-        donorName: 'Gourmet Restaurant',
-        donorContact: '+94777654321',
-        dateContributed: '2025-03-06',
-        status: 'confirmed',
-        notes: 'Freshly made vegetable curry'
-    },
-    {
-        id: 3,
-        requestId: 102,
-        requestTitle: 'School Lunch Program',
-        foodItemName: 'Sandwiches',
-        contributionAmount: '50 pieces',
-        donorName: 'Star Bakery',
-        donorContact: '+94712345678',
-        dateContributed: '2025-03-04',
-        status: 'ignored',
-        notes: 'Can donate freshly made sandwiches every Monday'
-    },
-    {
-        id: 4,
-        requestId: 103,
-        requestTitle: 'Elderly Home Monthly Supply',
-        foodItemName: 'Vegetables',
-        contributionAmount: '5 kg',
-        donorName: 'Fresh Farm Market',
-        donorContact: '+94765432109',
-        dateContributed: '2025-03-07',
-        status: 'pending',
-        notes: 'Assorted vegetables from our farm'
-    },
-    {
-        id: 5,
-        requestId: 103,
-        requestTitle: 'Elderly Home Monthly Supply',
-        foodItemName: 'Rice',
-        contributionAmount: '15 kg',
-        donorName: 'Rice Distributors Ltd',
-        donorContact: '+94701234567',
-        dateContributed: '2025-03-08',
-        status: 'pending',
-        notes: 'Premium quality rice'
-    }
-];
