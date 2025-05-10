@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     Box, Typography, Divider, Card, CardContent, Chip, Grid,
-    Avatar, Button, Tab, Tabs, CircularProgress, Stack, Tooltip, Alert
+    Avatar, Button, Tab, Tabs, CircularProgress, Stack, Tooltip, Alert,
+    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from '@mui/material';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -14,6 +15,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
+import CancelIcon from '@mui/icons-material/Cancel';
+import DoneAllIcon from '@mui/icons-material/DoneAll';
 import donationService from '../../Services/donationService';
 
 const ActiveDonations = () => {
@@ -21,40 +24,145 @@ const ActiveDonations = () => {
     const [myDonations, setMyDonations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [actionLoading, setActionLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState(null);
+    const [confirmDialog, setConfirmDialog] = useState({
+        open: false,
+        title: '',
+        message: '',
+        action: null,
+        itemId: null
+    });
 
     useEffect(() => {
-        const fetchActiveItems = async () => {
-            try {
-                setLoading(true);
-                const response = await donationService.getUserActiveItems();
-                if (response.success) {
-                    // Combine donations and contributions into one array
-                    const donations = response.data.donations || [];
-                    const contributions = response.data.contributions || [];
-                    setMyDonations([...donations, ...contributions]);
-                } else {
-                    throw new Error('Failed to fetch active items');
-                }
-            } catch (err) {
-                console.error('Error fetching active items:', err);
-                setError('Failed to load your active donations and contributions. Please try again later.');
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchActiveItems();
     }, []);
+
+    const fetchActiveItems = async () => {
+        try {
+            setLoading(true);
+            const response = await donationService.getUserActiveItems();
+            if (response.success) {
+                const donations = response.data.donations || [];
+                const contributions = response.data.contributions || [];
+                setMyDonations([...donations, ...contributions]);
+            } else {
+                throw new Error('Failed to fetch active items');
+            }
+        } catch (err) {
+            console.error('Error fetching active items:', err);
+            setError('Failed to load your active donations and contributions. Please try again later.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
 
-    // Function to render the status chip with appropriate color
+    const handleCancelDonation = async (id) => {
+        setConfirmDialog({
+            open: true,
+            title: 'Cancel Donation',
+            message: 'Are you sure you want to cancel this donation? This action cannot be undone.',
+            action: async () => {
+                try {
+                    setActionLoading(true);
+                    const response = await donationService.cancelDonation(id);
+                    if (response.success) {
+                        setSuccessMessage('Donation canceled successfully');
+                        await fetchActiveItems();
+                    } else {
+                        setError('Failed to cancel donation');
+                    }
+                } catch (err) {
+                    console.error('Error canceling donation:', err);
+                    setError('An error occurred while canceling the donation');
+                } finally {
+                    setActionLoading(false);
+                }
+            },
+            itemId: id
+        });
+    };
+
+    const handleFulfillDonation = async (id) => {
+        setConfirmDialog({
+            open: true,
+            title: 'Fulfill Donation',
+            message: 'Mark this donation as fulfilled? This confirms that the recipient has received the donation.',
+            action: async () => {
+                try {
+                    setActionLoading(true);
+                    const response = await donationService.fulfillDonation(id);
+                    if (response.success) {
+                        setSuccessMessage('Donation marked as fulfilled');
+                        await fetchActiveItems();
+                    } else {
+                        setError('Failed to fulfill donation');
+                    }
+                } catch (err) {
+                    console.error('Error fulfilling donation:', err);
+                    setError('An error occurred while fulfilling the donation');
+                } finally {
+                    setActionLoading(false);
+                }
+            },
+            itemId: id
+        });
+    };
+
+    const handleCancelContribution = async (id) => {
+        setConfirmDialog({
+            open: true,
+            title: 'Cancel Contribution',
+            message: 'Are you sure you want to cancel this contribution? This action cannot be undone.',
+            action: async () => {
+                try {
+                    setActionLoading(true);
+                    const response = await donationService.cancelContribution(id);
+                    if (response.success) {
+                        setSuccessMessage('Contribution canceled successfully');
+                        await fetchActiveItems();
+                    } else {
+                        setError('Failed to cancel contribution');
+                    }
+                } catch (err) {
+                    console.error('Error canceling contribution:', err);
+                    setError('An error occurred while canceling the contribution');
+                } finally {
+                    setActionLoading(false);
+                }
+            },
+            itemId: id
+        });
+    };
+
+    const handleConfirmAction = async () => {
+        closeConfirmDialog();
+        if (confirmDialog.action) {
+            await confirmDialog.action();
+        }
+    };
+
+    const closeConfirmDialog = () => {
+        setConfirmDialog(prev => ({ ...prev, open: false }));
+    };
+
+    useEffect(() => {
+        if (successMessage) {
+            const timer = setTimeout(() => {
+                setSuccessMessage(null);
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage]);
+
     const renderStatusChip = (status) => {
         let color, icon;
-        
-        switch(status) {
+
+        switch (status) {
             case 'confirmed':
                 color = '#059669';
                 icon = <CheckCircleIcon fontSize="small" />;
@@ -75,13 +183,13 @@ const ActiveDonations = () => {
                 color = '#6b7280';
                 icon = <PendingIcon fontSize="small" />;
         }
-        
+
         return (
-            <Chip 
+            <Chip
                 icon={icon}
                 label={status.toUpperCase()}
-                sx={{ 
-                    bgcolor: `${color}10`, 
+                sx={{
+                    bgcolor: `${color}10`,
                     color: color,
                     fontWeight: 600,
                     border: `1px solid ${color}`
@@ -89,11 +197,14 @@ const ActiveDonations = () => {
             />
         );
     };
-    
-    // Render donation cards
+
     const renderDonationCard = (donation) => {
         const isDonation = donation.type === 'donation';
-        
+        const canCancel = isDonation ?
+            ['pending', 'confirmed'].includes(donation.status) :
+            ['pending'].includes(donation.status);
+        const canFulfill = isDonation && donation.status === 'not picked up';
+
         return (
             <Card
                 key={donation.id}
@@ -120,18 +231,18 @@ const ActiveDonations = () => {
                                     {donation.title}
                                 </Typography>
                             </Box>
-                            <Chip 
-                                icon={isDonation ? <FastfoodIcon fontSize="small" /> : <VolunteerActivismIcon fontSize="small" />} 
+                            <Chip
+                                icon={isDonation ? <FastfoodIcon fontSize="small" /> : <VolunteerActivismIcon fontSize="small" />}
                                 label={isDonation ? "Donation" : "Contribution"}
                                 size="small"
-                                sx={{ 
+                                sx={{
                                     mb: 1,
-                                    bgcolor: isDonation ? '#f0fdf4' : '#e0f2fe', 
+                                    bgcolor: isDonation ? '#f0fdf4' : '#e0f2fe',
                                     color: isDonation ? '#059669' : '#0284c7',
                                     mr: 1
                                 }}
                             />
-                            <Chip 
+                            <Chip
                                 icon={<CalendarTodayIcon fontSize="small" />}
                                 label={isDonation ? `Donated: ${formatDate(donation.donationDate)}` : `Contributed: ${formatDate(donation.contributionDate)}`}
                                 size="small"
@@ -142,12 +253,12 @@ const ActiveDonations = () => {
                     </Box>
 
                     <Divider sx={{ my: 2 }} />
-                    
+
                     <Typography sx={{ fontWeight: 600, mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
                         <RestaurantIcon sx={{ color: '#059669' }} fontSize="small" />
                         Food Items
                     </Typography>
-                    
+
                     <Grid container spacing={1} sx={{ mb: 2 }}>
                         {donation.foodItems.map((item, idx) => (
                             <Grid item xs={12} sm={6} md={4} key={idx}>
@@ -163,8 +274,8 @@ const ActiveDonations = () => {
                                         </Box>
                                         {donation.type === 'contribution' && (
                                             <Tooltip title="Requested quantity">
-                                                <Chip 
-                                                    label={item.requestedQuantity} 
+                                                <Chip
+                                                    label={item.requestedQuantity}
                                                     size="small"
                                                     sx={{ bgcolor: '#e0f2fe', color: '#0284c7' }}
                                                 />
@@ -207,6 +318,29 @@ const ActiveDonations = () => {
                             </Box>
                         )}
                     </Box>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 2 }}>
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            startIcon={<CancelIcon />}
+                            onClick={() => isDonation ? handleCancelDonation(donation.id) : handleCancelContribution(donation.id)}
+                            disabled={actionLoading}
+                        >
+                            Cancel {isDonation ? 'Donation' : 'Contribution'}
+                        </Button>
+                        {canFulfill && (
+                            <Button
+                                variant="contained"
+                                color="success"
+                                startIcon={<DoneAllIcon />}
+                                onClick={() => handleFulfillDonation(donation.id)}
+                                disabled={actionLoading}
+                            >
+                                Mark as Fulfilled
+                            </Button>
+                        )}
+                    </Box>
                 </CardContent>
             </Card>
         );
@@ -238,9 +372,15 @@ const ActiveDonations = () => {
                 <Divider sx={{ mb: 4 }} />
             </Box>
 
+            {successMessage && (
+                <Alert severity="success" sx={{ mb: 3 }}>
+                    {successMessage}
+                </Alert>
+            )}
+
             <Box sx={{ mb: 3 }}>
-                <Tabs 
-                    value={tabValue} 
+                <Tabs
+                    value={tabValue}
                     onChange={handleTabChange}
                     variant="fullWidth"
                     sx={{
@@ -315,6 +455,30 @@ const ActiveDonations = () => {
                     )}
                 </>
             )}
+
+            <Dialog
+                open={confirmDialog.open}
+                onClose={closeConfirmDialog}
+            >
+                <DialogTitle>{confirmDialog.title}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        {confirmDialog.message}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeConfirmDialog} disabled={actionLoading}>Cancel</Button>
+                    <Button
+                        onClick={handleConfirmAction}
+                        color={confirmDialog.title.includes('Cancel') ? 'error' : 'primary'}
+                        variant="contained"
+                        disabled={actionLoading}
+                        autoFocus
+                    >
+                        {actionLoading ? <CircularProgress size={24} /> : 'Confirm'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

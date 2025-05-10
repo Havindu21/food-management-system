@@ -57,6 +57,39 @@ const donationService = {
     }
   },
   
+  // Cancel a donation
+  cancelDonation: async (donationId) => {
+    try {
+      const response = await apiClient.put(`/donations/${donationId}/cancel`);
+      return response.data;
+    } catch (error) {
+      console.error('Error canceling donation:', error);
+      throw error;
+    }
+  },
+  
+  // Fulfill a donation
+  fulfillDonation: async (donationId) => {
+    try {
+      const response = await apiClient.put(`/donations/${donationId}/fulfill`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fulfilling donation:', error);
+      throw error;
+    }
+  },
+  
+  // Cancel a contribution
+  cancelContribution: async (contributionId) => {
+    try {
+      const response = await apiClient.put(`/contributions/${contributionId}/cancel`);
+      return response.data;
+    } catch (error) {
+      console.error('Error canceling contribution:', error);
+      throw error;
+    }
+  },
+  
   // Additional donation service methods can be added here
 };
 
