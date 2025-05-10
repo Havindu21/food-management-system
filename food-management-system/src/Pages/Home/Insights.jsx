@@ -1,5 +1,5 @@
 import { Box, Container, Grid, Typography } from '@mui/material';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { globalMt, globalPx } from '../../Theme/Theme';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import GroupsIcon from '@mui/icons-material/Groups';
@@ -7,44 +7,71 @@ import SpaIcon from '@mui/icons-material/Spa';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import HandshakeIcon from '@mui/icons-material/Handshake';
 import InsightTile from '../../Components/InsightTile';
 
 const Insights = () => {
-    // Only keep the first 6 insights from your original array
+    const [insightsData, setInsightsData] = useState({
+      mealsSaved: { title: 'Meals Saved', count: '0' },
+      peopleFed: { title: 'People Fed', count: '0' },
+      co2EmissionsPrevented: { title: 'CO2 Emissions Prevented', count: '0', unit: 'tons' },
+      totalDonors: { title: 'Total Donors', count: '0' },
+      volunteersEngaged: { title: 'Volunteers Engaged', count: '0' },
+      foodRescued: { title: 'Food Rescued', count: '0', unit: 'kg' }
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      const fetchInsights = async () => {
+        try {
+          const response = await fetch('http://localhost:5001/api/insights');
+          const result = await response.json();
+          
+          if (result.success) {
+            setInsightsData(result.data);
+          }
+        } catch (error) {
+          console.error('Error fetching insights data:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchInsights();
+    }, []);
+
+    // Map insights data to components with appropriate icons
     const displayedInsights = [
       {
-        title: 'Meals Saved',
+        title: insightsData.mealsSaved.title,
         IconComponent: RestaurantIcon,
-        count: '125,000',
+        count: insightsData.mealsSaved.count,
       },
       {
-        title: 'People Fed',
+        title: insightsData.peopleFed.title,
         IconComponent: GroupsIcon,
-        count: '45,000',
+        count: insightsData.peopleFed.count,
       },
       {
-        title: 'CO2 Emissions Prevented',
+        title: insightsData.co2EmissionsPrevented.title,
         IconComponent: SpaIcon,
-        count: '75',
-        unit: 'tons',
+        count: insightsData.co2EmissionsPrevented.count,
+        unit: insightsData.co2EmissionsPrevented.unit,
       },
       {
-        title: 'Total Donors',
+        title: insightsData.totalDonors.title,
         IconComponent: CardMembershipIcon,
-        count: '15,000',
+        count: insightsData.totalDonors.count,
       },
       {
-        title: 'Volunteers Engaged',
+        title: insightsData.volunteersEngaged.title,
         IconComponent: VolunteerActivismIcon,
-        count: '5,000',
+        count: insightsData.volunteersEngaged.count,
       },
       {
-        title: 'Food Rescued',
+        title: insightsData.foodRescued.title,
         IconComponent: ShoppingCartIcon,
-        count: '2,000',
-        unit: 'kg',
+        count: insightsData.foodRescued.count,
+        unit: insightsData.foodRescued.unit,
       },
     ];
   
@@ -112,7 +139,7 @@ const Insights = () => {
           </Typography>
   
           <Grid container spacing={3}>
-            {displayedInsights.map((insight, index) => (
+            {!loading && displayedInsights.map((insight, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
                 <InsightTile
                   title={insight.title}
@@ -122,6 +149,7 @@ const Insights = () => {
                 />
               </Grid>
             ))}
+            {loading && <Typography>Loading impact data...</Typography>}
           </Grid>
         </Container>
       </Box>
