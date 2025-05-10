@@ -249,32 +249,6 @@ const ActiveDonations = () => {
                             </Box>
                         )}
                     </Box>
-
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-                        <Box>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                Pickup Slot: {donation.pickupSlot}
-                            </Typography>
-                        </Box>
-                        <Box>
-                            {donation.status !== 'pending' && (
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<LocalShippingIcon />}
-                                    sx={{
-                                        borderColor: '#059669',
-                                        color: '#059669',
-                                        '&:hover': {
-                                            borderColor: '#047857',
-                                            bgcolor: 'rgba(5, 150, 105, 0.04)',
-                                        }
-                                    }}
-                                >
-                                    View Pickup Details
-                                </Button>
-                            )}
-                        </Box>
-                    </Box>
                 </CardContent>
             </Card>
         );
