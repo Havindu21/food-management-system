@@ -44,25 +44,23 @@ const ActivePickups = () => {
             try {
                 setIsLoading(true);
                 const response = await pickupService.getActivePickups();
+
                 if (response.success) {
-                    // Filter donations and keep only the "claimed" food items in each donation
-                    const filteredDonations = response.data.map(pickup => {
-                        // Create a new object with all the original donation properties
-                        const filteredPickup = { ...pickup };
+                    const nonContributions = response.data
+                        .filter(pickup => pickup.type !== 'contribution')
+                        .map(pickup => {
+                            const filteredPickup = { ...pickup };
+                            filteredPickup.foodItems = pickup.foodItems
+                                ? pickup.foodItems.filter(item => item.status === "claimed")
+                                : [];
+                            return filteredPickup;
+                        })
+                        .filter(pickup => pickup.foodItems.length > 0);
 
-                        // Replace the foodItems array with only the "claimed" food items
-                        filteredPickup.foodItems = pickup.foodItems ?
-                            pickup.foodItems.filter(item => item.status === "claimed") :
-                            [];
+                    const contributions = response.data.filter(pickup => pickup.type === 'contribution');
 
-                        return filteredPickup;
-                    }).filter(pickup => pickup.foodItems.length > 0); // Optionally remove donations with no claimed items
-
-                    // The result will be an array of donations where each donation's foodItems array 
-                    // contains only the food items with status "claimed"
-                    setPickups(filteredDonations);
-                    console.log('pickups', filteredDonations);
-
+                    setPickups([...nonContributions, ...contributions]);
+                    console.log('pickups', [...nonContributions, ...contributions]);
                 }
             } catch (error) {
                 console.error("Failed to fetch active pickups:", error);
@@ -70,6 +68,8 @@ const ActivePickups = () => {
                 setIsLoading(false);
             }
         };
+
+
 
         fetchActivePickups();
 
@@ -91,7 +91,7 @@ const ActivePickups = () => {
     const handleMarkAsCompleted = async (pickupId) => {
         try {
             dispatch(showLoading({ message: 'Completing pickup...' }));
-            
+
             // Get the selected pickup object to determine type
             const pickup = pickups.find(p => p.id === pickupId);
             if (!pickup) {
@@ -181,20 +181,41 @@ const ActivePickups = () => {
                                             {pickup.donorName}
                                         </Typography>
                                         <Box sx={{
-                                            bgcolor: pickup.status === "In Transit" ? '#DBEAFE' : '#F0FFF4',
-                                            color: pickup.status === "In Transit" ? '#537FEF' : '#059669',
-                                            px: 1,
-                                            py: 0.5,
-                                            borderRadius: 1,
-                                            fontSize: 12,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 1,
                                         }}>
-                                            {pickup.status}
+                                            <Box sx={{
+                                                bgcolor: pickup.status === "In Transit" ? '#DBEAFE' : '#F0FFF4',
+                                                color: pickup.status === "In Transit" ? '#537FEF' : '#059669',
+                                                px: 1,
+                                                py: 0.5,
+                                                borderRadius: 1,
+                                                fontSize: 12,
+                                            }}>
+                                                {pickup.status}
+                                            </Box>
+                                            <Box sx={{
+                                                bgcolor: pickup.type === "donation" ? '#FEF3C7' : '#EDE9FE',
+                                                color: pickup.type === "donation" ? '#D97706' : '#7C3AED',
+                                                px: 1.5,
+                                                py: 0.5,
+                                                borderRadius: '8px',
+                                                fontSize: 12,
+                                                fontWeight: 600,
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                                                border: pickup.type === "donation" ? '1px solid #FDE68A' : '1px solid #DDD6FE',
+                                            }}>
+                                                {pickup.type === 'donation' ? 'Donation' : 'Contribution'}
+                                            </Box>
                                         </Box>
                                     </Box>
 
                                     <Divider sx={{ my: 1 }} />
 
-                                    {pickup.foodItems.map((item, index) => (
+                                    {pickup.type === 'donation' && pickup.foodItems.map((item, index) => (
                                         <Grid container key={index} spacing={2} mt={index > 0 ? 1 : 0}>
                                             <Grid item xs={6}>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -222,6 +243,35 @@ const ActivePickups = () => {
                                             </Grid>
                                         </Grid>
                                     ))}
+
+                                    {pickup.type === 'contribution' && (
+                                        <Grid container spacing={2}>
+                                            <Grid item xs={6}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <RestaurantIcon fontSize="small" sx={{ opacity: 0.6 }} />
+                                                    <Typography variant="body2">{pickup.mealName}</Typography>
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={6}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <BentoIcon fontSize="small" sx={{ opacity: 0.6 }} />
+                                                    <Typography variant="body2">{pickup.quantity}</Typography>
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={6}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <CalendarMonthIcon fontSize="small" sx={{ opacity: 0.6 }} />
+                                                    <Typography variant="body2">Expires: {pickup.expiry}</Typography>
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={6}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                    <AccessTimeIcon fontSize="small" sx={{ opacity: 0.6 }} />
+                                                    <Typography variant="body2">Requested: {pickup.requestDate}</Typography>
+                                                </Box>
+                                            </Grid>
+                                        </Grid>
+                                    )}
 
                                     <Divider sx={{ my: 1 }} />
 
