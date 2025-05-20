@@ -220,7 +220,7 @@ const DonationHistory = () => {
                 Recipient: {donation.recipient}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: 'none', alignItems: 'center' }}>
               <LocationOnIcon sx={{ color: '#059669', mr: 1 }} fontSize="small" />
               <Typography variant="body2">
                 {donation.location}
@@ -230,7 +230,7 @@ const DonationHistory = () => {
 
           {donation.status === 'completed' && (
             <Box sx={{ 
-              display: 'flex', 
+              display: 'none', 
               p: 1.5, 
               bgcolor: '#f0fdf4', 
               borderRadius: 1,
