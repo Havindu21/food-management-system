@@ -469,9 +469,9 @@ const AvailableDonations = () => {
                                     borderRadius: '4px'
                                 }}
                             />
-                        ) : contribution.status === 'accepted' ? (
+                        ) : contribution.status === 'completed' ? (
                             <Chip 
-                                label="ACCEPTED" 
+                                label="ACTIVE" 
                                 size="small"
                                 sx={{ 
                                     bgcolor: '#D1FAE5',
