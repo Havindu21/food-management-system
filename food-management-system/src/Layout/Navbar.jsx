@@ -40,7 +40,7 @@ const Navbar = ({ callingFrom }) => {
         : userType === 'recipient'
             ? pages = ['Home', 'Insights', 'Projects', 'About Us', 'Request Food']
             : pages = ['Home', 'Insights', 'Projects', 'About Us'];
-    const settings = callingFrom === 'PROFILE' ? ['Logout'] : ['Profile', 'Logout'];
+    const settings = callingFrom === 'PROFILE' ? ['Logout', 'Home'] : ['Profile','Home' ,'Logout'];
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -60,6 +60,7 @@ const Navbar = ({ callingFrom }) => {
             document.querySelector("#projects-section")?.scrollIntoView({ behavior: "smooth" });
         } else if (page === "Home") {
             window.scrollTo({ top: 0, behavior: "smooth" });
+            navigate('/home');
         } else if (page === "About Us") {
             navigate('/about-us');
         } else if (page === "Profile") {
