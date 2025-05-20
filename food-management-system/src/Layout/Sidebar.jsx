@@ -30,7 +30,7 @@ import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserData, setUserType } from '../reducers/userSlice';
 
@@ -84,6 +84,14 @@ export default function Sidebar() {
         { label: 'Analytics', icon: <AnalyticsIcon />, path: 'analytics' },
         { label: 'My Profile', icon: <AccountCircleIcon />, path: 'my-profile' }
     ] : [];
+
+    useEffect(() => {
+        const currentPath = location.pathname.split('/').pop();
+        const matchingTab = tabs.find(tab => tab.path === currentPath);
+        if (matchingTab) {
+            setCurrentTab(matchingTab.label);
+        }
+    }, [location.pathname, tabs]);
 
     const LogoutButton = (
         <List sx={{ mb: 1 }}>
