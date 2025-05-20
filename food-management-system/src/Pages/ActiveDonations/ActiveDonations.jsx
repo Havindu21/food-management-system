@@ -313,7 +313,7 @@ const ActiveDonations = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <AccessTimeIcon sx={{ color: '#ef4444', mr: 1 }} fontSize="small" />
                                 <Typography variant="body2" color="error.main">
-                                    Expires: {formatDate(donation.expiryDate)} at {donation.expiryTime}
+                                    Expires: {formatDateV2(donation.expiryDate)} at {donation.expiryTime}
                                 </Typography>
                             </Box>
                         )}
@@ -349,6 +349,22 @@ const ActiveDonations = () => {
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         return new Date(dateString).toLocaleDateString(undefined, options);
+    };
+
+    const formatDateV2 = (dateString) => {
+        // Handle dates in format DD-MM-YYYY
+        if (!dateString) return '';
+        
+        const [day, month, year] = dateString.split('-');
+        const date = new Date(`${year}-${month}-${day}`);
+        
+        if (isNaN(date.getTime())) {
+            // Return the original string if parsing fails
+            return dateString;
+        }
+        
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString(undefined, options);
     };
 
     return (
