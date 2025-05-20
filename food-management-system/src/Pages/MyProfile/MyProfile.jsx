@@ -536,6 +536,9 @@ const MyProfile = () => {
                       backgroundColor: 'white',
                       border: '1px solid #E5E7EB',
                       transition: 'all 0.3s ease',
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
                       '&:hover': {
                         transform: 'translateY(-4px)',
                         boxShadow: '0 8px 12px rgba(0,0,0,0.08)',
@@ -543,31 +546,41 @@ const MyProfile = () => {
                       }
                     }}
                   >
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Box sx={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: '50%',
-                        backgroundColor: achievement.color,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        margin: '0 auto 12px auto',
-                        fontSize: '1.4rem',
-                        boxShadow: `0 2px 8px ${achievement.color}40`,
-                        opacity: achievement.isCompleted ? 1 : 0.7
-                      }}>
-                        {achievement.icon}
+                    <Box sx={{ 
+                      textAlign: 'center', 
+                      display: 'flex',
+                      flexDirection: 'column',
+                      height: '100%'
+                    }}>
+                      <Box>
+                        <Box sx={{
+                          width: 50,
+                          height: 50,
+                          borderRadius: '50%',
+                          backgroundColor: achievement.color,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          margin: '0 auto 12px auto',
+                          fontSize: '1.4rem',
+                          boxShadow: `0 2px 8px ${achievement.color}40`,
+                          opacity: achievement.isCompleted ? 1 : 0.7
+                        }}>
+                          {achievement.icon}
+                        </Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5, color: '#1F2937', fontSize: 14 }}>
+                          {achievement.title}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: '#6B7280', fontSize: 11, mb: 1 }}>
+                          {achievement.description}
+                        </Typography>
                       </Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5, color: '#1F2937', fontSize: 14 }}>
-                        {achievement.title}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: '#6B7280', fontSize: 11, mb: 1 }}>
-                        {achievement.description}
-                      </Typography>
+                      
+                      {/* Spacer to push content to bottom */}
+                      <Box sx={{ flexGrow: 1 }} />
                       
                       {!achievement.isCompleted && (
-                        <Box sx={{ mt: 1, width: '100%' }}>
+                        <Box sx={{ mt: 2, width: '100%' }}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                             <Typography variant="caption" sx={{ color: '#6B7280' }}>
                               Progress
@@ -596,7 +609,7 @@ const MyProfile = () => {
                           size="small" 
                           label="Completed" 
                           sx={{ 
-                            mt: 1, 
+                            mt: 2, 
                             backgroundColor: '#D1FAE5', 
                             color: '#059669',
                             fontWeight: 600,
