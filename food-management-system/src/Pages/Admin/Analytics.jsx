@@ -1,35 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Box, Typography, Divider, Paper } from '@mui/material';
+import { Box, Typography, Divider, Paper, CircularProgress, Alert, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import analyticsService from '../../Services/analyticsService';
 
 const Analytics = () => {
-  // Mock data for monthly donations
-  const monthlyDonationData = [
-    { name: 'Jan', donations: 65 },
-    { name: 'Feb', donations: 59 },
-    { name: 'Mar', donations: 80 },
-    { name: 'Apr', donations: 81 },
-    { name: 'May', donations: 56 },
-    { name: 'Jun', donations: 55 },
-    { name: 'Jul', donations: 40 },
-    { name: 'Aug', donations: 70 },
-    { name: 'Sep', donations: 90 },
-    { name: 'Oct', donations: 75 },
-    { name: 'Nov', donations: 60 },
-    { name: 'Dec', donations: 85 },
-  ];
-
-  // Mock data for donor and recipient count
-  const userCountData = [
-    { name: 'Donors', value: 120, color: '#059669' },
-    { name: 'Recipients', value: 85, color: '#0284c7' },
-  ];
+  const [analyticsData, setAnalyticsData] = useState({
+    monthlyDonationData: [],
+    userCountData: [],
+    recipientStatusData: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   
-  // Mock data for verified and rejected recipients
-  const recipientStatusData = [
-    { name: 'Verified', value: 72, color: '#059669' },
-    { name: 'Rejected', value: 13, color: '#DC2626' },
-  ];
+  const years = Array.from(
+    { length: 5 },
+    (_, i) => new Date().getFullYear() - i
+  );
+
+  useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await analyticsService.getAnalyticsDashboard(selectedYear);
+        if (response && response.success) {
+          setAnalyticsData(response.data);
+        } else {
+          throw new Error('Failed to fetch analytics data');
+        }
+      } catch (err) {
+        console.error('Error loading analytics data:', err);
+        setError('Failed to load analytics data. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalyticsData();
+  }, [selectedYear]);
+
+  const handleYearChange = (event) => {
+    setSelectedYear(event.target.value);
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+        <CircularProgress size={60} thickness={4} sx={{ color: '#059669' }} />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -61,6 +82,31 @@ const Analytics = () => {
         </Typography>
         <Divider />
       </Box>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+      
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <FormControl sx={{ minWidth: 120 }} size="small">
+          <InputLabel id="year-select-label">Year</InputLabel>
+          <Select
+            labelId="year-select-label"
+            id="year-select"
+            value={selectedYear}
+            label="Year"
+            onChange={handleYearChange}
+          >
+            {years.map((year) => (
+              <MenuItem key={year} value={year}>
+                {year}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
       
       <Paper 
         elevation={1} 
@@ -77,12 +123,12 @@ const Analytics = () => {
         }}
       >
         <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#059669' }}>
-          Monthly Confirmed Donations
+          Monthly Confirmed Donations ({selectedYear})
         </Typography>
         <Box sx={{ width: '100%', height: 400 }}>
           <ResponsiveContainer>
             <BarChart
-              data={monthlyDonationData}
+              data={analyticsData.monthlyDonationData}
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -125,7 +171,7 @@ const Analytics = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={userCountData}
+                  data={analyticsData.userCountData}
                   cx="50%"
                   cy="50%"
                   labelLine={true}
@@ -134,7 +180,7 @@ const Analytics = () => {
                   dataKey="value"
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 >
-                  {userCountData.map((entry, index) => (
+                  {analyticsData.userCountData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -166,7 +212,7 @@ const Analytics = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={recipientStatusData}
+                  data={analyticsData.recipientStatusData}
                   cx="50%"
                   cy="50%"
                   labelLine={true}
@@ -175,7 +221,7 @@ const Analytics = () => {
                   dataKey="value"
                   label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 >
-                  {recipientStatusData.map((entry, index) => (
+                  {analyticsData.recipientStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
