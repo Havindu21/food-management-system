@@ -13,7 +13,13 @@ import {
     List,
     ListItem,
     ListItemText,
-    Divider
+    Divider,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    IconButton,
+    Grid
 } from '@mui/material';
 import project1 from '../../assets/Home/project1.jpg';
 import wallpaper from '../../assets/Home/wallpaper.jpg';
@@ -28,6 +34,7 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import BusinessIcon from '@mui/icons-material/Business';
+import CloseIcon from '@mui/icons-material/Close';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import requestService from '../../Services/requestService';
@@ -36,11 +43,14 @@ const Projects = () => {
     const theme = useTheme();
     const navigate = useNavigate();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'));
     const [isVisible, setIsVisible] = useState(false);
     const [featuredRequests, setFeaturedRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const { userType } = useSelector((state) => state.user.userData);
     const isAuthenticated = userType && userType !== null;
+    const [selectedRequest, setSelectedRequest] = useState(null);
+    const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
     // Fetch featured requests on component mount
     useEffect(() => {
@@ -97,6 +107,17 @@ const Projects = () => {
             navigate("/join-us");
         }
     }
+
+    // Function to open details dialog
+    const handleOpenDetailsDialog = (request) => {
+        setSelectedRequest(request);
+        setDetailsDialogOpen(true);
+    };
+
+    // Function to close details dialog
+    const handleCloseDetailsDialog = () => {
+        setDetailsDialogOpen(false);
+    };
 
     // Custom arrows for the slider
     const NextArrow = (props) => {
@@ -220,7 +241,12 @@ const Projects = () => {
             location: "Colombo",
             category: "Distribution",
             description: "Distributed over 500kg of fresh produce to local food banks, helping to feed over 200 families in need.",
-            image: project1
+            image: project1,
+            requestItems: [
+                { mealName: "Rice", quantity: 100, unit: "kg", deadline: "2024-05-15" },
+                { mealName: "Vegetables", quantity: 50, unit: "kg", deadline: "2024-05-10" },
+            ],
+            organizationName: "Colombo Food Bank"
         },
         {
             id: "2",
@@ -229,7 +255,12 @@ const Projects = () => {
             location: "Kandy",
             category: "Partnership",
             description: "Partnered with 12 local restaurants to collect surplus food and deliver it to homeless shelters in the area.",
-            image: wallpaper
+            image: wallpaper,
+            requestItems: [
+                { mealName: "Prepared Meals", quantity: 50, unit: "servings", deadline: "2024-04-30" },
+                { mealName: "Bread", quantity: 30, unit: "loaves", deadline: "2024-04-25" },
+            ],
+            organizationName: "Kandy Restaurants Association"
         },
         {
             id: "3",
@@ -238,7 +269,12 @@ const Projects = () => {
             location: "Galle",
             category: "Education",
             description: "Conducted workshops for local businesses on reducing food waste and improving sustainability practices.",
-            image: communityImage
+            image: communityImage,
+            requestItems: [
+                { mealName: "Fruits", quantity: 25, unit: "kg", deadline: "2024-04-20" },
+                { mealName: "Dry Rations", quantity: 45, unit: "packages", deadline: "2024-05-05" },
+            ],
+            organizationName: "Galle Environmental Society"
         },
         {
             id: "4",
@@ -247,7 +283,13 @@ const Projects = () => {
             location: "Jaffna",
             category: "Education",
             description: "Launched a nutritious meal program for underprivileged schools, serving over 1,000 students daily.",
-            image: heroImage
+            image: heroImage,
+            requestItems: [
+                { mealName: "Milk Packets", quantity: 500, unit: "packets", deadline: "2024-04-15" },
+                { mealName: "Eggs", quantity: 1000, unit: "units", deadline: "2024-04-18" },
+                { mealName: "Lentils", quantity: 50, unit: "kg", deadline: "2024-05-01" },
+            ],
+            organizationName: "Jaffna Education Department"
         },
         {
             id: "5",
@@ -256,7 +298,13 @@ const Projects = () => {
             location: "Matara",
             category: "Sustainability",
             description: "Started community gardens in urban areas to promote local food production and reduce transportation emissions.",
-            image: wallpaper1
+            image: wallpaper1,
+            requestItems: [
+                { mealName: "Seeds", quantity: 100, unit: "packets", deadline: "2024-04-30" },
+                { mealName: "Fertilizer", quantity: 20, unit: "kg", deadline: "2024-04-22" },
+                { mealName: "Garden Tools", quantity: 15, unit: "sets", deadline: "2024-05-15" },
+            ],
+            organizationName: "Matara Urban Development Council"
         },
     ];
 
@@ -420,7 +468,7 @@ const Projects = () => {
 
                 <Box
                     sx={{
-                        px: { xs: 0, md: 2 }
+                        px: { xs: 0, md: 2 },
                     }}
                 >
                     <Slider {...settings}>
@@ -525,33 +573,17 @@ const Projects = () => {
                                                 <FastfoodIcon sx={{ fontSize: 18, mr: 1 }} />
                                                 Requested Items:
                                             </Typography>
-                                            <List dense disablePadding>
-                                                {request.requestItems && request.requestItems.slice(0, 2).map((item, i) => (
-                                                    <React.Fragment key={i}>
-                                                        {i > 0 && <Divider sx={{ my: 0.5 }} />}
-                                                        <ListItem disablePadding sx={{ py: 0.5 }}>
-                                                            <ListItemText
-                                                                primary={`${item.mealName} (${item.quantity} ${item.unit})`}
-                                                                secondary={`Deadline: ${item.deadline}`}
-                                                                primaryTypographyProps={{
-                                                                    variant: 'body2',
-                                                                    fontWeight: 500,
-                                                                    color: '#374151'
-                                                                }}
-                                                                secondaryTypographyProps={{
-                                                                    variant: 'caption',
-                                                                    color: '#6B7280'
-                                                                }}
-                                                            />
-                                                        </ListItem>
-                                                    </React.Fragment>
-                                                ))}
-                                                {request.requestItems && request.requestItems.length > 2 && (
-                                                    <Typography variant="caption" sx={{ color: '#6B7280', mt: 0.5, display: 'block' }}>
-                                                        +{request.requestItems.length - 2} more items
+                                            {/* Show only first meal item */}
+                                            {request.requestItems && request.requestItems.length > 0 && (
+                                                <Box sx={{ p: 1, bgcolor: '#f0fdf4', borderRadius: 1, mb: 1.5 }}>
+                                                    <Typography variant="body2" fontWeight={500} color="#374151">
+                                                        {request.requestItems[0].mealName} ({request.requestItems[0].quantity} {request.requestItems[0].unit})
                                                     </Typography>
-                                                )}
-                                            </List>
+                                                    <Typography variant="caption" color="#6B7280">
+                                                        Deadline: {request.requestItems[0].deadline}
+                                                    </Typography>
+                                                </Box>
+                                            )}
                                         </Box>
 
                                         <Button
@@ -567,7 +599,7 @@ const Projects = () => {
                                                     textDecoration: 'underline',
                                                 }
                                             }}
-                                            onClick={handleViewAll}
+                                            onClick={() => handleOpenDetailsDialog(request)}
                                         >
                                             View Details
                                         </Button>
@@ -603,6 +635,167 @@ const Projects = () => {
                     </Box>
                 )}
             </Container>
+            
+            {/* Details Dialog */}
+            <Dialog
+                open={detailsDialogOpen}
+                onClose={handleCloseDetailsDialog}
+                fullWidth
+                maxWidth="sm"
+                fullScreen={isMobile}
+                sx={{
+                    '& .MuiDialog-paper': {
+                        borderRadius: { xs: 0, sm: 3 },
+                        m: { xs: 0, sm: 2 },
+                    },
+                }}
+            >
+                {selectedRequest && (
+                    <>
+                        <DialogTitle sx={{ 
+                            pb: 1,
+                            pt: 2,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <Typography variant="h5" fontWeight={700} color="#111827">
+                                {selectedRequest.title}
+                            </Typography>
+                            <IconButton onClick={handleCloseDetailsDialog} size="small">
+                                <CloseIcon />
+                            </IconButton>
+                        </DialogTitle>
+                        
+                        <DialogContent dividers sx={{ pt: 2 }}>
+                            <Box sx={{ mb: 3, position: 'relative' }}>
+                                <CardMedia
+                                    component="img"
+                                    height={isMobile ? 180 : 220}
+                                    image={getImageForRequest(selectedRequest, 0)}
+                                    alt={selectedRequest.title}
+                                    sx={{ borderRadius: 2, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                                />
+                                <Chip
+                                    label={selectedRequest.category}
+                                    sx={{
+                                        position: 'absolute',
+                                        top: 16,
+                                        right: 16,
+                                        bgcolor: '#059669',
+                                        color: 'white',
+                                        fontWeight: 600,
+                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                                    }}
+                                />
+                            </Box>
+                            
+                            <Grid container spacing={2} sx={{ mb: 2 }}>
+                                <Grid item xs={12} md={6}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <CalendarTodayIcon sx={{ fontSize: 16, color: '#059669', mr: 1 }} />
+                                        <Typography variant="body2" sx={{ color: '#6B7280', fontWeight: 500 }}>
+                                            {selectedRequest.date}
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+                                <Grid item xs={12} md={6}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <LocationOnIcon sx={{ fontSize: 16, color: '#059669', mr: 1 }} />
+                                        <Typography variant="body2" sx={{ color: '#6B7280', fontWeight: 500 }}>
+                                            {selectedRequest.location}
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <BusinessIcon sx={{ fontSize: 16, color: '#059669', mr: 1 }} />
+                                        <Typography variant="body2" sx={{ color: '#6B7280', fontWeight: 500 }}>
+                                            {selectedRequest.organizationName}
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+                            </Grid>
+                            
+                            <Typography variant="body1" sx={{ mb: 3, color: '#4B5563' }}>
+                                {selectedRequest.description}
+                            </Typography>
+                            
+                            <Box sx={{ mb: 2 }}>
+                                <Typography 
+                                    variant="h6" 
+                                    sx={{ 
+                                        fontWeight: 600, 
+                                        color: '#059669',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        mb: 1.5 
+                                    }}
+                                >
+                                    <FastfoodIcon sx={{ fontSize: 20, mr: 1 }} />
+                                    Requested Items
+                                </Typography>
+                                
+                                <List sx={{ bgcolor: '#f9fafb', borderRadius: 2, py: 1 }}>
+                                    {selectedRequest.requestItems && selectedRequest.requestItems.map((item, i) => (
+                                        <React.Fragment key={i}>
+                                            {i > 0 && <Divider sx={{ my: 1 }} />}
+                                            <ListItem sx={{ px: 2, py: 1 }}>
+                                                <ListItemText
+                                                    primary={
+                                                        <Typography variant="subtitle1" fontWeight={600} color="#374151">
+                                                            {item.mealName}
+                                                        </Typography>
+                                                    }
+                                                    secondary={
+                                                        <>
+                                                            <Typography variant="body2" component="span" display="block">
+                                                                Quantity: <strong>{item.quantity} {item.unit}</strong>
+                                                            </Typography>
+                                                            <Typography variant="body2" component="span">
+                                                                Deadline: <strong>{item.deadline}</strong>
+                                                            </Typography>
+                                                        </>
+                                                    }
+                                                />
+                                            </ListItem>
+                                        </React.Fragment>
+                                    ))}
+                                </List>
+                            </Box>
+                        </DialogContent>
+                        
+                        <DialogActions sx={{ px: 3, py: 2 }}>
+                            <Button 
+                                variant="outlined" 
+                                onClick={handleCloseDetailsDialog}
+                                sx={{ 
+                                    borderColor: '#d1d5db', 
+                                    color: '#4b5563',
+                                    textTransform: 'none',
+                                    fontWeight: 600
+                                }}
+                            >
+                                Close
+                            </Button>
+                            <Button 
+                                variant="contained" 
+                                onClick={handleViewAll}
+                                sx={{ 
+                                    bgcolor: '#059669',
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    '&:hover': {
+                                        bgcolor: '#047857'
+                                    }
+                                }}
+                            >
+                                {isAuthenticated ? 'View All Requests' : 'Join Us'}
+                            </Button>
+                        </DialogActions>
+                    </>
+                )}
+            </Dialog>
         </Box>
     );
 }
