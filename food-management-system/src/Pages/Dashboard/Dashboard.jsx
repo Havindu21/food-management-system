@@ -197,9 +197,29 @@ const Dashboard = () => {
                 data: dashboardData.donationHistory || []
             };
         } else if (userRole === 'recipient') {
+            // Process data to format quantity and add contact/location fields
+            const processedData = (dashboardData.availableDonations || []).map(item => {
+                // Format quantity to remove 'none' if present
+                const quantity = item.quantity.includes(' none') 
+                    ? item.quantity.replace(' none', '') 
+                    : item.quantity;
+                
+                return {
+                    ...item,
+                    quantity: quantity,
+                    // Use existing fields for display (these will be shown in the table)
+                    Item: item.item,
+                    Quantity: quantity,
+                    'Expiry Date': item['Expiry Date'] || item.expiry?.timeRemaining || 'N/A',
+                    Donor: item.donor,
+                    Contact: item.contactNumber || 'N/A',
+                    Location: item.location?.address || 'N/A'
+                };
+            });
+            
             return {
-                headers: ['Item', 'Quantity', 'Expiry Date', 'Donor'],
-                data: dashboardData.availableDonations || []
+                headers: ['Item', 'Quantity', 'Expiry Date', 'Donor', 'Contact', 'Location'],
+                data: processedData
             };
         }
         
