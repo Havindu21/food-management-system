@@ -55,6 +55,17 @@ const requestService = {
       throw error;
     }
   },
+  
+  // Get featured food requests for homepage
+  getFeaturedRequests: async (limit = 5) => {
+    try {
+      const response = await apiClient.get(`/requests/featured?limit=${limit}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching featured requests:', error);
+      throw error;
+    }
+  },
 };
 
 export default requestService;

@@ -9,7 +9,11 @@ import {
     Container,
     Button,
     useTheme,
-    useMediaQuery
+    useMediaQuery,
+    List,
+    ListItem,
+    ListItemText,
+    Divider
 } from '@mui/material';
 import project1 from '../../assets/Home/project1.jpg';
 import wallpaper from '../../assets/Home/wallpaper.jpg';
@@ -21,16 +25,47 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import FastfoodIcon from '@mui/icons-material/Fastfood';
+import BusinessIcon from '@mui/icons-material/Business';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import requestService from '../../Services/requestService';
 
 const Projects = () => {
     const theme = useTheme();
     const navigate = useNavigate();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [isVisible, setIsVisible] = useState(false);
+    const [featuredRequests, setFeaturedRequests] = useState([]);
+    const [loading, setLoading] = useState(true);
     const { userType } = useSelector((state) => state.user.userData);
     const isAuthenticated = userType && userType !== null;
+
+    // Fetch featured requests on component mount
+    useEffect(() => {
+        const fetchFeaturedRequests = async () => {
+            try {
+                setLoading(true);
+                const response = await requestService.getFeaturedRequests();
+                if (response.success && response.data) {
+                    setFeaturedRequests(response.data);
+                } else {
+                    console.error('Failed to fetch featured requests:', response);
+                    // Fall back to demo data if API fails
+                    setFeaturedRequests(demoProjectData);
+                }
+            } catch (error) {
+                console.error('Error fetching featured requests:', error);
+                // Fall back to demo data if API fails
+                setFeaturedRequests(demoProjectData);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFeaturedRequests();
+    }, []);
 
     // Custom intersection observer to trigger animations
     useEffect(() => {
@@ -52,6 +87,7 @@ const Projects = () => {
             }
         };
     }, []);
+    
     const handleViewAll = () => {
         if (userType === "donor") {
             navigate("/profile/food-requests");
@@ -175,8 +211,10 @@ const Projects = () => {
         ),
     };
 
-    const projectData = [
+    // Fallback data if the API call fails
+    const demoProjectData = [
         {
+            id: "1",
             title: "Food Bank Distribution",
             date: "April 15, 2024",
             location: "Colombo",
@@ -185,6 +223,7 @@ const Projects = () => {
             image: project1
         },
         {
+            id: "2",
             title: "Restaurant Partnership",
             date: "March 23, 2024",
             location: "Kandy",
@@ -193,6 +232,7 @@ const Projects = () => {
             image: wallpaper
         },
         {
+            id: "3",
             title: "Reducing Food Waste",
             date: "February 10, 2024",
             location: "Galle",
@@ -201,6 +241,7 @@ const Projects = () => {
             image: communityImage
         },
         {
+            id: "4",
             title: "School Meal Program",
             date: "January 5, 2024",
             location: "Jaffna",
@@ -209,6 +250,7 @@ const Projects = () => {
             image: heroImage
         },
         {
+            id: "5",
             title: "Community Garden Initiative",
             date: "December 12, 2023",
             location: "Matara",
@@ -217,6 +259,21 @@ const Projects = () => {
             image: wallpaper1
         },
     ];
+
+    // Function to get appropriate image based on category or index
+    const getImageForRequest = (request, index) => {
+        const fallbackImages = [project1, wallpaper, communityImage, heroImage, wallpaper1];
+        const categoryImageMap = {
+            "Active Request": project1,
+            "Partnership": wallpaper,
+            "Education": communityImage,
+            "Distribution": heroImage,
+            "Sustainability": wallpaper1
+        };
+        
+        // Use category image if available, otherwise use fallback based on index
+        return categoryImageMap[request.category] || fallbackImages[index % fallbackImages.length];
+    };
 
     // Animation styles for the fade-in effect with staggered timing
     const getAnimationStyles = (index) => {
@@ -324,7 +381,7 @@ const Projects = () => {
                                 }
                             }}
                         >
-                            Our Impact Projects
+                            Active Food Requests
                         </Typography>
                         <Typography
                             sx={{
@@ -333,7 +390,7 @@ const Projects = () => {
                                 maxWidth: 600,
                             }}
                         >
-                            Explore how we're making a difference in communities across Sri Lanka
+                            Explore current food requests from organizations across Sri Lanka
                         </Typography>
                     </Box>
 
@@ -356,7 +413,7 @@ const Projects = () => {
                             }}
                             onClick={handleViewAll}
                         >
-                            {isAuthenticated ? 'View All Projects' : 'Join Us'}
+                            {isAuthenticated ? 'View All Requests' : 'Join Us'}
                         </Button>
                     )}
                 </Box>
@@ -367,9 +424,9 @@ const Projects = () => {
                     }}
                 >
                     <Slider {...settings}>
-                        {projectData.map((project, index) => (
+                        {featuredRequests.map((request, index) => (
                             <Box
-                                key={index}
+                                key={request.id}
                                 sx={{
                                     px: 2,
                                     pb: 4,
@@ -392,12 +449,12 @@ const Projects = () => {
                                     <Box sx={{ position: 'relative' }}>
                                         <CardMedia
                                             component="img"
-                                            height="220"
-                                            image={project.image}
-                                            alt={project.title}
+                                            height="180"
+                                            image={getImageForRequest(request, index)}
+                                            alt={request.title}
                                         />
                                         <Chip
-                                            label={project.category}
+                                            label={request.category}
                                             sx={{
                                                 position: 'absolute',
                                                 top: 16,
@@ -411,10 +468,24 @@ const Projects = () => {
                                     </Box>
 
                                     <CardContent sx={{ p: 3 }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                             <CalendarTodayIcon sx={{ fontSize: 16, color: '#059669', mr: 1 }} />
                                             <Typography variant="body2" sx={{ color: '#6B7280', fontWeight: 500 }}>
-                                                {project.date} • {project.location}
+                                                {request.date}
+                                            </Typography>
+                                        </Box>
+                                        
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                            <LocationOnIcon sx={{ fontSize: 16, color: '#059669', mr: 1 }} />
+                                            <Typography variant="body2" sx={{ color: '#6B7280', fontWeight: 500 }}>
+                                                {request.location}
+                                            </Typography>
+                                        </Box>
+                                        
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                            <BusinessIcon sx={{ fontSize: 16, color: '#059669', mr: 1 }} />
+                                            <Typography variant="body2" sx={{ color: '#6B7280', fontWeight: 500 }}>
+                                                {request.organizationName}
                                             </Typography>
                                         </Box>
 
@@ -427,7 +498,7 @@ const Projects = () => {
                                                 color: '#111827',
                                             }}
                                         >
-                                            {project.title}
+                                            {request.title}
                                         </Typography>
 
                                         <Typography
@@ -435,11 +506,53 @@ const Projects = () => {
                                             sx={{
                                                 color: '#4B5563',
                                                 mb: 2,
-                                                minHeight: 80,
                                             }}
                                         >
-                                            {project.description}
+                                            {request.description}
                                         </Typography>
+
+                                        <Box sx={{ mt: 2 }}>
+                                            <Typography 
+                                                variant="subtitle2" 
+                                                sx={{ 
+                                                    fontWeight: 600, 
+                                                    color: '#059669',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    mb: 1
+                                                }}
+                                            >
+                                                <FastfoodIcon sx={{ fontSize: 18, mr: 1 }} />
+                                                Requested Items:
+                                            </Typography>
+                                            <List dense disablePadding>
+                                                {request.requestItems && request.requestItems.slice(0, 2).map((item, i) => (
+                                                    <React.Fragment key={i}>
+                                                        {i > 0 && <Divider sx={{ my: 0.5 }} />}
+                                                        <ListItem disablePadding sx={{ py: 0.5 }}>
+                                                            <ListItemText
+                                                                primary={`${item.mealName} (${item.quantity} ${item.unit})`}
+                                                                secondary={`Deadline: ${item.deadline}`}
+                                                                primaryTypographyProps={{
+                                                                    variant: 'body2',
+                                                                    fontWeight: 500,
+                                                                    color: '#374151'
+                                                                }}
+                                                                secondaryTypographyProps={{
+                                                                    variant: 'caption',
+                                                                    color: '#6B7280'
+                                                                }}
+                                                            />
+                                                        </ListItem>
+                                                    </React.Fragment>
+                                                ))}
+                                                {request.requestItems && request.requestItems.length > 2 && (
+                                                    <Typography variant="caption" sx={{ color: '#6B7280', mt: 0.5, display: 'block' }}>
+                                                        +{request.requestItems.length - 2} more items
+                                                    </Typography>
+                                                )}
+                                            </List>
+                                        </Box>
 
                                         <Button
                                             endIcon={<ArrowForwardIcon />}
@@ -448,6 +561,7 @@ const Projects = () => {
                                                 fontWeight: 600,
                                                 p: 0,
                                                 textTransform: 'none',
+                                                mt: 1.5,
                                                 '&:hover': {
                                                     backgroundColor: 'transparent',
                                                     textDecoration: 'underline',
@@ -455,7 +569,7 @@ const Projects = () => {
                                             }}
                                             onClick={handleViewAll}
                                         >
-                                            Read More
+                                            View Details
                                         </Button>
                                     </CardContent>
                                 </Card>
@@ -484,7 +598,7 @@ const Projects = () => {
                             }}
                             onClick={handleViewAll}
                         >
-                            {isAuthenticated ? 'View All Projects' : 'Join Us'}
+                            {isAuthenticated ? 'View All Requests' : 'Join Us'}
                         </Button>
                     </Box>
                 )}
