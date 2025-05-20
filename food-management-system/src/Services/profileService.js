@@ -71,6 +71,20 @@ const profileService = {
       console.error('Error uploading profile image:', error);
       throw error;
     }
+  },
+
+  /**
+   * Get user's achievements and related stats
+   * @returns {Promise} - The API response with user achievements and stats
+   */
+  getUserAchievements: async () => {
+    try {
+      const response = await apiClient.get("/achievements/me");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user achievements:", error);
+      throw error;
+    }
   }
 };
 

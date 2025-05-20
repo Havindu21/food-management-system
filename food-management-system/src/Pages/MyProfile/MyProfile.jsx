@@ -1,4 +1,4 @@
-import { Box, Typography, Avatar, Chip, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, CircularProgress, Snackbar, Alert } from '@mui/material'
+import { Box, Typography, Avatar, Chip, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, CircularProgress, Snackbar, Alert, LinearProgress } from '@mui/material'
 import React, { useState, useEffect } from 'react'
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import PermIdentityOutlinedIcon from '@mui/icons-material/PermIdentityOutlined';
@@ -12,6 +12,9 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import profileService from '../../Services/profileService';
 import CustomTextfield from '../../Components/CustomTextfield';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import CO2Icon from '@mui/icons-material/Co2';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 const MyProfile = () => {
   const [userData, setUserData] = useState({
@@ -36,18 +39,22 @@ const MyProfile = () => {
     message: '',
     severity: 'success'
   });
+  const [achievements, setAchievements] = useState([]);
+  const [userStats, setUserStats] = useState({
+    donationCount: 0,
+    foodItemsCount: 0,
+    requestCount: 0,
+    co2Saved: 0,
+    memberSince: null
+  });
+  const [achievementsLoading, setAchievementsLoading] = useState(true);
 
-  // Calculated fields
-  const rating = 4.5; // This would come from the backend in a real implementation
-  const achievements = [
-    { title: 'First Donation', icon: '🎉', description: 'Made your first donation', color: '#FF6B6B' },
-    { title: 'Frequent Donor', icon: '⭐', description: 'Made 10+ donations', color: '#4ECDC4' },
-    { title: 'CO2 Saver', icon: '🌱', description: 'Saved 100+ kg of CO2', color: '#95E1D3' },
-    { title: 'Community Hero', icon: '🏆', description: 'High community impact', color: '#FFE66D' },
-  ];
+  // Rating would ideally come from real data, but using a placeholder for now
+  const rating = 4.5;
 
   useEffect(() => {
     fetchUserProfile();
+    fetchUserAchievements();
   }, []);
 
   const fetchUserProfile = async () => {
@@ -79,6 +86,29 @@ const MyProfile = () => {
       handleSnackbar('Error loading profile data', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUserAchievements = async () => {
+    try {
+      setAchievementsLoading(true);
+      const response = await profileService.getUserAchievements();
+      if (response.success && response.data) {
+        setAchievements(response.data.achievements || []);
+        setUserStats(response.data.stats || {
+          donationCount: 0,
+          foodItemsCount: 0,
+          requestCount: 0,
+          co2Saved: 0,
+          memberSince: null
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching achievements:', error);
+      // Fall back to empty achievements
+      setAchievements([]);
+    } finally {
+      setAchievementsLoading(false);
     }
   };
 
@@ -157,6 +187,17 @@ const MyProfile = () => {
     }));
   };
 
+  // Format date in a readable format
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    }).format(date);
+  };
+
   // Create profile fields from user data
   const profileFields = [
     {
@@ -224,6 +265,39 @@ const MyProfile = () => {
         />
       )
     },
+  ];
+
+  // Add stats fields based on user type and available data
+  const statsFields = [
+    {
+      key: 'Member Since',
+      value: formatDate(userStats?.memberSince),
+      icon: <CalendarTodayIcon sx={{ color: '#059669', fontSize: '1.2rem' }} />,
+    },
+    ...(userData.userType === 'donor' ? [
+      {
+        key: 'Total Donations',
+        value: userStats?.donationCount || 0,
+        icon: <EmojiEventsIcon sx={{ color: '#059669', fontSize: '1.2rem' }} />,
+      },
+      {
+        key: 'Food Items Donated',
+        value: userStats?.foodItemsCount || 0,
+        icon: <BusinessOutlinedIcon sx={{ color: '#059669', fontSize: '1.2rem' }} />,
+      },
+      {
+        key: 'CO2 Saved',
+        value: `${userStats?.co2Saved || 0} kg`,
+        icon: <CO2Icon sx={{ color: '#059669', fontSize: '1.2rem' }} />,
+      }
+    ] : []),
+    ...(userData.userType === 'recipient' ? [
+      {
+        key: 'Total Requests',
+        value: userStats?.requestCount || 0,
+        icon: <BusinessOutlinedIcon sx={{ color: '#059669', fontSize: '1.2rem' }} />,
+      }
+    ] : [])
   ];
 
   // Conditionally render a loading state
@@ -392,54 +466,156 @@ const MyProfile = () => {
             ))}
           </Box>
 
-          {/* Achievements Section */}
-          <Box>
+          {/* Stats Section */}
+          <Box sx={{ mb: 4 }}>
             <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#1F2937' }}>
-              Achievements & Badges
+              Your Stats
             </Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: 'repeat(4, 1fr)' }, gap: 2 }}>
-              {achievements.map((achievement, index) => (
-                <Paper
+              {statsFields.map((field, index) => (
+                <Paper 
                   key={index}
                   elevation={0}
                   sx={{
                     p: 2,
                     borderRadius: 1.5,
-                    backgroundColor: 'white',
-                    border: '1px solid #E5E7EB',
+                    backgroundColor: '#F9FAFB',
+                    border: '1px solid #F3F4F6',
                     transition: 'all 0.3s ease',
                     '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 12px rgba(0,0,0,0.08)',
-                      borderColor: achievement.color
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.06)',
                     }
                   }}
                 >
-                  <Box sx={{ textAlign: 'center' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <Box sx={{
-                      width: 50,
-                      height: 50,
-                      borderRadius: '50%',
-                      backgroundColor: achievement.color,
+                      width: 35,
+                      height: 35,
+                      borderRadius: 1.5,
+                      backgroundColor: '#D1FAE5',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 12px auto',
-                      fontSize: '1.4rem',
-                      boxShadow: `0 2px 8px ${achievement.color}40`
+                      justifyContent: 'center'
                     }}>
-                      {achievement.icon}
+                      {field.icon}
                     </Box>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5, color: '#1F2937', fontSize: 14 }}>
-                      {achievement.title}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#6B7280', fontSize: 11 }}>
-                      {achievement.description}
-                    </Typography>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="subtitle2" sx={{ color: '#6B7280', fontSize: 11 }}>
+                        {field.key}
+                      </Typography>
+                      <Typography sx={{ fontWeight: 600, color: '#1F2937', fontSize: 13 }}>
+                        {field.value}
+                      </Typography>
+                    </Box>
                   </Box>
                 </Paper>
               ))}
             </Box>
+          </Box>
+
+          {/* Achievements Section */}
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#1F2937' }}>
+              Achievements & Badges
+            </Typography>
+            
+            {achievementsLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress size={30} sx={{ color: '#059669' }} />
+              </Box>
+            ) : achievements.length > 0 ? (
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', lg: 'repeat(4, 1fr)' }, gap: 2 }}>
+                {achievements.map((achievement, index) => (
+                  <Paper
+                    key={index}
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      borderRadius: 1.5,
+                      backgroundColor: 'white',
+                      border: '1px solid #E5E7EB',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 8px 12px rgba(0,0,0,0.08)',
+                        borderColor: achievement.color
+                      }
+                    }}
+                  >
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Box sx={{
+                        width: 50,
+                        height: 50,
+                        borderRadius: '50%',
+                        backgroundColor: achievement.color,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 12px auto',
+                        fontSize: '1.4rem',
+                        boxShadow: `0 2px 8px ${achievement.color}40`,
+                        opacity: achievement.isCompleted ? 1 : 0.7
+                      }}>
+                        {achievement.icon}
+                      </Box>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5, color: '#1F2937', fontSize: 14 }}>
+                        {achievement.title}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#6B7280', fontSize: 11, mb: 1 }}>
+                        {achievement.description}
+                      </Typography>
+                      
+                      {!achievement.isCompleted && (
+                        <Box sx={{ mt: 1, width: '100%' }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                            <Typography variant="caption" sx={{ color: '#6B7280' }}>
+                              Progress
+                            </Typography>
+                            <Typography variant="caption" sx={{ fontWeight: 600, color: '#1F2937' }}>
+                              {achievement.progress}/{achievement.threshold}
+                            </Typography>
+                          </Box>
+                          <LinearProgress 
+                            variant="determinate" 
+                            value={(achievement.progress / achievement.threshold) * 100} 
+                            sx={{ 
+                              height: 6, 
+                              borderRadius: 3,
+                              backgroundColor: '#E5E7EB',
+                              '& .MuiLinearProgress-bar': {
+                                backgroundColor: achievement.color,
+                              }
+                            }}
+                          />
+                        </Box>
+                      )}
+                      
+                      {achievement.isCompleted && (
+                        <Chip 
+                          size="small" 
+                          label="Completed" 
+                          sx={{ 
+                            mt: 1, 
+                            backgroundColor: '#D1FAE5', 
+                            color: '#059669',
+                            fontWeight: 600,
+                            fontSize: 10,
+                            height: 20
+                          }}
+                        />
+                      )}
+                    </Box>
+                  </Paper>
+                ))}
+              </Box>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 4, backgroundColor: '#F9FAFB', borderRadius: 2 }}>
+                <Typography variant="body1" sx={{ color: '#6B7280' }}>
+                  No achievements yet. Start contributing to earn badges!
+                </Typography>
+              </Box>
+            )}
           </Box>
         </Box>
       </Paper>
